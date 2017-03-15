@@ -1,5 +1,6 @@
 package net.xiguo.test;
 
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private List<View> views = new ArrayList<>();
+    private List<Fragment> fragments = new ArrayList<Fragment>();
     private ViewPager viewPager;
     private LinearLayout llFollow, llZhuanquan, llFind, llMy, llCurrent;
     private ImageView ivFollow, ivZhuanquan, ivFind, ivMy;
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         initView();
-
+        initData();
     }
 
     private void initView() {
@@ -52,6 +53,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         llFollow.setSelected(true);
         llCurrent = llFollow;
+
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+            @Override
+            public void onPageSelected(int position) {
+                changeTab(position);
+            }
+
+            @Override
+            public void onPageScrolled(int arg0, float arg1, int arg2) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int arg0) {
+
+            }
+        });
+    }
+    private void initData() {
+        Fragment followFragment = new FollowFragment();
+        Fragment zhuanquanFragment = new ZhuanquanFragment();
+        Fragment findFragment = new FindFragment();
+        Fragment myFragment = new MyFragment();
+
+        fragments.add(followFragment);
+        fragments.add(zhuanquanFragment);
+        fragments.add(findFragment);
+        fragments.add(myFragment);
+
+        MyFragmentPagerAdapter adapter = new MyFragmentPagerAdapter(getSupportFragmentManager(), fragments);
+        viewPager.setAdapter(adapter);
     }
 
     @Override
