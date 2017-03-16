@@ -16,10 +16,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private List<Fragment> fragments = new ArrayList<Fragment>();
-    private ViewPager viewPager;
+    private MyViewPager viewPager;
     private LinearLayout llFollow, llZhuanquan, llFind, llMy, llCurrent;
-    private ImageView ivFollow, ivZhuanquan, ivFind, ivMy;
-    private TextView tvFollow, tvZhuanquan, tvFind, tvMy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,19 +30,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initView() {
-        viewPager = (ViewPager) findViewById(R.id.viewPager);
+        viewPager = (MyViewPager) findViewById(R.id.viewPager);
         llFollow = (LinearLayout) findViewById(R.id.follow);
         llZhuanquan = (LinearLayout) findViewById(R.id.zhuanquan);
         llFind = (LinearLayout) findViewById(R.id.find);
         llMy = (LinearLayout) findViewById(R.id.my);
-        ivFollow = (ImageView) findViewById(R.id.followIcon);
-        ivZhuanquan = (ImageView) findViewById(R.id.zhuanquanIcon);
-        ivFind = (ImageView) findViewById(R.id.findIcon);
-        ivMy = (ImageView) findViewById(R.id.myIcon);
-        tvFollow = (TextView) findViewById(R.id.followTxt);
-        tvZhuanquan = (TextView) findViewById(R.id.zhuanquanTxt);
-        tvFind = (TextView) findViewById(R.id.findTxt);
-        tvMy = (TextView) findViewById(R.id.myTxt);
 
         llFollow.setOnClickListener(this);
         llZhuanquan.setOnClickListener(this);
@@ -71,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
+        viewPager.setOffscreenPageLimit(3);
     }
     private void initData() {
         Fragment followFragment = new FollowFragment();

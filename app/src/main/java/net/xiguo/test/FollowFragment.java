@@ -3,9 +3,13 @@ package net.xiguo.test;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 
 /**
@@ -59,7 +63,12 @@ public class FollowFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_follow, container, false);
+        View view = inflater.inflate(R.layout.fragment_follow, container, false);
+        WebView webView = (WebView) view.findViewById(R.id.webView);
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.setWebViewClient(new WebViewClient());
+        webView.loadUrl("https://www.baidu.com");
+        return view;
     }
 
 }
