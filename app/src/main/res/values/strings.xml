@@ -4,4 +4,7 @@
     <string name="zhuanquan">转圈</string>
     <string name="find">发现</string>
     <string name="my">我的</string>
+
+    <string name="login_label_username">用户名</string>
+    <string name="login_button">确认</string>
 </resources>

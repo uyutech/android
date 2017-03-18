@@ -1,26 +1,30 @@
 package net.xiguo.test;
 
 import android.app.Application;
-import android.util.Log;
+import android.content.Context;
 
 import com.tencent.smtt.sdk.QbSdk;
 import com.tencent.smtt.sdk.TbsListener;
+
+import net.xiguo.test.utils.LogUtil;
 
 /**
  * Created by army on 2017/3/16.
  */
 
 public class BaseApplication extends Application {
+    private static Context context;
+
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.i("BaseApplication", "onCreate");
+        context = getApplicationContext();
 
         QbSdk.PreInitCallback cb = new QbSdk.PreInitCallback() {
 
             @Override
             public void onViewInitFinished(boolean arg0) {
-                Log.i("BaseApplication", "onViewInitFinished is " + arg0);
+                LogUtil.i("onViewInitFinished is " + arg0);
             }
 
             @Override
@@ -31,20 +35,24 @@ public class BaseApplication extends Application {
         QbSdk.setTbsListener(new TbsListener() {
             @Override
             public void onDownloadFinish(int i) {
-                Log.i("TestActivity", "onDownloadFinish");
+                LogUtil.i("onDownloadFinish:" + i);
             }
 
             @Override
             public void onInstallFinish(int i) {
-                Log.i("TestActivity", "onInstallFinish");
+                LogUtil.i("onInstallFinish:" + i);
             }
 
             @Override
             public void onDownloadProgress(int i) {
-                Log.i("BaseApplication", "onDownloadProgress:" + i);
+                LogUtil.i("onDownloadProgress:" + i);
             }
         });
 
         QbSdk.initX5Environment(getApplicationContext(), cb);
+    }
+
+    public static Context getContext() {
+        return context;
     }
 }
