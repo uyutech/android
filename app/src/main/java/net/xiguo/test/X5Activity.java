@@ -24,6 +24,6 @@ public class X5Activity extends AppCompatActivity {
         webView.getSettings().setJavaScriptEnabled(true);
         MyWebViewClient webViewClient = new MyWebViewClient();
         webView.setWebViewClient(webViewClient);
-        webView.loadUrl("https://www.baidu.com/");
+        webView.loadUrl("http://www.army8735.me/index.html");
     }
 }

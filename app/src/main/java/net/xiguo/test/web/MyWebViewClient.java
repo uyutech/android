@@ -32,16 +32,29 @@ public class MyWebViewClient extends WebViewClient {
         return shouldInterceptRequest(url);
     }
     private WebResourceResponse shouldInterceptRequest(String url) {
-        LogUtil.i("shouldInterceptRequest:" + url);
-        if(url.startsWith("https://www.baidu.com/")) {
+        LogUtil.i("shouldInterceptRequest: " + url);
+        if(url.startsWith("http://www.army8735.me/")) {
+            String path = url.substring(23);
+            LogUtil.i("shouldInterceptPath: " + path);
             WebResourceResponse wrr = null;
             InputStream is = null;
             try {
 //                InputStream is = BaseApplication.getContext().getResources().openRawResource(R.raw.test);
 //                InputStream is = BaseApplication.getContext().getAssets().open("test.html");
-                is = BaseApplication.getContext().openFileInput("1.html");
+                is = BaseApplication.getContext().openFileInput(path);
                 LogUtil.i("shouldInterceptRequest:" + is);
-                wrr = new WebResourceResponse("text/html", "utf-8", is);
+                if(path.endsWith(".html")) {
+                    wrr = new WebResourceResponse("text/html", "utf-8", is);
+                }
+                else if(path.endsWith("css")) {
+                    wrr = new WebResourceResponse("text/css", "utf-8", is);
+                }
+                else if(path.endsWith("js")) {
+                    wrr = new WebResourceResponse("application/javascript", "utf-8", is);
+                }
+                else if(path.endsWith("png")) {
+                    wrr = new WebResourceResponse("image/png", "utf-8", is);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
