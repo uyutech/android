@@ -14,6 +14,6 @@ public class LogUtil {
         Log.i("i日志" + getCallerStackTraceElement(), log);
     }
     public static void d(String log) {
-        Log.i("d日志" + getCallerStackTraceElement(), log);
+        Log.d("d日志" + getCallerStackTraceElement(), log);
     }
 }

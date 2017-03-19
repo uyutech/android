@@ -29,6 +29,7 @@ public class BaseApplication extends Application {
 
             @Override
             public void onCoreInitFinished() {
+                LogUtil.i("onCoreInitFinished");
             }
         };
 
@@ -49,7 +50,7 @@ public class BaseApplication extends Application {
             }
         });
 
-        QbSdk.initX5Environment(getApplicationContext(), cb);
+        QbSdk.initX5Environment(context, cb);
     }
 
     public static Context getContext() {
