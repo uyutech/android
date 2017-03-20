@@ -1,11 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="40sp"
+        android:layout_gravity="center"
+        android:background="@color/titleBar">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10sp"
+            android:text="@string/webBack"
+            android:textSize="16sp"
+            android:textColor="@color/titleText"
+            android:layout_gravity="center"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10sp"
+            android:text="@string/webClose"
+            android:textSize="16sp"
+            android:textColor="@color/titleText"
+            android:layout_gravity="center"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingLeft="10sp"
+            android:paddingRight="10sp"
+            android:text="title"
+            android:textSize="16sp"
+            android:textColor="@color/titleText"
+            android:textAlignment="center"
+            android:layout_gravity="center"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="10sp"
+            android:text="@string/webMore"
+            android:textSize="16sp"
+            android:textColor="@color/titleText"
+            android:layout_gravity="center"/>
+    </LinearLayout>
 
     <com.tencent.smtt.sdk.WebView
         android:id="@+id/x5"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></com.tencent.smtt.sdk.WebView>
+        android:layout_height="0dp"
+        android:layout_weight="1"></com.tencent.smtt.sdk.WebView>
 
 </LinearLayout>
