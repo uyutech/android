@@ -7,6 +7,7 @@ import android.view.Window;
 import com.tencent.smtt.sdk.WebView;
 import com.tencent.smtt.sdk.WebViewClient;
 
+import net.xiguo.test.web.MyWebChromeClient;
 import net.xiguo.test.web.MyWebViewClient;
 
 /**
@@ -24,6 +25,8 @@ public class X5Activity extends AppCompatActivity {
         webView.getSettings().setJavaScriptEnabled(true);
         MyWebViewClient webViewClient = new MyWebViewClient();
         webView.setWebViewClient(webViewClient);
+        MyWebChromeClient webChromeClient = new MyWebChromeClient();
+        webView.setWebChromeClient(webChromeClient);
         webView.loadUrl("http://www.army8735.me/index.html");
     }
 }

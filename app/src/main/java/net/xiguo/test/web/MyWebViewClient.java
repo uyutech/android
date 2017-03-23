@@ -8,9 +8,14 @@ import com.tencent.smtt.sdk.WebView;
 import com.tencent.smtt.sdk.WebViewClient;
 
 import net.xiguo.test.BaseApplication;
+import net.xiguo.test.R;
 import net.xiguo.test.utils.LogUtil;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 
 /**
@@ -18,6 +23,7 @@ import java.io.InputStream;
  */
 
 public class MyWebViewClient extends WebViewClient {
+    private String h5Bridge = null;
     public MyWebViewClient() {
         super();
     }
@@ -42,17 +48,16 @@ public class MyWebViewClient extends WebViewClient {
 //                InputStream is = BaseApplication.getContext().getResources().openRawResource(R.raw.test);
 //                InputStream is = BaseApplication.getContext().getAssets().open("test.html");
                 is = BaseApplication.getContext().openFileInput(path);
-                LogUtil.i("shouldInterceptRequest:" + is);
                 if(path.endsWith(".html")) {
                     wrr = new WebResourceResponse("text/html", "utf-8", is);
                 }
-                else if(path.endsWith("css")) {
+                else if(path.endsWith(".css")) {
                     wrr = new WebResourceResponse("text/css", "utf-8", is);
                 }
-                else if(path.endsWith("js")) {
+                else if(path.endsWith(".js")) {
                     wrr = new WebResourceResponse("application/javascript", "utf-8", is);
                 }
-                else if(path.endsWith("png")) {
+                else if(path.endsWith(".png")) {
                     wrr = new WebResourceResponse("image/png", "utf-8", is);
                 }
             } catch (Exception e) {
@@ -61,5 +66,36 @@ public class MyWebViewClient extends WebViewClient {
             return wrr;
         }
         return null;
+    }
+
+    @Override
+    public void onPageFinished(WebView view, String args) {
+        if(h5Bridge != null) {
+            view.loadUrl("javascript:" + h5Bridge);
+            return;
+        }
+        InputStream is = null;
+        try {
+            is = BaseApplication.getContext().getAssets().open("h5_bridge.js");
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+            h5Bridge = sb.toString();
+            LogUtil.i("javascript:" + h5Bridge);
+            view.loadUrl("javascript:" + h5Bridge);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
