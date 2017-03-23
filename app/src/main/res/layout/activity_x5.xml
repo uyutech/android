@@ -32,6 +32,7 @@
             android:layout_weight="1"
             android:paddingLeft="10sp"
             android:paddingRight="10sp"
+            android:id="@+id/webViewTitle"
             android:text="title"
             android:textSize="16sp"
             android:textColor="@color/titleText"

@@ -18,9 +18,6 @@
                 cb = param;
                 param = null;
             }
-            else if(typeof param !== 'object') {
-                param = null;
-            }
             var clientId = new Date().getTime() + '' + Math.random();
             var invokeMsg = JSON.stringify({
                 fn: fn,
