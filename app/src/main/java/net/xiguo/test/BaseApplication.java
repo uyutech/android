@@ -10,6 +10,7 @@ import net.xiguo.test.utils.LogUtil;
 
 /**
  * Created by army on 2017/3/16.
+ * For my goddess.
  */
 
 public class BaseApplication extends Application {

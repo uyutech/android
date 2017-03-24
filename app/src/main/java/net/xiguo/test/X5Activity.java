@@ -20,7 +20,10 @@ import net.xiguo.test.web.MyWebViewClient;
  */
 
 public class X5Activity extends AppCompatActivity {
+    public static final String DOMAIN = "http://www.army8735.me/";
+
     private SetTitlePlugin setTitlePlugin;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,11 +34,11 @@ public class X5Activity extends AppCompatActivity {
 
         WebView webView = (WebView) findViewById(R.id.x5);
         webView.getSettings().setJavaScriptEnabled(true);
-        MyWebViewClient webViewClient = new MyWebViewClient();
+        MyWebViewClient webViewClient = new MyWebViewClient(this);
         webView.setWebViewClient(webViewClient);
-        MyWebChromeClient webChromeClient = new MyWebChromeClient();
+        MyWebChromeClient webChromeClient = new MyWebChromeClient(this);
         webView.setWebChromeClient(webChromeClient);
-        webView.loadUrl("http://www.army8735.me/index.html");
+        webView.loadUrl(DOMAIN + "index.html");
     }
 
     private void initPlugins() {

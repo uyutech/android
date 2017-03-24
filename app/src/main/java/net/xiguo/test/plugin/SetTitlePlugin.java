@@ -10,10 +10,9 @@ import net.xiguo.test.utils.LogUtil;
  */
 
 public class SetTitlePlugin extends H5Plugin {
-    private X5Activity activity;
 
     public SetTitlePlugin(X5Activity activity) {
-        this.activity = activity;
+        super(activity);
     }
 
     @Override

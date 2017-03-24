@@ -7,6 +7,7 @@ import com.tencent.smtt.export.external.interfaces.JsResult;
 import com.tencent.smtt.sdk.WebChromeClient;
 import com.tencent.smtt.sdk.WebView;
 
+import net.xiguo.test.X5Activity;
 import net.xiguo.test.event.H5EventDispatcher;
 import net.xiguo.test.utils.LogUtil;
 
@@ -16,8 +17,12 @@ import net.xiguo.test.utils.LogUtil;
 
 public class MyWebChromeClient extends WebChromeClient {
     private static final String PREFIX = "h5container.message: ";
-    public MyWebChromeClient() {
+
+    private X5Activity activity;
+
+    public MyWebChromeClient(X5Activity activity) {
         super();
+        this.activity = activity;
     }
     @Override
     public void onReceivedTitle(WebView var1, String var2) {
@@ -29,7 +34,7 @@ public class MyWebChromeClient extends WebChromeClient {
         LogUtil.i("onConsoleMessage:" + msg);
         if(msg.startsWith(PREFIX)) {
             JSONObject json = JSON.parseObject(msg.substring(PREFIX.length() - 1));
-            H5EventDispatcher.dispatch(json);
+            H5EventDispatcher.dispatch(this.activity, json);
         }
         return false;
     }

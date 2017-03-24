@@ -2,6 +2,7 @@ package net.xiguo.test.plugin;
 
 import com.alibaba.fastjson.JSONObject;
 
+import net.xiguo.test.X5Activity;
 import net.xiguo.test.event.IH5EventHandle;
 import net.xiguo.test.utils.LogUtil;
 
@@ -12,7 +13,16 @@ import net.xiguo.test.utils.LogUtil;
 public class H5Plugin implements IH5EventHandle {
     public static final String SET_TITLE = "setTitle";
 
+    protected X5Activity activity;
+
+    public H5Plugin(X5Activity activity) {
+        this.activity = activity;
+    }
+
     public void handle(JSONObject param) {
         LogUtil.i("H5Plugin: " + param.toString());
+    }
+    public boolean isActivity(X5Activity activity) {
+        return this.activity == activity;
     }
 }

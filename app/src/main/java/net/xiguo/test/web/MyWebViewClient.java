@@ -8,11 +8,10 @@ import com.tencent.smtt.sdk.WebView;
 import com.tencent.smtt.sdk.WebViewClient;
 
 import net.xiguo.test.BaseApplication;
-import net.xiguo.test.R;
+import net.xiguo.test.X5Activity;
 import net.xiguo.test.utils.LogUtil;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -24,8 +23,11 @@ import java.io.InputStreamReader;
 
 public class MyWebViewClient extends WebViewClient {
     private String h5Bridge = null;
-    public MyWebViewClient() {
+    private X5Activity activity;
+
+    public MyWebViewClient(X5Activity activity) {
         super();
+        this.activity = activity;
     }
 
     @Override
@@ -39,8 +41,12 @@ public class MyWebViewClient extends WebViewClient {
     }
     private WebResourceResponse shouldInterceptRequest(String url) {
         LogUtil.i("shouldInterceptRequest: " + url);
-        if(url.startsWith("http://www.army8735.me/")) {
-            String path = url.substring(23);
+        if(url.startsWith(X5Activity.DOMAIN)
+            && (url.endsWith(".html")
+                || url.endsWith(".css")
+                || url.endsWith(".js")
+                || url.endsWith(".png"))) {
+            String path = url.substring(X5Activity.DOMAIN.length());
             LogUtil.i("shouldInterceptPath: " + path);
             WebResourceResponse wrr = null;
             InputStream is = null;
