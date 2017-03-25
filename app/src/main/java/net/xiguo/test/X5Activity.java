@@ -1,26 +1,29 @@
 package net.xiguo.test;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 import android.widget.TextView;
 
+import com.tencent.smtt.sdk.CookieManager;
+import com.tencent.smtt.sdk.CookieSyncManager;
 import com.tencent.smtt.sdk.WebView;
-import com.tencent.smtt.sdk.WebViewClient;
 
 import net.xiguo.test.event.H5EventDispatcher;
 import net.xiguo.test.plugin.H5Plugin;
 import net.xiguo.test.plugin.SetTitlePlugin;
 import net.xiguo.test.utils.LogUtil;
+import net.xiguo.test.web.MyCookies;
 import net.xiguo.test.web.MyWebChromeClient;
 import net.xiguo.test.web.MyWebViewClient;
+import net.xiguo.test.web.URLs;
 
 /**
  * Created by army on 2017/3/16.
  */
 
 public class X5Activity extends AppCompatActivity {
-    public static final String DOMAIN = "http://www.army8735.me/";
 
     private SetTitlePlugin setTitlePlugin;
 
@@ -34,11 +37,24 @@ public class X5Activity extends AppCompatActivity {
 
         WebView webView = (WebView) findViewById(R.id.x5);
         webView.getSettings().setJavaScriptEnabled(true);
+
         MyWebViewClient webViewClient = new MyWebViewClient(this);
         webView.setWebViewClient(webViewClient);
         MyWebChromeClient webChromeClient = new MyWebChromeClient(this);
         webView.setWebChromeClient(webChromeClient);
-        webView.loadUrl(DOMAIN + "index.html");
+
+        String url = URLs.H5_DOMAIN + "index.html";
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.setAcceptCookie(true);
+        for(String s : MyCookies.getAll()) {
+            cookieManager.setCookie(url, s);
+        }
+        if (Build.VERSION.SDK_INT < 21) {
+            CookieSyncManager.getInstance().sync();
+        } else {
+            CookieManager.getInstance().flush();
+        }
+        webView.loadUrl(url);
     }
 
     private void initPlugins() {

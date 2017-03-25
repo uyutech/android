@@ -41,12 +41,12 @@ public class MyWebViewClient extends WebViewClient {
     }
     private WebResourceResponse shouldInterceptRequest(String url) {
         LogUtil.i("shouldInterceptRequest: " + url);
-        if(url.startsWith(X5Activity.DOMAIN)
+        if(url.startsWith(URLs.H5_DOMAIN)
             && (url.endsWith(".html")
                 || url.endsWith(".css")
                 || url.endsWith(".js")
                 || url.endsWith(".png"))) {
-            String path = url.substring(X5Activity.DOMAIN.length());
+            String path = url.substring(URLs.H5_DOMAIN.length());
             LogUtil.i("shouldInterceptPath: " + path);
             WebResourceResponse wrr = null;
             InputStream is = null;

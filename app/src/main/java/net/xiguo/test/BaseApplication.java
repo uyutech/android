@@ -3,6 +3,7 @@ package net.xiguo.test;
 import android.app.Application;
 import android.content.Context;
 
+import com.tencent.smtt.sdk.CookieSyncManager;
 import com.tencent.smtt.sdk.QbSdk;
 import com.tencent.smtt.sdk.TbsListener;
 
@@ -20,6 +21,7 @@ public class BaseApplication extends Application {
     public void onCreate() {
         super.onCreate();
         context = getApplicationContext();
+        CookieSyncManager.createInstance(this);
 
         QbSdk.PreInitCallback cb = new QbSdk.PreInitCallback() {
 

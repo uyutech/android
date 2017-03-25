@@ -6,6 +6,7 @@
     <string name="my">我的</string>
 
     <string name="loginabelUsername">用户名</string>
+    <string name="loginabelUserpass">密码</string>
     <string name="loginButton">确认</string>
 
     <string name="webBack">返回</string>
