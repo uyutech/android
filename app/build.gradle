@@ -32,6 +32,7 @@ dependencies {
     compile 'com.android.support:support-v4:25.2.0'
     compile 'com.alibaba:fastjson:1.1.56.android'
     compile 'com.squareup.okhttp3:okhttp:3.6.0'
+    compile 'com.sina.weibo.sdk:core:1.0.0:openDefaultRelease@aar'
     compile files('libs/tbs_sdk_thirdapp_v3.1.0.1034_43100_sharewithdownload_obfs_20170301_182143.jar')
     testCompile 'junit:junit:4.12'
 }
