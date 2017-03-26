@@ -1,4 +1,4 @@
-package net.xiguo.test.oauth;
+package net.xiguo.test.login.oauth;
 
 /**
  * Created by army on 2017/3/25.

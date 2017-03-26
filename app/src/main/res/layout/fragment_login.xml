@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="20sp"
+        android:paddingRight="20sp"
+        android:layout_gravity="center">
+
+        <TextView
+            android:layout_width="60sp"
+            android:layout_height="wrap_content"
+            android:paddingRight="10sp"
+            android:text="@string/loginabelUsername" />
+
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:id="@+id/userName"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="20sp"
+        android:paddingRight="20sp"
+        android:layout_gravity="center">
+
+        <TextView
+            android:layout_width="60sp"
+            android:layout_height="wrap_content"
+            android:paddingRight="10sp"
+            android:text="@string/loginabelUserpass" />
+
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:id="@+id/userPass"/>
+    </LinearLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:enabled="true"
+        android:id="@+id/button"
+        android:text="@string/loginButton"/>
+
+</LinearLayout>

@@ -2,63 +2,48 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:layout_marginBottom="50dp">
 
     <LinearLayout
-        android:paddingBottom="50dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_centerInParent="true">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingLeft="20sp"
-            android:paddingRight="20sp"
-            android:layout_gravity="center">
 
-            <TextView
-                android:layout_width="60sp"
-                android:layout_height="wrap_content"
-                android:paddingRight="10sp"
-                android:text="@string/loginabelUsername" />
-
-            <EditText
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:id="@+id/userName"/>
-        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingLeft="20sp"
-            android:paddingRight="20sp"
-            android:layout_gravity="center">
-
+            android:layout_marginBottom="20sp"
+            android:paddingLeft="20sp">
             <TextView
-                android:layout_width="60sp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingRight="10sp"
-                android:text="@string/loginabelUserpass" />
-
-            <EditText
-                android:layout_width="0dp"
+                android:text="@string/loginLabel"
+                android:textColor="@color/link"
+                android:id="@+id/loginLabel" />
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:layout_marginRight="10sp"
+                android:background="#999"
+                android:layout_gravity="center_horizontal"
+                />
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:id="@+id/userPass"/>
+                android:paddingRight="10sp"
+                android:text="@string/registerLabel"
+                android:textColor="@color/link"
+                android:id="@+id/registerLabel" />
         </LinearLayout>
 
-        <Button
-            android:layout_width="wrap_content"
+        <FrameLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="10dp"
-            android:id="@+id/button"
-            android:text="@string/loginButton"/>
+            android:id="@+id/loginFrame"></FrameLayout>
     </LinearLayout>
 
 </RelativeLayout>

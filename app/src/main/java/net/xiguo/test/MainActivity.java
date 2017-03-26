@@ -8,6 +8,10 @@ import android.view.Window;
 
 import net.xiguo.test.utils.LogUtil;
 
+/**
+ * Created by army on 2017/3/26.
+ */
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -28,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
             LogUtil.i("param: " + uri.getQueryParameter("key"));
         }
 
-        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+        Intent intent2 = new Intent(MainActivity.this, LoginActivity.class);
+        intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent2);
     }
 }
