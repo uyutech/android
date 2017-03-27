@@ -12,6 +12,7 @@ import net.xiguo.test.utils.LogUtil;
 
 public class H5Plugin implements IH5EventHandle {
     public static final String SET_TITLE = "setTitle";
+    public static final String PUSH_WINDOW = "pushWindow";
 
     protected X5Activity activity;
 

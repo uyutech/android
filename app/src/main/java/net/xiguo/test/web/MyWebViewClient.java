@@ -40,36 +40,36 @@ public class MyWebViewClient extends WebViewClient {
         return shouldInterceptRequest(url);
     }
     private WebResourceResponse shouldInterceptRequest(String url) {
-        LogUtil.i("shouldInterceptRequest: " + url);
-        if(url.startsWith(URLs.H5_DOMAIN)
-            && (url.endsWith(".html")
-                || url.endsWith(".css")
-                || url.endsWith(".js")
-                || url.endsWith(".png"))) {
-            String path = url.substring(URLs.H5_DOMAIN.length());
-            LogUtil.i("shouldInterceptPath: " + path);
-            WebResourceResponse wrr = null;
-            InputStream is = null;
-            try {
+        // 离线包地址拦截本地资源
+        if(url.startsWith(URLs.H5_DOMAIN)) {
+            LogUtil.i("shouldInterceptRequest: " + url);
+            if (url.startsWith(URLs.H5_DOMAIN)
+                    && (url.endsWith(".html")
+                    || url.endsWith(".css")
+                    || url.endsWith(".js")
+                    || url.endsWith(".png"))) {
+                String path = url.substring(URLs.H5_DOMAIN.length());
+                LogUtil.i("shouldInterceptPath: " + path);
+                WebResourceResponse wrr = null;
+                InputStream is = null;
+                try {
 //                InputStream is = BaseApplication.getContext().getResources().openRawResource(R.raw.test);
 //                InputStream is = BaseApplication.getContext().getAssets().open("test.html");
-                is = BaseApplication.getContext().openFileInput(path);
-                if(path.endsWith(".html")) {
-                    wrr = new WebResourceResponse("text/html", "utf-8", is);
+                    is = BaseApplication.getContext().openFileInput(path);
+                    if (path.endsWith(".html")) {
+                        wrr = new WebResourceResponse("text/html", "utf-8", is);
+                    } else if (path.endsWith(".css")) {
+                        wrr = new WebResourceResponse("text/css", "utf-8", is);
+                    } else if (path.endsWith(".js")) {
+                        wrr = new WebResourceResponse("application/javascript", "utf-8", is);
+                    } else if (path.endsWith(".png")) {
+                        wrr = new WebResourceResponse("image/png", "utf-8", is);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                else if(path.endsWith(".css")) {
-                    wrr = new WebResourceResponse("text/css", "utf-8", is);
-                }
-                else if(path.endsWith(".js")) {
-                    wrr = new WebResourceResponse("application/javascript", "utf-8", is);
-                }
-                else if(path.endsWith(".png")) {
-                    wrr = new WebResourceResponse("image/png", "utf-8", is);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+                return wrr;
             }
-            return wrr;
         }
         return null;
     }

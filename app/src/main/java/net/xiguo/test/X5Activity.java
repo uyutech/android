@@ -1,5 +1,6 @@
 package net.xiguo.test;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +13,7 @@ import com.tencent.smtt.sdk.WebView;
 
 import net.xiguo.test.event.H5EventDispatcher;
 import net.xiguo.test.plugin.H5Plugin;
+import net.xiguo.test.plugin.PushWindowPlugin;
 import net.xiguo.test.plugin.SetTitlePlugin;
 import net.xiguo.test.utils.LogUtil;
 import net.xiguo.test.web.MyCookies;
@@ -26,6 +28,7 @@ import net.xiguo.test.web.URLs;
 public class X5Activity extends AppCompatActivity {
 
     private SetTitlePlugin setTitlePlugin;
+    private PushWindowPlugin pushWindowPlugin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,16 +46,23 @@ public class X5Activity extends AppCompatActivity {
         MyWebChromeClient webChromeClient = new MyWebChromeClient(this);
         webView.setWebChromeClient(webChromeClient);
 
-        String url = URLs.H5_DOMAIN + "index.html";
-        CookieManager cookieManager = CookieManager.getInstance();
-        cookieManager.setAcceptCookie(true);
-        for(String s : MyCookies.getAll()) {
-            cookieManager.setCookie(url, s);
-        }
-        if (Build.VERSION.SDK_INT < 21) {
-            CookieSyncManager.getInstance().sync();
-        } else {
-            CookieManager.getInstance().flush();
+        // 从上个启动活动获取需要加载的url
+        Intent intent = getIntent();
+        String url = intent.getStringExtra("url");
+        LogUtil.i("url: " + url);
+
+        // 离线包地址添加cookie
+        if(url.startsWith(URLs.H5_DOMAIN)) {
+            CookieManager cookieManager = CookieManager.getInstance();
+            cookieManager.setAcceptCookie(true);
+            for (String s : MyCookies.getAll()) {
+                cookieManager.setCookie(url, s);
+            }
+            if (Build.VERSION.SDK_INT < 21) {
+                CookieSyncManager.getInstance().sync();
+            } else {
+                CookieManager.getInstance().flush();
+            }
         }
         webView.loadUrl(url);
     }
@@ -60,11 +70,19 @@ public class X5Activity extends AppCompatActivity {
     private void initPlugins() {
         setTitlePlugin = new SetTitlePlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.SET_TITLE, setTitlePlugin);
+        pushWindowPlugin = new PushWindowPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.PUSH_WINDOW, pushWindowPlugin);
     }
 
     public void setTitle(String title) {
         LogUtil.i("setTitle: " + title);
         TextView tv = (TextView) findViewById(R.id.webViewTitle);
         tv.setText(title);
+    }
+    public void pushWindow(String url) {
+        LogUtil.i("pushWindow: " + url);
+        Intent intent = new Intent(X5Activity.this, X5Activity.class);
+        intent.putExtra("url", url);
+        startActivityForResult(intent, 1);
     }
 }

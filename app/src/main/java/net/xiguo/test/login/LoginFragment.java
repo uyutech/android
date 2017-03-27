@@ -99,7 +99,9 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         String name = userName.getText().toString();
         String pass = userPass.getText().toString();
         LogUtil.i("loginClick: " + name + ", " + pass);
-        sendLoginRequest(name, pass);
+//        sendLoginRequest(name, pass);
+        LoginActivity loginActivity = (LoginActivity) getActivity();
+        loginActivity.login();
     }
     private void sendLoginRequest(final String name, final String pass) {
         new Thread(new Runnable() {

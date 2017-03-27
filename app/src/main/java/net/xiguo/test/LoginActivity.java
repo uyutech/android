@@ -18,6 +18,7 @@ import com.alibaba.fastjson.JSONObject;
 import net.xiguo.test.login.LoginFragment;
 import net.xiguo.test.login.RegisterFragment;
 import net.xiguo.test.utils.LogUtil;
+import net.xiguo.test.web.URLs;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -33,7 +34,8 @@ import java.util.zip.ZipInputStream;
 public class LoginActivity extends AppCompatActivity {
     private TextView loginLabel;
     private TextView registerLabel;
-    private boolean isLogin;
+    private boolean isLoginShow;
+    private boolean hasUnZipDefaultPack = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +53,8 @@ public class LoginActivity extends AppCompatActivity {
         loginLabel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!isLogin) {
-                    isLogin = !isLogin;
+                if(!isLoginShow) {
+                    isLoginShow = !isLoginShow;
                     registerLabel.setTextColor(ContextCompat.getColor(LoginActivity.this, R.color.link));
                     loginLabel.setTextColor(ContextCompat.getColor(LoginActivity.this, R.color.linkActive));
                     replaceFragment(loginFragment);
@@ -62,8 +64,8 @@ public class LoginActivity extends AppCompatActivity {
         registerLabel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isLogin) {
-                    isLogin = !isLogin;
+                if(isLoginShow) {
+                    isLoginShow = !isLoginShow;
                     loginLabel.setTextColor(ContextCompat.getColor(LoginActivity.this, R.color.link));
                     registerLabel.setTextColor(ContextCompat.getColor(LoginActivity.this, R.color.linkActive));
                     replaceFragment(registerFragment);
@@ -71,10 +73,13 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        isLogin = true;
+        isLoginShow = true;
         replaceFragment(loginFragment);
 
-        unZipH5Pack();
+        if(hasUnZipDefaultPack == false) {
+            hasUnZipDefaultPack = true;
+            unZipH5Pack();
+        }
     }
 
     private void replaceFragment(Fragment fragment) {
@@ -89,6 +94,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void run() {
                 Intent intent = new Intent(LoginActivity.this, X5Activity.class);
+                intent.putExtra("url", URLs.H5_DOMAIN + "index.html");
                 startActivity(intent);
                 LoginActivity.this.finish();
             }
