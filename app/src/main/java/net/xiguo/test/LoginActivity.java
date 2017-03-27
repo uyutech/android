@@ -89,15 +89,15 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void run() {
                 Intent intent = new Intent(LoginActivity.this, X5Activity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
+                LoginActivity.this.finish();
             }
         });
     }
 
     private void unZipH5Pack() {
         Date start = new Date();
-        LogUtil.i("start unZipH5Pack:" + start);
+        LogUtil.i("start unZipH5Pack: " + start);
         ZipInputStream zis = null;
         try {
             InputStream is = BaseApplication.getContext().getAssets().open("test.zip");
@@ -143,7 +143,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
             Date end = new Date();
-            LogUtil.i("end unZipH5Pack:" + end);
+            LogUtil.i("end unZipH5Pack: " + end);
         }
     }
 }

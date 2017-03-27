@@ -7,7 +7,7 @@
 
     <string name="loginLabel">登录</string>
     <string name="registerLabel">注册</string>
-    <string name="loginabelUsername">用户名</string>
+    <string name="loginabelUsername">手机号</string>
     <string name="loginabelUserpass">密码</string>
     <string name="loginabelUserpassConfirm">确认密码</string>
     <string name="loginButton">确认</string>
