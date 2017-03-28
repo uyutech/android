@@ -35,7 +35,6 @@ public class LoginActivity extends AppCompatActivity {
     private TextView loginLabel;
     private TextView registerLabel;
     private boolean isLoginShow;
-    private boolean hasUnZipDefaultPack = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,11 +74,6 @@ public class LoginActivity extends AppCompatActivity {
 
         isLoginShow = true;
         replaceFragment(loginFragment);
-
-        if(hasUnZipDefaultPack == false) {
-            hasUnZipDefaultPack = true;
-            unZipH5Pack();
-        }
     }
 
     private void replaceFragment(Fragment fragment) {
@@ -99,57 +93,5 @@ public class LoginActivity extends AppCompatActivity {
                 LoginActivity.this.finish();
             }
         });
-    }
-
-    private void unZipH5Pack() {
-        Date start = new Date();
-        LogUtil.i("start unZipH5Pack: " + start);
-        ZipInputStream zis = null;
-        try {
-            InputStream is = BaseApplication.getContext().getAssets().open("test.zip");
-            zis = new ZipInputStream(is);
-            ZipEntry next = null;
-            String fileName = null;
-            while((next = zis.getNextEntry()) != null) {
-                fileName = next.getName();
-                LogUtil.i("upZipName: " + fileName);
-                if(next.isDirectory()) {
-                }
-                else {
-                    FileOutputStream fos = null;
-                    try {
-                        fos = openFileOutput(fileName, Context.MODE_PRIVATE);
-                        int len;
-                        byte[] buffer = new byte[1024];
-                        while((len = zis.read(buffer)) != -1) {
-                            fos.write(buffer, 0, len);
-                            fos.flush();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        try {
-                            if(fos != null) {
-                                fos.close();
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if(zis != null) {
-                try {
-                    zis.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            Date end = new Date();
-            LogUtil.i("end unZipH5Pack: " + end);
-        }
     }
 }
