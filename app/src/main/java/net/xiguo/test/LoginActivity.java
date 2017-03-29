@@ -14,6 +14,8 @@ import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.sina.weibo.sdk.auth.sso.AccessTokenKeeper;
+import com.sina.weibo.sdk.auth.sso.SsoHandler;
 
 import net.xiguo.test.login.LoginFragment;
 import net.xiguo.test.login.RegisterFragment;
@@ -46,8 +48,8 @@ public class LoginActivity extends AppCompatActivity {
         registerLabel = (TextView) findViewById(R.id.registerLabel);
         loginLabel.setTextColor(ContextCompat.getColor(this, R.color.linkActive));
 
-        final Fragment loginFragment = new LoginFragment();
-        final Fragment registerFragment = new RegisterFragment();
+        final LoginFragment loginFragment = new LoginFragment();
+        final RegisterFragment registerFragment = new RegisterFragment();
 
         loginLabel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,5 +95,17 @@ public class LoginActivity extends AppCompatActivity {
                 LoginActivity.this.finish();
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        LogUtil.i("onActivityResult: " + requestCode + ", " + resultCode + ", " + data.toString());
+
+        LoginFragment loginFragment = (LoginFragment) getSupportFragmentManager().findFragmentById(R.id.loginFrame);
+        SsoHandler mSsoHandler = loginFragment.getMSsoHandler();
+        if (mSsoHandler != null) {
+            mSsoHandler.authorizeCallBack(requestCode, resultCode, data);
+        }
     }
 }

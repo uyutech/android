@@ -14,14 +14,22 @@ import android.widget.EditText;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.sina.weibo.sdk.auth.AuthInfo;
+import com.sina.weibo.sdk.auth.Oauth2AccessToken;
+import com.sina.weibo.sdk.auth.WeiboAuthListener;
+import com.sina.weibo.sdk.auth.sso.AccessTokenKeeper;
+import com.sina.weibo.sdk.auth.sso.SsoHandler;
+import com.sina.weibo.sdk.exception.WeiboException;
 
 import net.xiguo.test.LoginActivity;
 import net.xiguo.test.R;
+import net.xiguo.test.login.oauth.Constants;
 import net.xiguo.test.utils.LogUtil;
 import net.xiguo.test.web.MyCookies;
 import net.xiguo.test.web.URLs;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -42,6 +50,10 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     private EditText userName;
     private EditText userPass;
 
+    private AuthInfo mAuthInfo;
+    private SsoHandler mSsoHandler;
+    private Oauth2AccessToken mAccessToken;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -49,8 +61,61 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
 
         userName = (EditText) view.findViewById(R.id.userName);
         userPass = (EditText) view.findViewById(R.id.userPass);
+
         final Button button = (Button) view.findViewById(R.id.button);
         button.setOnClickListener(this);
+
+        final LoginActivity loginActivity = (LoginActivity) getActivity();
+        mAuthInfo = new AuthInfo(loginActivity, Constants.APP_KEY, Constants.REDIRECT_URL, Constants.SCOPE);
+        mSsoHandler = new SsoHandler(loginActivity, mAuthInfo);
+
+        final Button loginWeibo = (Button) view.findViewById(R.id.loginWeibo);
+        loginWeibo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSsoHandler.authorize(new AuthListener());
+            }
+        });
+
+        final Button loginOutWeibo = (Button) view.findViewById(R.id.loginOutWeibo);
+        loginOutWeibo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LogUtil.i("login out");
+                AccessTokenKeeper.clear(loginActivity.getApplicationContext());
+                mAccessToken = new Oauth2AccessToken();
+            }
+        });
+
+        mAccessToken = AccessTokenKeeper.readAccessToken(loginActivity);
+        if (mAccessToken.isSessionValid()) {
+            String date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(
+                    new java.util.Date(mAccessToken.getExpiresTime()));
+            LogUtil.i("token: " + mAccessToken.getToken() + ", " + date);
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    LogUtil.i("sendWeiboRequest run");
+                    try {
+                        OkHttpClient client = new OkHttpClient
+                                .Builder()
+                                .build();
+                        Request request = new Request.Builder()
+                                .url("https://api.weibo.com/2/account/get_uid.json?access_token=" + mAccessToken.getToken())
+                                .build();
+                        Response response = client.newCall(request).execute();
+                        String responseBody = response.body().string();
+                        LogUtil.i("loginWeiboResponse: " + responseBody);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }
+        else {
+            LogUtil.i("no weibo");
+        }
 
         userName.addTextChangedListener(new TextWatcher() {
             @Override
@@ -265,5 +330,34 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                 }
             }
         }).start();
+    }
+
+    class AuthListener implements WeiboAuthListener {
+        @Override
+        public void onComplete(final Bundle values) {
+            mAccessToken = Oauth2AccessToken.parseAccessToken(values);
+            String phoneNum =  mAccessToken.getPhoneNum();
+            if (mAccessToken.isSessionValid()) {
+                LogUtil.i(mAccessToken.toString());
+                AccessTokenKeeper.writeAccessToken(getActivity(), mAccessToken);
+            }
+            else {
+                String code = values.getString("code");
+                LogUtil.i("fail: " + code);
+            }
+        }
+        @Override
+        public void onCancel() {
+            LogUtil.i("onCancel");
+        }
+        @Override
+        public void onWeiboException(WeiboException e) {
+            e.printStackTrace();
+            LogUtil.i("onWeiboException");
+        }
+    }
+
+    public SsoHandler getMSsoHandler() {
+        return mSsoHandler;
     }
 }
