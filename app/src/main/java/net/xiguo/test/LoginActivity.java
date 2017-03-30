@@ -1,6 +1,5 @@
 package net.xiguo.test;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,20 +13,12 @@ import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.sina.weibo.sdk.auth.sso.AccessTokenKeeper;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
 
 import net.xiguo.test.login.LoginFragment;
 import net.xiguo.test.login.RegisterFragment;
 import net.xiguo.test.utils.LogUtil;
 import net.xiguo.test.web.URLs;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Date;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 /**
  * Created by army on 2017/3/18.

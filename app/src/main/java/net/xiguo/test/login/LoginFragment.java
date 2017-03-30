@@ -336,7 +336,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         @Override
         public void onComplete(final Bundle values) {
             mAccessToken = Oauth2AccessToken.parseAccessToken(values);
-            String phoneNum =  mAccessToken.getPhoneNum();
             if (mAccessToken.isSessionValid()) {
                 LogUtil.i(mAccessToken.toString());
                 AccessTokenKeeper.writeAccessToken(getActivity(), mAccessToken);
