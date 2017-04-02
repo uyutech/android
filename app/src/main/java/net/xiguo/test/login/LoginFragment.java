@@ -37,9 +37,11 @@ import java.util.ListIterator;
 
 import okhttp3.Cookie;
 import okhttp3.CookieJar;
+import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
@@ -101,9 +103,19 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                         OkHttpClient client = new OkHttpClient
                                 .Builder()
                                 .build();
-                        Request request = new Request.Builder()
-                                .url("https://api.weibo.com/2/account/get_uid.json?access_token=" + mAccessToken.getToken())
+                        RequestBody requestBody = new FormBody.Builder()
+                                .add("access_token", mAccessToken.getToken())
                                 .build();
+                        Request request = new Request.Builder()
+                                .url("https://api.weibo.com/oauth2/get_token_info")
+                                .post(requestBody)
+                                .build();
+//                        OkHttpClient client = new OkHttpClient
+//                                .Builder()
+//                                .build();
+//                        Request request = new Request.Builder()
+//                                .url("https://api.weibo.com/2/account/get_uid.json?access_token=" + mAccessToken.getToken())
+//                                .build();
                         Response response = client.newCall(request).execute();
                         String responseBody = response.body().string();
                         LogUtil.i("loginWeiboResponse: " + responseBody);
