@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
             LogUtil.i("param: " + uri.getQueryParameter("key"));
         }
 
-        Intent intent2 = new Intent(MainActivity.this, LoginActivity.class);
+        Intent intent2 = new Intent(MainActivity.this, LoginActivity2.class);
         startActivity(intent2);
         finish();
     }
