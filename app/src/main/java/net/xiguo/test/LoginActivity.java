@@ -82,6 +82,7 @@ public class LoginActivity extends AppCompatActivity {
             public void run() {
                 Intent intent = new Intent(LoginActivity.this, X5Activity.class);
                 intent.putExtra("url", URLs.H5_DOMAIN + "index.html");
+                intent.putExtra("firstWeb", true);
                 startActivity(intent);
                 LoginActivity.this.finish();
             }

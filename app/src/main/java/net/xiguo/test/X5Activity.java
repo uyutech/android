@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.view.Window;
 import android.widget.TextView;
 
@@ -29,6 +30,7 @@ public class X5Activity extends AppCompatActivity {
 
     private SetTitlePlugin setTitlePlugin;
     private PushWindowPlugin pushWindowPlugin;
+    private boolean firstWeb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +52,9 @@ public class X5Activity extends AppCompatActivity {
         Intent intent = getIntent();
         String url = intent.getStringExtra("url");
         LogUtil.i("url: " + url);
+        // 第一个web？
+        firstWeb = intent.getBooleanExtra("firstWeb", false);
+        LogUtil.i("firstWeb: " + firstWeb);
 
         // 离线包地址添加cookie
         if(url.startsWith(URLs.H5_DOMAIN)) {
@@ -84,5 +89,16 @@ public class X5Activity extends AppCompatActivity {
         Intent intent = new Intent(X5Activity.this, X5Activity.class);
         intent.putExtra("url", url);
         startActivityForResult(intent, 1);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        LogUtil.i("keyup: " + keyCode + ", " + firstWeb);
+        if(firstWeb && keyCode == KeyEvent.KEYCODE_BACK) {
+            // 此时此activity已经是root了，所以参数无所谓，保险起见还是传true忽视
+            moveTaskToBack(true);
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
     }
 }
