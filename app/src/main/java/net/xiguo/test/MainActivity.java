@@ -3,9 +3,14 @@ package net.xiguo.test;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Window;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import net.xiguo.test.utils.LogUtil;
 
@@ -22,12 +27,25 @@ import java.util.zip.ZipInputStream;
 
 public class MainActivity extends AppCompatActivity {
     private boolean hasUnZipDefaultPack = false;
+    private ImageView bgi;
+    private TextView domain;
+    private TextView copyright;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
+
+        bgi = (ImageView) findViewById(R.id.bgi);
+        domain = (TextView) findViewById(R.id.domain);
+        copyright = (TextView) findViewById(R.id.copyright);
+
+        // 背景渐显
+        Animation alphaAnimation = new AlphaAnimation(0.1f, 1.0f);
+        alphaAnimation.setDuration(1000);
+        bgi.setAnimation(alphaAnimation);
+        alphaAnimation.startNow();
 
         if(hasUnZipDefaultPack == false) {
             hasUnZipDefaultPack = true;
@@ -45,10 +63,14 @@ public class MainActivity extends AppCompatActivity {
             LogUtil.i("query: " + uri.getQuery());
             LogUtil.i("param: " + uri.getQueryParameter("key"));
         }
-
-        Intent intent2 = new Intent(MainActivity.this, LoginActivity.class);
-        startActivity(intent2);
-        finish();
+        // 暂停2s后跳转
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                Intent intent2 = new Intent(MainActivity.this, LoginActivity.class);
+                MainActivity.this.startActivity(intent2);
+                MainActivity.this.finish();
+            }
+        }, 2000);
     }
 
     private void unZipH5Pack() {

@@ -1,8 +1,10 @@
 <resources>
-    <string name="domain">zhuanquan.cc</string>
+    <string name="domain">circling.cc</string>
     <string name="copyright">2016-2017 © All Rights Reserved</string>
 
-    <string name="appName">test</string>
+    <string name="loginOther">其它账号登录</string>
+
+    <string name="appName">转圈</string>
     <string name="follow">关注</string>
     <string name="zhuanquan">转圈</string>
     <string name="find">发现</string>

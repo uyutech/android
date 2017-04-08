@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:id="@+id/bgi"
         android:src="@drawable/main_bg"
         android:scaleType="fitCenter"/>
     <LinearLayout
@@ -18,17 +19,21 @@
         android:orientation="vertical"
         android:paddingTop="30dp">
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:id="@+id/domain"
             android:textAlignment="center"
             android:textColor="@color/mainDomain"
             android:textSize="14sp"
             android:text="@string/domain"/>
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:id="@+id/copyright"
             android:textAlignment="center"
-            android:textSize="10sp"
+            android:textSize="12sp"
             android:textColor="@color/mainCopyright"
             android:text="@string/copyright"/>
     </LinearLayout>

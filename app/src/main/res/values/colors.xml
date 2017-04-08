@@ -8,6 +8,9 @@
     <color name="mainDomain">#59788A</color>
     <color name="mainCopyright">#96AEBD</color>
 
+    <color name="loginBg">#4C8DAF</color>
+    <color name="loginOther">#FFFFFF</color>
+
     <color name="link">#69F</color>
     <color name="linkActive">#059</color>
 
