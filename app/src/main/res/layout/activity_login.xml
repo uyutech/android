@@ -1,48 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginBottom="50dp">
-
+    android:orientation="vertical"
+    android:paddingBottom="20dp"
+    android:background="@color/loginBg">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"></RelativeLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_centerInParent="true">
-
+        android:orientation="vertical">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20sp"
-            android:paddingLeft="20sp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingRight="10sp"
-                android:text="@string/loginLabel"
-                android:textColor="@color/link"
-                android:id="@+id/loginLabel" />
+            android:layout_gravity="center"
+            android:orientation="horizontal">
             <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:layout_marginRight="10sp"
-                android:background="#999"
-                android:layout_gravity="center_horizontal"
-                />
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="1dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="10dp"
+                android:background="@color/loginOther"
+                android:layout_gravity="center"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingRight="10sp"
-                android:text="@string/registerLabel"
-                android:textColor="@color/link"
-                android:id="@+id/registerLabel" />
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:text="@string/loginOther"
+                android:textSize="12sp"
+                android:textColor="@color/loginOther"/>
+            <View
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="1dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="10dp"
+                android:background="@color/loginOther"
+                android:layout_gravity="center"/>
         </LinearLayout>
-
-        <FrameLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/loginFrame"></FrameLayout>
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp">
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="vertical">
+                <ImageView
+                    android:layout_width="55dp"
+                    android:layout_height="55dp"
+                    android:id="@+id/loginWeibo"
+                    android:src="@drawable/login_weibo"
+                    android:layout_gravity="center"/>
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
+</LinearLayout>
+<!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--xmlns:tools="http://schemas.android.com/tools"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:layout_marginBottom="50dp">-->
 
-</RelativeLayout>
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="vertical"-->
+        <!--android:layout_centerInParent="true">-->
+
+        <!--<LinearLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginBottom="20sp"-->
+            <!--android:paddingLeft="20sp">-->
+            <!--<TextView-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:paddingRight="10sp"-->
+                <!--android:text="@string/loginLabel"-->
+                <!--android:textColor="@color/link"-->
+                <!--android:id="@+id/loginLabel" />-->
+            <!--<View-->
+                <!--android:layout_width="1dp"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:layout_marginRight="10sp"-->
+                <!--android:background="#999"-->
+                <!--android:layout_gravity="center_horizontal"-->
+                <!--/>-->
+            <!--<TextView-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:paddingRight="10sp"-->
+                <!--android:text="@string/registerLabel"-->
+                <!--android:textColor="@color/link"-->
+                <!--android:id="@+id/registerLabel" />-->
+        <!--</LinearLayout>-->
+
+        <!--<FrameLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:id="@+id/loginFrame"></FrameLayout>-->
+    <!--</LinearLayout>-->
+
+<!--</RelativeLayout>-->
