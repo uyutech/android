@@ -61,124 +61,53 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
-        userName = (EditText) view.findViewById(R.id.userName);
-        userPass = (EditText) view.findViewById(R.id.userPass);
-
-        final Button button = (Button) view.findViewById(R.id.button);
-        button.setOnClickListener(this);
-
-        final LoginActivity loginActivity = (LoginActivity) getActivity();
-        mAuthInfo = new AuthInfo(loginActivity, Constants.APP_KEY, Constants.REDIRECT_URL, Constants.SCOPE);
-        mSsoHandler = new SsoHandler(loginActivity, mAuthInfo);
-
-        final Button loginWeibo = (Button) view.findViewById(R.id.loginWeibo);
-        loginWeibo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mSsoHandler.authorize(new AuthListener());
-            }
-        });
-
-        final Button loginOutWeibo = (Button) view.findViewById(R.id.loginOutWeibo);
-        loginOutWeibo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LogUtil.i("login out");
-                AccessTokenKeeper.clear(loginActivity.getApplicationContext());
-                mAccessToken = new Oauth2AccessToken();
-            }
-        });
-
-        mAccessToken = AccessTokenKeeper.readAccessToken(loginActivity);
-        if (mAccessToken.isSessionValid()) {
-            String date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(
-                    new java.util.Date(mAccessToken.getExpiresTime()));
-            LogUtil.i("token: " + mAccessToken.getToken() + ", " + date);
-
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    LogUtil.i("sendWeiboRequest run");
-                    try {
-                        OkHttpClient client = new OkHttpClient
-                                .Builder()
-                                .build();
-                        RequestBody requestBody = new FormBody.Builder()
-                                .add("access_token", mAccessToken.getToken())
-                                .build();
-                        Request request = new Request.Builder()
-                                .url("https://api.weibo.com/oauth2/get_token_info")
-                                .post(requestBody)
-                                .build();
-//                        OkHttpClient client = new OkHttpClient
-//                                .Builder()
-//                                .build();
-//                        Request request = new Request.Builder()
-//                                .url("https://api.weibo.com/2/account/get_uid.json?access_token=" + mAccessToken.getToken())
-//                                .build();
-                        Response response = client.newCall(request).execute();
-                        String responseBody = response.body().string();
-                        LogUtil.i("loginWeiboResponse: " + responseBody);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
-        }
-        else {
-            LogUtil.i("no weibo");
-        }
-
-        userName.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-            @Override
-            public void afterTextChanged(Editable s) {
-                if(userName.getText().length() == 0 || userPass.getText().length() == 0) {
-                    button.setEnabled(false);
-                }
-                else {
-                    button.setEnabled(true);
-                }
-            }
-        });
-        userPass.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-            @Override
-            public void afterTextChanged(Editable s) {
-                if(userName.getText().length() == 0 || userPass.getText().length() == 0) {
-                    button.setEnabled(false);
-                }
-                else {
-                    button.setEnabled(true);
-                }
-            }
-        });
-
+//        userName = (EditText) view.findViewById(R.id.userName);
+//        userPass = (EditText) view.findViewById(R.id.userPass);
+//
+//        userName.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//            }
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//
+//            }
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//                if(userName.getText().length() == 0 || userPass.getText().length() == 0) {
+//                    button.setEnabled(false);
+//                }
+//                else {
+//                    button.setEnabled(true);
+//                }
+//            }
+//        });
+//        userPass.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//            }
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//
+//            }
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//                if(userName.getText().length() == 0 || userPass.getText().length() == 0) {
+//                    button.setEnabled(false);
+//                }
+//                else {
+//                    button.setEnabled(true);
+//                }
+//            }
+//        });
+//
         return view;
     }
 
     @Override
     public void onClick(View v) {
-        String name = userName.getText().toString();
-        String pass = userPass.getText().toString();
-        LogUtil.i("loginClick: " + name + ", " + pass);
-//        sendLoginRequest(name, pass);
-        LoginActivity loginActivity = (LoginActivity) getActivity();
-        loginActivity.login();
     }
     private void sendLoginRequest(final String name, final String pass) {
         new Thread(new Runnable() {
@@ -344,31 +273,4 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         }).start();
     }
 
-    class AuthListener implements WeiboAuthListener {
-        @Override
-        public void onComplete(final Bundle values) {
-            mAccessToken = Oauth2AccessToken.parseAccessToken(values);
-            if (mAccessToken.isSessionValid()) {
-                LogUtil.i(mAccessToken.toString());
-                AccessTokenKeeper.writeAccessToken(getActivity(), mAccessToken);
-            }
-            else {
-                String code = values.getString("code");
-                LogUtil.i("fail: " + code);
-            }
-        }
-        @Override
-        public void onCancel() {
-            LogUtil.i("onCancel");
-        }
-        @Override
-        public void onWeiboException(WeiboException e) {
-            e.printStackTrace();
-            LogUtil.i("onWeiboException");
-        }
-    }
-
-    public SsoHandler getMSsoHandler() {
-        return mSsoHandler;
-    }
 }

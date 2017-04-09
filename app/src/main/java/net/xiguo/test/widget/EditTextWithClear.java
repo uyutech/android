@@ -42,7 +42,7 @@ public class EditTextWithClear extends AppCompatEditText implements TextWatcher 
 //        setCompoundDrawablesWithIntrinsicBounds(null, null, clearIcon, null);
         setBackgroundResource(R.drawable.text_view);
         SpannableString ss = new SpannableString(getHint());
-        AbsoluteSizeSpan ass = new AbsoluteSizeSpan(12, true);
+        AbsoluteSizeSpan ass = new AbsoluteSizeSpan(13, true);
         ss.setSpan(ass, 0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         setHint(new SpannedString(ss));
     }

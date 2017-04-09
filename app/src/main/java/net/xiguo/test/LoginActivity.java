@@ -60,24 +60,24 @@ public class LoginActivity extends AppCompatActivity {
 
         initWeibo();
 
-//        loginLabel = (TextView) findViewById(R.id.loginLabel);
-//        registerLabel = (TextView) findViewById(R.id.registerLabel);
-//        loginLabel.setTextColor(ContextCompat.getColor(this, R.color.linkActive));
+        loginLabel = (TextView) findViewById(R.id.loginLabel);
+        registerLabel = (TextView) findViewById(R.id.registerLabel);
+        registerLabel.setAlpha(0.4f);
 //
-//        final LoginFragment loginFragment = new LoginFragment();
+        final LoginFragment loginFragment = new LoginFragment();
 //        final RegisterFragment registerFragment = new RegisterFragment();
 //
-//        loginLabel.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if(!isLoginShow) {
-//                    isLoginShow = !isLoginShow;
-//                    registerLabel.setTextColor(ContextCompat.getColor(LoginActivity.this, R.color.link));
-//                    loginLabel.setTextColor(ContextCompat.getColor(LoginActivity.this, R.color.linkActive));
-//                    replaceFragment(loginFragment);
-//                }
-//            }
-//        });
+        loginLabel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!isLoginShow) {
+                    isLoginShow = !isLoginShow;
+                    loginLabel.setAlpha(1);
+                    registerLabel.setAlpha(0.4f);
+                    replaceFragment(loginFragment);
+                }
+            }
+        });
 //        registerLabel.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
@@ -91,14 +91,14 @@ public class LoginActivity extends AppCompatActivity {
 //        });
 //
 //        isLoginShow = true;
-//        replaceFragment(loginFragment);
+        replaceFragment(loginFragment);
     }
 
     private void replaceFragment(Fragment fragment) {
-//        FragmentManager fragmentManager = getSupportFragmentManager();
-//        FragmentTransaction transaction = fragmentManager.beginTransaction();
-//        transaction.replace(R.id.loginFrame, fragment);
-//        transaction.commit();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.loginFrame, fragment);
+        transaction.commit();
     }
 
     public void login() {

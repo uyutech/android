@@ -4,6 +4,8 @@
 
     <string name="loginOther">其它账号登录</string>
     <string name="phoneNum">0123456789</string>
+    <string name="forgetPass">忘记密码</string>
+    <string name="loginButton">登录</string>
 
     <string name="appName">转圈</string>
     <string name="follow">关注</string>
@@ -16,7 +18,6 @@
     <string name="loginabelUsername">手机号</string>
     <string name="loginabelUserpass">密码</string>
     <string name="loginabelUserpassConfirm">确认密码</string>
-    <string name="loginButton">确认</string>
     <string name="loginWeibo">用微博账号登陆</string>
     <string name="loginOutWeibo">退出微博</string>
 
