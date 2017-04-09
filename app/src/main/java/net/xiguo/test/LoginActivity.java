@@ -43,6 +43,8 @@ import okhttp3.Response;
 public class LoginActivity extends AppCompatActivity {
     private TextView loginLabel;
     private TextView registerLabel;
+    private View loginLabelUnder;
+    private View registerLabelUnder;
     private boolean isLoginShow;
 
     private ImageView loginWeibo;
@@ -63,34 +65,40 @@ public class LoginActivity extends AppCompatActivity {
         loginLabel = (TextView) findViewById(R.id.loginLabel);
         registerLabel = (TextView) findViewById(R.id.registerLabel);
         registerLabel.setAlpha(0.4f);
-//
+        loginLabelUnder = findViewById(R.id.loginLabelUnder);
+        registerLabelUnder = findViewById(R.id.registerLabelUnder);
+
         final LoginFragment loginFragment = new LoginFragment();
-//        final RegisterFragment registerFragment = new RegisterFragment();
-//
+        final RegisterFragment registerFragment = new RegisterFragment();
+
         loginLabel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(!isLoginShow) {
-                    isLoginShow = !isLoginShow;
+                    isLoginShow = true;
                     loginLabel.setAlpha(1);
                     registerLabel.setAlpha(0.4f);
+                    loginLabelUnder.setVisibility(View.VISIBLE);
+                    registerLabelUnder.setVisibility(View.INVISIBLE);
                     replaceFragment(loginFragment);
                 }
             }
         });
-//        registerLabel.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if(isLoginShow) {
-//                    isLoginShow = !isLoginShow;
-//                    loginLabel.setTextColor(ContextCompat.getColor(LoginActivity.this, R.color.link));
-//                    registerLabel.setTextColor(ContextCompat.getColor(LoginActivity.this, R.color.linkActive));
-//                    replaceFragment(registerFragment);
-//                }
-//            }
-//        });
-//
-//        isLoginShow = true;
+        registerLabel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isLoginShow) {
+                    isLoginShow = false;
+                    loginLabel.setAlpha(0.4f);
+                    registerLabel.setAlpha(1);
+                    loginLabelUnder.setVisibility(View.INVISIBLE);
+                    registerLabelUnder.setVisibility(View.VISIBLE);
+                    replaceFragment(registerFragment);
+                }
+            }
+        });
+
+        isLoginShow = true;
         replaceFragment(loginFragment);
     }
 

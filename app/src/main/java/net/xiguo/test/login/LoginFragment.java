@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -51,59 +52,59 @@ import okhttp3.Response;
 public class LoginFragment extends Fragment implements View.OnClickListener {
     private EditText userName;
     private EditText userPass;
-
-    private AuthInfo mAuthInfo;
-    private SsoHandler mSsoHandler;
-    private Oauth2AccessToken mAccessToken;
+    private ImageView switchShowPass;
+    private Button login;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
-//        userName = (EditText) view.findViewById(R.id.userName);
-//        userPass = (EditText) view.findViewById(R.id.userPass);
-//
-//        userName.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//            }
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//
-//            }
-//            @Override
-//            public void afterTextChanged(Editable s) {
-//                if(userName.getText().length() == 0 || userPass.getText().length() == 0) {
-//                    button.setEnabled(false);
-//                }
-//                else {
-//                    button.setEnabled(true);
-//                }
-//            }
-//        });
-//        userPass.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//            }
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//
-//            }
-//            @Override
-//            public void afterTextChanged(Editable s) {
-//                if(userName.getText().length() == 0 || userPass.getText().length() == 0) {
-//                    button.setEnabled(false);
-//                }
-//                else {
-//                    button.setEnabled(true);
-//                }
-//            }
-//        });
-//
+        userName = (EditText) view.findViewById(R.id.userName);
+        userPass = (EditText) view.findViewById(R.id.userPass);
+        switchShowPass = (ImageView) view.findViewById(R.id.switchShowPass);
+        login = (Button) view.findViewById(R.id.login);
+
+        userName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+                checkLoginButton();
+            }
+        });
+        userPass.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+                checkLoginButton();
+            }
+        });
+
+        checkLoginButton();
         return view;
+    }
+
+    private void checkLoginButton() {
+        if(userName.getText().length() == 0 || userPass.getText().length() == 0) {
+            login.setEnabled(false);
+        }
+        else {
+            login.setEnabled(true);
+        }
     }
 
     @Override

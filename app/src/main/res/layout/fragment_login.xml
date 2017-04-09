@@ -24,6 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="24dp"
+            android:id="@+id/userName"
             android:hint="@string/loginabelUsername"
             android:gravity="center_vertical"
             android:textColor="@color/loginBg"
@@ -35,8 +36,7 @@
             android:maxLines="1"
             android:maxLength="11"
             android:inputType="phone"
-            android:digits="@string/phoneNum">
-        </net.xiguo.test.widget.EditTextWithClear>
+            android:digits="@string/phoneNum"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -55,6 +55,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:id="@+id/userPass"
             android:hint="@string/loginabelUserpass"
             android:gravity="center_vertical"
             android:textColor="@color/loginBg"
@@ -65,11 +66,11 @@
             android:layout_gravity="center"
             android:maxLines="1"
             android:maxLength="16"
-            android:inputType="textPassword">
-        </net.xiguo.test.widget.EditTextWithClear>
+            android:inputType="textPassword"/>
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:id="@+id/switchShowPass"
             android:src="@drawable/pass_visible"
             android:layout_gravity="center"/>
     </LinearLayout>
@@ -85,8 +86,9 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_marginTop="10dp"
+        android:id="@+id/login"
         android:text="@string/loginButton"
-        android:textColor="@color/loginOther"
+        android:textColor="@drawable/login_button_color"
         android:textSize="15sp"
-        android:background="@drawable/login_button"/>
+        android:background="@drawable/login_button_bg"/>
 </LinearLayout>

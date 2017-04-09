@@ -14,7 +14,7 @@
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="288dp"
+            android:layout_height="260dp"
             android:layout_centerInParent="true">
             <LinearLayout
                 android:layout_width="match_parent"
@@ -40,6 +40,7 @@
                         android:layout_width="13dp"
                         android:layout_height="2dp"
                         android:layout_marginTop="2dp"
+                        android:id="@+id/loginLabelUnder"
                         android:background="@color/loginBg"
                         android:layout_gravity="center"/>
                 </LinearLayout>
@@ -61,6 +62,8 @@
                         android:layout_width="13dp"
                         android:layout_height="2dp"
                         android:layout_marginTop="2dp"
+                        android:visibility="invisible"
+                        android:id="@+id/registerLabelUnder"
                         android:background="@color/loginBg"
                         android:layout_gravity="center"/>
                 </LinearLayout>
