@@ -8,7 +8,143 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"></RelativeLayout>
+        android:layout_weight="1"
+        android:paddingStart="35dp"
+        android:paddingEnd="35dp">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="288dp"
+            android:layout_centerInParent="true">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:paddingTop="10dp"
+                android:layout_height="52dp"
+                android:background="@drawable/login_tab_bg"
+                android:orientation="horizontal">
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:textColor="@color/loginBg"
+                        android:textSize="16sp"
+                        android:text="@string/loginLabel"/>
+                    <View
+                        android:layout_width="13dp"
+                        android:layout_height="2dp"
+                        android:layout_marginTop="2dp"
+                        android:background="@color/loginBg"
+                        android:layout_gravity="center"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:textColor="@color/loginBg"
+                        android:textSize="16sp"
+                        android:text="@string/registerLabel"/>
+                    <View
+                        android:layout_width="13dp"
+                        android:layout_height="2dp"
+                        android:layout_marginTop="2dp"
+                        android:background="@color/loginBg"
+                        android:layout_gravity="center"/>
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="18dp"
+                android:paddingEnd="18dp"
+                android:paddingBottom="16dp"
+                android:orientation="vertical"
+                android:background="@drawable/login_con_bg">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:orientation="horizontal"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:background="@drawable/login_field_bg">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/login_phone"
+                        android:layout_gravity="center"/>
+                    <net.xiguo.test.widget.EditTextWithClear
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="24dp"
+                        android:hint="@string/loginabelUsername"
+                        android:gravity="center_vertical"
+                        android:textColor="@color/loginBg"
+                        android:textColorHint="@color/loginHint"
+                        android:textSize="16sp"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:layout_gravity="center"
+                        android:maxLines="1"
+                        android:maxLength="11"
+                        android:inputType="phone"
+                        android:digits="@string/phoneNum">
+                    </net.xiguo.test.widget.EditTextWithClear>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:background="@drawable/login_field_bg">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/login_pass"
+                        android:layout_gravity="center"/>
+                    <net.xiguo.test.widget.EditTextWithClear
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="@string/loginabelUserpass"
+                        android:gravity="center_vertical"
+                        android:textColor="@color/loginBg"
+                        android:textColorHint="@color/loginHint"
+                        android:textSize="16sp"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:layout_gravity="center"
+                        android:maxLines="1"
+                        android:maxLength="16"
+                        android:inputType="textPassword">
+                    </net.xiguo.test.widget.EditTextWithClear>
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/pass_visible"
+                        android:layout_gravity="center"/>
+                </LinearLayout>
+            </LinearLayout>
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/loginFrame"/>
+        </LinearLayout>
+    </RelativeLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,12 +152,11 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:orientation="horizontal">
             <View
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="1dp"
+                android:layout_height="0.5dp"
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="10dp"
                 android:background="@color/loginOther"
@@ -37,23 +172,21 @@
             <View
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="1dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="10dp"
+                android:layout_height="0.5dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="20dp"
                 android:background="@color/loginOther"
                 android:layout_gravity="center"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:orientation="horizontal"
             android:layout_marginTop="10dp">
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
                 android:orientation="vertical">
                 <ImageView
                     android:layout_width="55dp"
