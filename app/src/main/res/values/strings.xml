@@ -12,6 +12,7 @@
     <string name="registerButton">注册</string>
     <string name="sendPhoneValid">发送验证码</string>
     <string name="phoneValid">请输入验证码</string>
+    <string name="registerSchema">绑定后意味着同意转圈的《用户协议》</string>
 
     <string name="appName">转圈</string>
     <string name="follow">关注</string>

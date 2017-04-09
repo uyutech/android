@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,6 +54,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     private EditText userName;
     private EditText userPass;
     private ImageView switchShowPass;
+    private boolean showPass;
     private Button login;
 
     @Override
@@ -91,6 +93,23 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
             @Override
             public void afterTextChanged(Editable s) {
                 checkLoginButton();
+            }
+        });
+
+        showPass = false;
+        switchShowPass.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (showPass) {
+                    userPass.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    switchShowPass.setBackgroundResource(R.drawable.pass_visible);
+                }
+                else {
+                    userPass.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                    switchShowPass.setBackgroundResource(R.drawable.pass_invisible);
+                }
+                userPass.setSelection(userPass.getText().toString().length());
+                showPass = !showPass;
             }
         });
 

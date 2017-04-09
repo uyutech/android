@@ -11,6 +11,7 @@
     <color name="loginBg">#4C8DAF</color>
     <color name="loginOther">#FFFFFF</color>
     <color name="loginHint">#9CC0D3</color>
+    <color name="registerSchema">#A4A4A4</color>
 
     <color name="link">#69F</color>
     <color name="linkActive">#059</color>
