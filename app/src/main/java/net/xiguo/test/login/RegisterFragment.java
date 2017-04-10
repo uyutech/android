@@ -7,6 +7,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
@@ -52,14 +53,10 @@ public class RegisterFragment extends Fragment {
         userName.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
             }
-
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
             }
-
             @Override
             public void afterTextChanged(Editable s) {
                 checkLoginButton();
@@ -68,14 +65,10 @@ public class RegisterFragment extends Fragment {
         userPass.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
             }
-
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
             }
-
             @Override
             public void afterTextChanged(Editable s) {
                 checkLoginButton();
@@ -102,14 +95,10 @@ public class RegisterFragment extends Fragment {
         userValid.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
             }
-
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
             }
-
             @Override
             public void afterTextChanged(Editable s) {
                 sendValid.setEnabled(userValid.getText().length() == 6);
@@ -118,11 +107,11 @@ public class RegisterFragment extends Fragment {
         sendValid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
             }
         });
 
         checkLoginButton();
+        checkSendButton();
 
         registerSchema.setText(getClickableSpan(registerSchema.getText().toString()));
         registerSchema.setMovementMethod(LinkMovementMethod.getInstance());
@@ -136,6 +125,9 @@ public class RegisterFragment extends Fragment {
             register.setEnabled(true);
         }
     }
+    private void checkSendButton() {
+        register.setEnabled(userValid.getText().length() == 6);
+    }
     private SpannableString getClickableSpan(String s) {
         SpannableString spannableString = new SpannableString(s);
         int start = 11;
@@ -143,6 +135,10 @@ public class RegisterFragment extends Fragment {
             @Override
             public void onClick(View widget) {
                 LogUtil.i("点击协议");
+            }
+            @Override
+            public void updateDrawState(TextPaint textPaint) {
+                textPaint.setUnderlineText(false);
             }
         }, start, s.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         spannableString.setSpan(new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.loginBg)), start, s.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

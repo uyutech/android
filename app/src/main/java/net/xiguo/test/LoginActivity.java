@@ -9,6 +9,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -46,11 +49,14 @@ public class LoginActivity extends AppCompatActivity {
     private View loginLabelUnder;
     private View registerLabelUnder;
     private boolean isLoginShow;
+    private ImageView loginNiang;
 
     private ImageView loginWeibo;
     private AuthInfo mAuthInfo;
     private SsoHandler mSsoHandler;
     private Oauth2AccessToken mAccessToken;
+
+    private Fragment lastFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,14 +65,16 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         loginWeibo = (ImageView) findViewById(R.id.loginWeibo);
-
         initWeibo();
 
+        loginNiang = (ImageView) findViewById(R.id.loginNiang);
         loginLabel = (TextView) findViewById(R.id.loginLabel);
         registerLabel = (TextView) findViewById(R.id.registerLabel);
         registerLabel.setAlpha(0.4f);
         loginLabelUnder = findViewById(R.id.loginLabelUnder);
         registerLabelUnder = findViewById(R.id.registerLabelUnder);
+
+        hideLoginNiang();
 
         final LoginFragment loginFragment = new LoginFragment();
         final RegisterFragment registerFragment = new RegisterFragment();
@@ -80,7 +88,8 @@ public class LoginActivity extends AppCompatActivity {
                     registerLabel.setAlpha(0.4f);
                     loginLabelUnder.setVisibility(View.VISIBLE);
                     registerLabelUnder.setVisibility(View.INVISIBLE);
-                    replaceFragment(loginFragment);
+                    showFragment(loginFragment);
+                    hideLoginNiang();
                 }
             }
         });
@@ -93,20 +102,57 @@ public class LoginActivity extends AppCompatActivity {
                     registerLabel.setAlpha(1);
                     loginLabelUnder.setVisibility(View.INVISIBLE);
                     registerLabelUnder.setVisibility(View.VISIBLE);
-                    replaceFragment(registerFragment);
+                    showFragment(registerFragment);
+                    showLoginNiang();
                 }
             }
         });
 
         isLoginShow = true;
-        replaceFragment(loginFragment);
+        showFragment(loginFragment);
     }
 
-    private void replaceFragment(Fragment fragment) {
+    private void hideLoginNiang() {
+        AnimationSet animationSet = new AnimationSet(true);
+        animationSet.setFillBefore(true);
+        animationSet.setFillAfter(true);
+        TranslateAnimation translateAnimation = new TranslateAnimation(0, 0, 0, 60);
+        translateAnimation.setDuration(500);
+        animationSet.addAnimation(translateAnimation);
+        loginNiang.startAnimation(animationSet);
+    }
+    private void showLoginNiang() {
+        AnimationSet animationSet = new AnimationSet(true);
+        animationSet.setFillBefore(true);
+        animationSet.setFillAfter(true);
+        TranslateAnimation translateAnimation = new TranslateAnimation(0, 0, 60, 0);
+        translateAnimation.setDuration(500);
+        animationSet.addAnimation(translateAnimation);
+        loginNiang.startAnimation(animationSet);
+    }
+
+    private void showFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.loginFrame, fragment);
-        transaction.commit();
+        if (fragment.isAdded()) {
+            if (lastFragment != null) {
+                transaction.hide(lastFragment).show(fragment).commit();
+            }
+            else {
+                transaction.show(fragment).commit();
+            }
+        }
+        else {
+            if (lastFragment != null) {
+                transaction.hide(lastFragment).add(R.id.loginFrame, fragment).commit();
+            }
+            else {
+                transaction.add(R.id.loginFrame, fragment).commit();
+            }
+        }
+//        transaction.add(R.id.loginFrame, fragment);
+//        transaction.commit();
+        lastFragment = fragment;
     }
 
     public void login() {

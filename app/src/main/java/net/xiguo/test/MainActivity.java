@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.startActivity(intent2);
                 MainActivity.this.finish();
             }
-        }, 2000);
+        }, 3000);
     }
 
     private void unZipH5Pack() {

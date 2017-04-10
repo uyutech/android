@@ -3,19 +3,31 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:paddingTop="25dp"
     android:paddingBottom="20dp"
     android:background="@color/loginBg">
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:paddingStart="35dp"
-        android:paddingEnd="35dp">
+        android:paddingEnd="35dp"
+        android:orientation="vertical">
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="140dp">
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/loginNiang"
+                android:src="@drawable/login_niang"
+                android:scaleType="fitCenter"/>
+        </FrameLayout>
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="288dp"
-            android:layout_centerInParent="true">
+            android:id="@+id/loginDiv">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:paddingTop="10dp"
@@ -73,7 +85,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/loginFrame"/>
         </LinearLayout>
-    </RelativeLayout>
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
