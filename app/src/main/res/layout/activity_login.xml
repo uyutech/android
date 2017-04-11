@@ -12,7 +12,9 @@
         android:layout_weight="1"
         android:paddingStart="35dp"
         android:paddingEnd="35dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:clipChildren="false"
+        android:clipToPadding="false">
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="140dp">
@@ -21,7 +23,26 @@
                 android:layout_height="match_parent"
                 android:id="@+id/loginNiang"
                 android:src="@drawable/login_niang"
+                android:layout_marginStart="-20dp"
                 android:scaleType="fitCenter"/>
+            <net.xiguo.test.widget.ErrorTipText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/errorTip"
+                android:textSize="13sp"
+                android:textColor="@color/errorTip"
+                android:paddingTop="2dp"
+                android:paddingBottom="12dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:gravity="center_vertical"
+                android:background="@null"
+                android:rotation="10"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="-20dp"
+                android:layout_gravity="right"
+                android:clipChildren="false"
+                android:clipToPadding="false"/>
         </FrameLayout>
         <LinearLayout
             android:orientation="vertical"

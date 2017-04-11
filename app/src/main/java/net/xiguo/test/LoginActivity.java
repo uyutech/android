@@ -29,6 +29,7 @@ import net.xiguo.test.login.RegisterFragment;
 import net.xiguo.test.login.oauth.Constants;
 import net.xiguo.test.utils.LogUtil;
 import net.xiguo.test.web.URLs;
+import net.xiguo.test.widget.ErrorTipText;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -49,6 +50,7 @@ public class LoginActivity extends AppCompatActivity {
     private View loginLabelUnder;
     private View registerLabelUnder;
     private boolean isLoginShow;
+    private ErrorTipText errorTip;
     private ImageView loginNiang;
 
     private ImageView loginWeibo;
@@ -66,6 +68,10 @@ public class LoginActivity extends AppCompatActivity {
 
         loginWeibo = (ImageView) findViewById(R.id.loginWeibo);
         initWeibo();
+
+        errorTip = (ErrorTipText) findViewById(R.id.errorTip);
+        errorTip.setVisibility(View.INVISIBLE);
+        errorTip.showNameAndPassNotMatch();
 
         loginNiang = (ImageView) findViewById(R.id.loginNiang);
         loginLabel = (TextView) findViewById(R.id.loginLabel);
