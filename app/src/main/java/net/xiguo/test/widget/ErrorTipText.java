@@ -48,15 +48,15 @@ public class ErrorTipText extends AppCompatTextView {
         canvas.drawRoundRect(new RectF(0, 0, width, height - 28), 10, 10, fill);
         canvas.drawRoundRect(new RectF(0, 0, width, height - 28), 10, 10, border);
         Path path = new Path();
-        path.moveTo(30, height - 30);
-        path.lineTo(30, height);
-        path.lineTo(60, height - 30);
+        path.moveTo(width >> 2, height - 30);
+        path.lineTo(width >> 2, height);
+        path.lineTo((width >> 2) + 30, height - 30);
         path.close();
         canvas.drawPath(path, fill);
         Path path2 = new Path();
-        path2.moveTo(30, height - 28);
-        path2.lineTo(30, height);
-        path2.lineTo(60, height - 28);
+        path2.moveTo(width >> 2, height - 28);
+        path2.lineTo(width >> 2, height);
+        path2.lineTo((width >> 2) + 30, height - 28);
         canvas.drawPath(path2, border);
         super.onDraw(canvas);
     }

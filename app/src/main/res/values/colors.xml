@@ -9,6 +9,9 @@
     <color name="mainCopyright">#96AEBD</color>
 
     <color name="loginBg">#4C8DAF</color>
+    <color name="loginBgPress">#357799</color>
+    <color name="loginBgDisable">#D8E0E6</color>
+    <color name="loginFgDisable">#8B99A3</color>
     <color name="loginOther">#FFFFFF</color>
     <color name="loginHint">#9CC0D3</color>
     <color name="registerSchema">#A4A4A4</color>
