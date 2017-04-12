@@ -118,7 +118,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     }
 
     private void checkLoginButton() {
-        if(userName.getText().length() == 0 || userPass.getText().length() == 0) {
+        if(userName.getText().length() != 11 || userPass.getText().length() < 8) {
             login.setEnabled(false);
         }
         else {

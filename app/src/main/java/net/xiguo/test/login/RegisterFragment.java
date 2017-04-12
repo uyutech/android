@@ -119,14 +119,14 @@ public class RegisterFragment extends Fragment {
     }
 
     private void checkLoginButton() {
-        if (userName.getText().length() == 0 || userPass.getText().length() == 0) {
+        if (userName.getText().length() != 11 || userPass.getText().length() < 8 || userValid.getText().length() != 6) {
             register.setEnabled(false);
         } else {
             register.setEnabled(true);
         }
     }
     private void checkSendButton() {
-        register.setEnabled(userValid.getText().length() == 6);
+        sendValid.setEnabled(userName.getText().length() == 11);
     }
     private SpannableString getClickableSpan(String s) {
         SpannableString spannableString = new SpannableString(s);
