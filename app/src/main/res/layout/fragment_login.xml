@@ -78,6 +78,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:id="@+id/forgetPass"
         android:text="@string/forgetPass"
         android:textColor="@color/loginBg"
         android:textSize="13sp"

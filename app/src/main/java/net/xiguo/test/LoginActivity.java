@@ -13,6 +13,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
@@ -24,6 +25,7 @@ import com.sina.weibo.sdk.auth.sso.AccessTokenKeeper;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
 import com.sina.weibo.sdk.exception.WeiboException;
 
+import net.xiguo.test.login.ForgetFragment;
 import net.xiguo.test.login.LoginFragment;
 import net.xiguo.test.login.RegisterFragment;
 import net.xiguo.test.login.oauth.Constants;
@@ -45,6 +47,8 @@ import okhttp3.Response;
  */
 
 public class LoginActivity extends AppCompatActivity {
+    private LinearLayout loginDiv;
+    private LinearLayout forgetDiv;
     private TextView loginLabel;
     private TextView registerLabel;
     private View loginLabelUnder;
@@ -59,6 +63,10 @@ public class LoginActivity extends AppCompatActivity {
     private Oauth2AccessToken mAccessToken;
 
     private Fragment lastFragment;
+    private LoginFragment loginFragment;
+    private RegisterFragment registerFragment;
+    private ForgetFragment forgetFragment;
+    private ImageView forgetBack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +74,8 @@ public class LoginActivity extends AppCompatActivity {
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_login);
 
+        loginDiv = (LinearLayout) findViewById(R.id.loginDiv);
+        forgetDiv = (LinearLayout) findViewById(R.id.forgetDiv);
         loginWeibo = (ImageView) findViewById(R.id.loginWeibo);
         initWeibo();
 
@@ -82,8 +92,9 @@ public class LoginActivity extends AppCompatActivity {
 
         hideLoginNiang();
 
-        final LoginFragment loginFragment = new LoginFragment();
-        final RegisterFragment registerFragment = new RegisterFragment();
+        loginFragment = new LoginFragment();
+        registerFragment = new RegisterFragment();
+        forgetBack = (ImageView) findViewById(R.id.forgetBack);
 
         loginLabel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,6 +127,13 @@ public class LoginActivity extends AppCompatActivity {
 
         isLoginShow = true;
         showFragment(loginFragment);
+
+        forgetBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LoginActivity.this.showLoginDiv();
+            }
+        });
     }
 
     private void hideLoginNiang() {
@@ -156,8 +174,6 @@ public class LoginActivity extends AppCompatActivity {
                 transaction.add(R.id.loginFrame, fragment).commit();
             }
         }
-//        transaction.add(R.id.loginFrame, fragment);
-//        transaction.commit();
         lastFragment = fragment;
     }
 
@@ -249,5 +265,27 @@ public class LoginActivity extends AppCompatActivity {
         if (mSsoHandler != null) {
             mSsoHandler.authorizeCallBack(requestCode, resultCode, data);
         }
+    }
+
+    public void showForgetDiv() {
+        LogUtil.i("showForgetDiv");
+        loginDiv.setVisibility(View.GONE);
+        forgetDiv.setVisibility(View.VISIBLE);
+
+        if(forgetFragment == null) {
+            forgetFragment = new ForgetFragment();
+        }
+        if(forgetFragment.isAdded() == false) {
+            LogUtil.i("forgetFragment add");
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            transaction.replace(R.id.forgetFrame, forgetFragment);
+            transaction.commit();
+        }
+    }
+    public void showLoginDiv() {
+        LogUtil.i("showLoginDiv");
+        loginDiv.setVisibility(View.VISIBLE);
+        forgetDiv.setVisibility(View.GONE);
     }
 }

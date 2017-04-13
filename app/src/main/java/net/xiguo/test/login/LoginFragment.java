@@ -13,25 +13,18 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.sina.weibo.sdk.auth.AuthInfo;
-import com.sina.weibo.sdk.auth.Oauth2AccessToken;
-import com.sina.weibo.sdk.auth.WeiboAuthListener;
-import com.sina.weibo.sdk.auth.sso.AccessTokenKeeper;
-import com.sina.weibo.sdk.auth.sso.SsoHandler;
-import com.sina.weibo.sdk.exception.WeiboException;
 
 import net.xiguo.test.LoginActivity;
 import net.xiguo.test.R;
-import net.xiguo.test.login.oauth.Constants;
 import net.xiguo.test.utils.LogUtil;
 import net.xiguo.test.web.MyCookies;
 import net.xiguo.test.web.URLs;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -54,6 +47,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     private EditText userName;
     private EditText userPass;
     private ImageView switchShowPass;
+    private TextView forgetPass;
     private boolean showPass;
     private Button login;
 
@@ -65,6 +59,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         userName = (EditText) view.findViewById(R.id.userName);
         userPass = (EditText) view.findViewById(R.id.userPass);
         switchShowPass = (ImageView) view.findViewById(R.id.switchShowPass);
+        forgetPass = (TextView) view.findViewById(R.id.forgetPass);
         login = (Button) view.findViewById(R.id.login);
 
         userName.addTextChangedListener(new TextWatcher() {
@@ -93,6 +88,13 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
             @Override
             public void afterTextChanged(Editable s) {
                 checkLoginButton();
+            }
+        });
+
+        forgetPass.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((LoginActivity) LoginFragment.this.getActivity()).showForgetDiv();
             }
         });
 
