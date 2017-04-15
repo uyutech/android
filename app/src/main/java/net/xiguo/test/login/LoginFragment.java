@@ -2,6 +2,7 @@ package net.xiguo.test.login;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -23,12 +24,15 @@ import net.xiguo.test.R;
 import net.xiguo.test.utils.LogUtil;
 import net.xiguo.test.web.MyCookies;
 import net.xiguo.test.web.URLs;
+import net.xiguo.test.widget.ErrorTipText;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import okhttp3.Cookie;
 import okhttp3.CookieJar;
@@ -50,11 +54,18 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     private TextView forgetPass;
     private boolean showPass;
     private Button login;
+    private LoginActivity loginActivity;
+    private ErrorTipText errorTipText;
+    private Handler handler;
+    private Runnable runnable;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
+        loginActivity = (LoginActivity) getActivity();
+        errorTipText = loginActivity.getErrorTipText();
+        handler = new Handler();
 
         userName = (EditText) view.findViewById(R.id.userName);
         userPass = (EditText) view.findViewById(R.id.userPass);
@@ -94,7 +105,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         forgetPass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((LoginActivity) LoginFragment.this.getActivity()).showForgetDiv();
+                loginActivity.showForgetDiv();
             }
         });
 
@@ -115,17 +126,75 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
             }
         });
 
-        checkLoginButton();
         return view;
     }
 
     private void checkLoginButton() {
-        if(userName.getText().length() != 11 || userPass.getText().length() < 8) {
-            login.setEnabled(false);
+        String userNameText = userName.getText().toString();
+        String userPassText = userPass.getText().toString();
+        // 清除上次可能的延迟校验
+        if(handler != null && runnable != null) {
+            handler.removeCallbacks(runnable);
+        }
+        boolean valid = true;
+        // 空则清除提示信息
+        if(userNameText.equals("")) {
+            runnable = new Runnable() {
+                @Override
+                public void run() {
+                    errorTipText.showNeedUserName();
+                }
+            };
+            handler.postDelayed(runnable, 300);
+            valid = false;
         }
         else {
-            login.setEnabled(true);
+            // 手机格式校验
+            Pattern pattern = Pattern.compile("^1[356789]\\d{9}$");
+            Matcher matcher = pattern.matcher(userNameText);
+            if(!matcher.matches()) {
+                runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        errorTipText.showPhoneUnValid();
+                    }
+                };
+                handler.postDelayed(runnable, 300);
+                valid = false;
+            }
+            else {
+                errorTipText.hide();
+            }
         }
+        // 用户名正确合法，判断密码输入状态
+        if(valid) {
+            // 空则清除提示信息
+            if(userPassText.equals("")) {
+                runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        errorTipText.showNeedUserPass();
+                    }
+                };
+                handler.postDelayed(runnable, 300);
+                valid = false;
+            }
+            else if(userPassText.length() < 8) {
+                runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        errorTipText.showUserPassTooShort();
+                    }
+                };
+                handler.postDelayed(runnable, 300);
+                valid = false;
+            }
+            else {
+                errorTipText.hide();
+            }
+        }
+        // 设置按钮禁用状态
+        login.setEnabled(valid);
     }
 
     @Override
@@ -286,7 +355,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                     String responseBody = response.body().string();
                     LogUtil.i("loginResponse: " + responseBody);
                     JSONObject json = JSON.parseObject(responseBody);
-                    LoginActivity loginActivity = (LoginActivity) getActivity();
                     loginActivity.login();
                 } catch (IOException e) {
                     e.printStackTrace();

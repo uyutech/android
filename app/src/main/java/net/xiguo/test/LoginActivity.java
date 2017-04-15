@@ -80,8 +80,6 @@ public class LoginActivity extends AppCompatActivity {
         initWeibo();
 
         errorTip = (ErrorTipText) findViewById(R.id.errorTip);
-        errorTip.setVisibility(View.INVISIBLE);
-        errorTip.showNameAndPassNotMatch();
 
         loginNiang = (ImageView) findViewById(R.id.loginNiang);
         loginLabel = (TextView) findViewById(R.id.loginLabel);
@@ -275,7 +273,7 @@ public class LoginActivity extends AppCompatActivity {
         if(forgetFragment == null) {
             forgetFragment = new ForgetFragment();
         }
-        if(forgetFragment.isAdded() == false) {
+        if(!forgetFragment.isAdded()) {
             LogUtil.i("forgetFragment add");
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -287,5 +285,8 @@ public class LoginActivity extends AppCompatActivity {
         LogUtil.i("showLoginDiv");
         loginDiv.setVisibility(View.VISIBLE);
         forgetDiv.setVisibility(View.GONE);
+    }
+    public ErrorTipText getErrorTipText() {
+        return errorTip;
     }
 }

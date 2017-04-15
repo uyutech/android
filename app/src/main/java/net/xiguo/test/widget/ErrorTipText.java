@@ -68,4 +68,32 @@ public class ErrorTipText extends AppCompatTextView {
         setText(spannableString);
         setVisibility(VISIBLE);
     }
+    public void showPhoneUnValid() {
+        SpannableString spannableString = new SpannableString("用户名格式不正确哟");
+        spannableString.setSpan(new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.errorTipStrong)), 0, 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        setText(spannableString);
+        setVisibility(VISIBLE);
+    }
+    public void showNeedUserName() {
+        SpannableString spannableString = new SpannableString("请输入用户名");
+        spannableString.setSpan(new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.errorTipStrong)), 3, 6, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        setText(spannableString);
+        setVisibility(VISIBLE);
+    }
+    public void showNeedUserPass() {
+        SpannableString spannableString = new SpannableString("请输入密码");
+        spannableString.setSpan(new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.errorTipStrong)), 3, 5, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        setText(spannableString);
+        setVisibility(VISIBLE);
+    }
+    public void showUserPassTooShort() {
+        SpannableString spannableString = new SpannableString("密码至少8位哟");
+        spannableString.setSpan(new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.errorTipStrong)), 4, 5, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        setText(spannableString);
+        setVisibility(VISIBLE);
+    }
+    public void hide() {
+        setText("");
+        setVisibility(GONE);
+    }
 }
