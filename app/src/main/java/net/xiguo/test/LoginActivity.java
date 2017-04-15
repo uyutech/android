@@ -5,11 +5,9 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
-import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
@@ -31,7 +29,7 @@ import net.xiguo.test.login.RegisterFragment;
 import net.xiguo.test.login.oauth.Constants;
 import net.xiguo.test.utils.LogUtil;
 import net.xiguo.test.web.URLs;
-import net.xiguo.test.widget.ErrorTipText;
+import net.xiguo.test.widget.ErrorTip;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -54,7 +52,7 @@ public class LoginActivity extends AppCompatActivity {
     private View loginLabelUnder;
     private View registerLabelUnder;
     private boolean isLoginShow;
-    private ErrorTipText errorTip;
+    private ErrorTip errorTip;
     private ImageView loginNiang;
 
     private ImageView loginWeibo;
@@ -79,7 +77,7 @@ public class LoginActivity extends AppCompatActivity {
         loginWeibo = (ImageView) findViewById(R.id.loginWeibo);
         initWeibo();
 
-        errorTip = (ErrorTipText) findViewById(R.id.errorTip);
+        errorTip = (ErrorTip) findViewById(R.id.errorTip);
 
         loginNiang = (ImageView) findViewById(R.id.loginNiang);
         loginLabel = (TextView) findViewById(R.id.loginLabel);
@@ -173,6 +171,13 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
         lastFragment = fragment;
+
+        loginFragment.clearDelayShowError();
+        registerFragment.clearDelayShowError();
+        if(forgetFragment != null) {
+            forgetFragment.clearDelayShowError();
+        }
+        errorTip.hide();
     }
 
     public void login() {
@@ -270,9 +275,14 @@ public class LoginActivity extends AppCompatActivity {
         loginDiv.setVisibility(View.GONE);
         forgetDiv.setVisibility(View.VISIBLE);
 
+        loginFragment.clearDelayShowError();
+        registerFragment.clearDelayShowError();
+
         if(forgetFragment == null) {
             forgetFragment = new ForgetFragment();
         }
+        forgetFragment.clearDelayShowError();
+        errorTip.hide();
         if(!forgetFragment.isAdded()) {
             LogUtil.i("forgetFragment add");
             FragmentManager fragmentManager = getSupportFragmentManager();
@@ -285,8 +295,13 @@ public class LoginActivity extends AppCompatActivity {
         LogUtil.i("showLoginDiv");
         loginDiv.setVisibility(View.VISIBLE);
         forgetDiv.setVisibility(View.GONE);
+
+        loginFragment.clearDelayShowError();
+        registerFragment.clearDelayShowError();
+        forgetFragment.clearDelayShowError();
+        errorTip.hide();
     }
-    public ErrorTipText getErrorTipText() {
+    public ErrorTip getErrorTip() {
         return errorTip;
     }
 }

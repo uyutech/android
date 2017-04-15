@@ -1,6 +1,5 @@
 package net.xiguo.test.login;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -24,7 +23,7 @@ import net.xiguo.test.R;
 import net.xiguo.test.utils.LogUtil;
 import net.xiguo.test.web.MyCookies;
 import net.xiguo.test.web.URLs;
-import net.xiguo.test.widget.ErrorTipText;
+import net.xiguo.test.widget.ErrorTip;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -55,7 +54,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     private boolean showPass;
     private Button login;
     private LoginActivity loginActivity;
-    private ErrorTipText errorTipText;
+    private ErrorTip errorTip;
     private Handler handler;
     private Runnable runnable;
 
@@ -64,7 +63,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
         loginActivity = (LoginActivity) getActivity();
-        errorTipText = loginActivity.getErrorTipText();
+        errorTip = loginActivity.getErrorTip();
         handler = new Handler();
 
         userName = (EditText) view.findViewById(R.id.userName);
@@ -128,10 +127,16 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
 
         return view;
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+        LogUtil.i("test");
+    }
 
     public void clearDelayShowError() {
         if(handler != null && runnable != null) {
             handler.removeCallbacks(runnable);
+            runnable = null;
         }
     }
     private void checkLoginButton() {
@@ -145,10 +150,10 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
             runnable = new Runnable() {
                 @Override
                 public void run() {
-                    errorTipText.showNeedUserName();
+                    errorTip.showNeedUserName();
                 }
             };
-            handler.postDelayed(runnable, 300);
+            handler.postDelayed(runnable, 500);
             valid = false;
         }
         else {
@@ -159,14 +164,14 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                 runnable = new Runnable() {
                     @Override
                     public void run() {
-                        errorTipText.showPhoneUnValid();
+                        errorTip.showPhoneUnValid();
                     }
                 };
-                handler.postDelayed(runnable, 300);
+                handler.postDelayed(runnable, 500);
                 valid = false;
             }
             else {
-                errorTipText.hide();
+                errorTip.hide();
             }
         }
         // 用户名如果正确合法，则判断密码输入状态
@@ -176,24 +181,24 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                 runnable = new Runnable() {
                     @Override
                     public void run() {
-                        errorTipText.showNeedUserPass();
+                        errorTip.showNeedUserPass();
                     }
                 };
-                handler.postDelayed(runnable, 300);
+                handler.postDelayed(runnable, 500);
                 valid = false;
             }
             else if(userPassText.length() < 8) {
                 runnable = new Runnable() {
                     @Override
                     public void run() {
-                        errorTipText.showUserPassTooShort();
+                        errorTip.showUserPassTooShort();
                     }
                 };
-                handler.postDelayed(runnable, 300);
+                handler.postDelayed(runnable, 500);
                 valid = false;
             }
             else {
-                errorTipText.hide();
+                errorTip.hide();
             }
         }
         // 设置按钮禁用状态

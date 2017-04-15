@@ -7,7 +7,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -15,22 +14,21 @@ import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 
 import net.xiguo.test.R;
-import net.xiguo.test.utils.LogUtil;
 
 /**
  * Created by army on 2017/4/11.
  */
 
-public class ErrorTipText extends AppCompatTextView {
-    public ErrorTipText(Context context) {
+public class ErrorTip extends AppCompatTextView {
+    public ErrorTip(Context context) {
         this(context, null);
     }
 
-    public ErrorTipText(Context context, AttributeSet attrs) {
+    public ErrorTip(Context context, AttributeSet attrs) {
         this(context, attrs, android.R.attr.editTextStyle);
     }
 
-    public ErrorTipText(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ErrorTip(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 

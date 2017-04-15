@@ -86,6 +86,7 @@
             android:layout_weight="1"
             android:background="@drawable/login_field_bg"
             android:orientation="horizontal"
+            android:alpha="0.3"
             android:paddingEnd="14dp"
             android:paddingStart="14dp">
             <ImageView
@@ -115,6 +116,7 @@
             android:layout_height="match_parent"
             android:layout_marginStart="10dp"
             android:id="@+id/sendValid"
+            android:enabled="false"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
             android:background="@drawable/login_valid_bg"
@@ -127,6 +129,7 @@
         android:layout_height="40dp"
         android:layout_marginTop="10dp"
         android:id="@+id/ok"
+        android:enabled="false"
         android:text="@string/forgetButton"
         android:textColor="@drawable/login_button_color"
         android:textSize="15sp"

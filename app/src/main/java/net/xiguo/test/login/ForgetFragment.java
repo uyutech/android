@@ -1,6 +1,8 @@
 package net.xiguo.test.login;
 
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.InputType;
@@ -14,7 +16,10 @@ import android.widget.ImageView;
 
 import net.xiguo.test.LoginActivity;
 import net.xiguo.test.R;
-import net.xiguo.test.utils.LogUtil;
+import net.xiguo.test.widget.ErrorTip;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by army on 2017/4/13.
@@ -26,19 +31,30 @@ public class ForgetFragment extends Fragment {
     private EditText userValid;
     private ImageView switchShowPass;
     private boolean showPass;
+    private ViewGroup validViewGroup;
     private Button sendValid;
+    private int sendDelay;
     private Button ok;
+    private LoginActivity loginActivity;
+    private ErrorTip errorTip;
+    private Handler handler;
+    private Runnable runnable;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_forget, container, false);
+        loginActivity = (LoginActivity) getActivity();
+        errorTip = loginActivity.getErrorTip();
+        handler = new Handler();
 
         userName = (EditText) view.findViewById(R.id.userName);
         userPass = (EditText) view.findViewById(R.id.userPass);
         userValid = (EditText) view.findViewById(R.id.userValid);
+        validViewGroup = (ViewGroup) userValid.getParent();
         switchShowPass = (ImageView) view.findViewById(R.id.switchShowPass);
         sendValid = (Button) view.findViewById(R.id.sendValid);
+        sendDelay = 0;
         ok = (Button) view.findViewById(R.id.ok);
 
         userName.addTextChangedListener(new TextWatcher() {
@@ -50,7 +66,7 @@ public class ForgetFragment extends Fragment {
             }
             @Override
             public void afterTextChanged(Editable s) {
-                checkLoginButton();
+                checkOkButton();
             }
         });
         userPass.addTextChangedListener(new TextWatcher() {
@@ -62,7 +78,7 @@ public class ForgetFragment extends Fragment {
             }
             @Override
             public void afterTextChanged(Editable s) {
-                checkLoginButton();
+                checkOkButton();
             }
         });
 
@@ -92,29 +108,153 @@ public class ForgetFragment extends Fragment {
             }
             @Override
             public void afterTextChanged(Editable s) {
-                sendValid.setEnabled(userValid.getText().length() == 6);
+                checkOkButton();
             }
         });
         sendValid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                sendValid.setEnabled(false);
+                userValid.setEnabled(true);
+                validViewGroup.setAlpha(1);
+                sendDelay = 60;
+                sendValid.setText(sendDelay + "秒后重新发送");
+                new CountDownTimer(60000, 1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        sendValid.setText(--sendDelay + "秒后刷新");
+                    }
+                    @Override
+                    public void onFinish() {
+                        sendDelay = 0;
+                        sendValid.setText("重新发送");
+                        checkOkButton();
+                    }
+                }.start();
             }
         });
-
-        checkLoginButton();
-        checkSendButton();
 
         return view;
     }
 
-    private void checkLoginButton() {
-        if (userName.getText().length() != 11 || userPass.getText().length() < 8 || userValid.getText().length() != 6) {
-            ok.setEnabled(false);
-        } else {
-            ok.setEnabled(true);
+    public void clearDelayShowError() {
+        if(handler != null && runnable != null) {
+            handler.removeCallbacks(runnable);
+            runnable = null;
         }
     }
-    private void checkSendButton() {
-        sendValid.setEnabled(userName.getText().length() == 11);
+    private void checkOkButton() {
+        String userNameText = userName.getText().toString();
+        String userPassText = userPass.getText().toString();
+        String userValidText = userValid.getText().toString();
+        // 清除上次可能的延迟校验
+        clearDelayShowError();
+        boolean valid = true;
+        // 空则清除提示信息
+        if(userNameText.equals("")) {
+            runnable = new Runnable() {
+                @Override
+                public void run() {
+                    errorTip.showNeedUserName();
+                }
+            };
+            handler.postDelayed(runnable, 500);
+            valid = false;
+        }
+        else {
+            // 手机格式校验
+            Pattern pattern = Pattern.compile("^1[356789]\\d{9}$");
+            Matcher matcher = pattern.matcher(userNameText);
+            if(!matcher.matches()) {
+                runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        errorTip.showPhoneUnValid();
+                    }
+                };
+                handler.postDelayed(runnable, 500);
+                valid = false;
+            }
+            else {
+                errorTip.hide();
+            }
+        }
+        // 用户名如果正确合法，则判断密码输入状态
+        if(valid) {
+            // 空则清除提示信息
+            if(userPassText.equals("")) {
+                runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        errorTip.showNeedUserPass();
+                    }
+                };
+                handler.postDelayed(runnable, 500);
+                valid = false;
+            }
+            else if(userPassText.length() < 8) {
+                runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        errorTip.showUserPassTooShort();
+                    }
+                };
+                handler.postDelayed(runnable, 500);
+                valid = false;
+            }
+            else {
+                errorTip.hide();
+            }
+        }
+        // 密码也正确，放开发送验证码按钮
+        if(valid) {
+            // 可能上次发送没结束，判断是否倒计时到0秒
+            if(sendDelay == 0) {
+                sendValid.setEnabled(true);
+            }
+        }
+        else if(sendDelay == 0) {
+            sendValid.setEnabled(false);
+        }
+        // 判断输入验证码里的内容
+        if(valid) {
+            // 是否可用
+            if(userValid.isEnabled()) {
+                // 空则清除提示信息
+                if (userValidText.equals("")) {
+                    runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            errorTip.showNeedUserValid();
+                        }
+                    };
+                    handler.postDelayed(runnable, 500);
+                    valid = false;
+                } else if (userValidText.length() != 6) {
+                    runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            errorTip.showUserValidError();
+                        }
+                    };
+                    handler.postDelayed(runnable, 500);
+                    valid = false;
+                } else {
+                    errorTip.hide();
+                }
+            }
+            else if(sendDelay == 0){
+                runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        errorTip.showNeedSendUserValid();
+                    }
+                };
+                handler.postDelayed(runnable, 500);
+                valid = false;
+            }
+        }
+        // 设置按钮禁用状态
+        ok.setEnabled(valid);
     }
 }
