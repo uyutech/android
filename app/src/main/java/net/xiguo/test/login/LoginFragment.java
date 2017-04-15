@@ -129,13 +129,16 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         return view;
     }
 
+    public void clearDelayShowError() {
+        if(handler != null && runnable != null) {
+            handler.removeCallbacks(runnable);
+        }
+    }
     private void checkLoginButton() {
         String userNameText = userName.getText().toString();
         String userPassText = userPass.getText().toString();
         // 清除上次可能的延迟校验
-        if(handler != null && runnable != null) {
-            handler.removeCallbacks(runnable);
-        }
+        clearDelayShowError();
         boolean valid = true;
         // 空则清除提示信息
         if(userNameText.equals("")) {
@@ -166,7 +169,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                 errorTipText.hide();
             }
         }
-        // 用户名正确合法，判断密码输入状态
+        // 用户名如果正确合法，则判断密码输入状态
         if(valid) {
             // 空则清除提示信息
             if(userPassText.equals("")) {

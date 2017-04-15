@@ -92,6 +92,24 @@ public class ErrorTipText extends AppCompatTextView {
         setText(spannableString);
         setVisibility(VISIBLE);
     }
+    public void showNeedSendUserValid() {
+        SpannableString spannableString = new SpannableString("请先发送验证码");
+        spannableString.setSpan(new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.errorTipStrong)), 4, 7, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        setText(spannableString);
+        setVisibility(VISIBLE);
+    }
+    public void showNeedUserValid() {
+        SpannableString spannableString = new SpannableString("请输入验证码");
+        spannableString.setSpan(new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.errorTipStrong)), 3, 6, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        setText(spannableString);
+        setVisibility(VISIBLE);
+    }
+    public void showUserValidError() {
+        SpannableString spannableString = new SpannableString("验证码是6位哟");
+        spannableString.setSpan(new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.errorTipStrong)), 4, 5, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        setText(spannableString);
+        setVisibility(VISIBLE);
+    }
     public void hide() {
         setText("");
         setVisibility(GONE);
