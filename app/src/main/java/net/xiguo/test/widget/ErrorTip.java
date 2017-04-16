@@ -108,6 +108,12 @@ public class ErrorTip extends AppCompatTextView {
         setText(spannableString);
         setVisibility(VISIBLE);
     }
+    public void showNetError() {
+        SpannableString spannableString = new SpannableString("网络异常请稍后再试");
+        spannableString.setSpan(new ForegroundColorSpan(ContextCompat.getColor(getContext(), R.color.errorTipStrong)), 0, 4, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        setText(spannableString);
+        setVisibility(VISIBLE);
+    }
     public void hide() {
         setText("");
         setVisibility(GONE);
