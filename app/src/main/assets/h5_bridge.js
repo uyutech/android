@@ -6,7 +6,7 @@
     var console = window.console;
     var log = console.log;
     var postMessage = function(msg) {
-        log.call(console, "h5container.message: " + msg);
+        log.call(console, 'h5container.message: ' + msg);
     };
 
     window.JSBridge = {
@@ -18,13 +18,24 @@
                 cb = param;
                 param = null;
             }
-            var clientId = new Date().getTime() + '' + Math.random();
             var invokeMsg = JSON.stringify({
                 fn: fn,
-                param: param,
-                clientId: clientId,
+                param: param
             });
             postMessage(invokeMsg);
+        },
+        trigger: function(name, param) {
+            if(name) {
+                var event = document.createEvent('Events');
+                event.initEvent(name, false, true);
+                if (typeof param === 'object') {
+                    for(var k in param) {
+                        event[k] = param[k];
+                    }
+                }
+                var prevent = !document.dispatchEvent(event);
+                JSBridge.call(name, { prevent: prevent });
+            }
         }
     };
 
