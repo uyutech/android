@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.Window;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.tencent.smtt.sdk.CookieManager;
@@ -13,6 +14,7 @@ import com.tencent.smtt.sdk.CookieSyncManager;
 import com.tencent.smtt.sdk.WebView;
 
 import net.xiguo.test.event.H5EventDispatcher;
+import net.xiguo.test.plugin.BackPlugin;
 import net.xiguo.test.plugin.H5Plugin;
 import net.xiguo.test.plugin.PushWindowPlugin;
 import net.xiguo.test.plugin.SetTitlePlugin;
@@ -30,6 +32,10 @@ public class X5Activity extends AppCompatActivity {
 
     private SetTitlePlugin setTitlePlugin;
     private PushWindowPlugin pushWindowPlugin;
+    private BackPlugin backPlugin;
+
+    private ImageView back;
+
     private boolean firstWeb;
 
     @Override
@@ -40,6 +46,7 @@ public class X5Activity extends AppCompatActivity {
 
         initPlugins();
 
+        back = (ImageView) findViewById(R.id.back);
         WebView webView = (WebView) findViewById(R.id.x5);
         webView.getSettings().setJavaScriptEnabled(true);
 
@@ -73,10 +80,13 @@ public class X5Activity extends AppCompatActivity {
     }
 
     private void initPlugins() {
-        setTitlePlugin = new SetTitlePlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.SET_TITLE, setTitlePlugin);
+//        setTitlePlugin = new SetTitlePlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.SET_TITLE, setTitlePlugin);
         pushWindowPlugin = new PushWindowPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.PUSH_WINDOW, pushWindowPlugin);
+
+        backPlugin = new BackPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.BACK, backPlugin);
     }
 
     public void setTitle(String title) {
@@ -100,5 +110,17 @@ public class X5Activity extends AppCompatActivity {
             return true;
         }
         return super.onKeyUp(keyCode, event);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch(requestCode) {
+            case 1:
+                if(resultCode == RESULT_OK) {
+                    String params = data.getStringExtra("params");
+                    LogUtil.i("onActivityResult: " + params);
+                }
+                break;
+        }
     }
 }

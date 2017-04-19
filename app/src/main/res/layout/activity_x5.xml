@@ -15,6 +15,7 @@
             android:layout_height="wrap_content"
             android:paddingStart="10dp"
             android:paddingEnd="0dp"
+            android:id="@+id/back"
             android:text="@string/webBack"
             android:textSize="16sp"
             android:textColor="@color/titleText"

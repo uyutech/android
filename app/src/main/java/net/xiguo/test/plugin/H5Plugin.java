@@ -10,9 +10,11 @@ import net.xiguo.test.utils.LogUtil;
  * Created by army on 2017/3/23.
  */
 
-public class H5Plugin implements IH5EventHandle {
+public abstract class H5Plugin implements IH5EventHandle {
     public static final String SET_TITLE = "setTitle";
     public static final String PUSH_WINDOW = "pushWindow";
+    public static final String POP_WINDOW = "popWindow";
+    public static final String BACK = "back";
 
     protected X5Activity activity;
 
@@ -20,9 +22,8 @@ public class H5Plugin implements IH5EventHandle {
         this.activity = activity;
     }
 
-    public void handle(JSONObject param) {
-        LogUtil.i("H5Plugin: " + param.toString());
-    }
+    public abstract void handle(JSONObject param);
+
     public boolean isActivity(X5Activity activity) {
         return this.activity == activity;
     }

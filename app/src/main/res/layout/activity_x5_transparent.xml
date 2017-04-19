@@ -12,7 +12,7 @@
         android:paddingEnd="5dp"
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
-        android:id="@+id/forgetBack"
+        android:id="@+id/back"
         android:gravity="center"
         android:src="@drawable/left_arrow_blue"/>
     <com.tencent.smtt.sdk.WebView

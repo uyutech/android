@@ -13,6 +13,7 @@ import java.util.HashMap;
 
 public class H5EventDispatcher {
     private static HashMap<String, ArrayList<IH5EventHandle>> map = new HashMap();
+
     public static void dispatch(String action, X5Activity activity, JSONObject param) {
         if(map.containsKey(action)) {
             ArrayList<IH5EventHandle> list = map.get(action);
