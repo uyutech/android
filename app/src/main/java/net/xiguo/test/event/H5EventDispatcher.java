@@ -29,11 +29,11 @@ public class H5EventDispatcher {
         dispatch(action, activity, json);
     }
     public static void addEventListener(String action, IH5EventHandle handle) {
-        if(map.containsKey(action) == false) {
+        if(!map.containsKey(action)) {
             map.put(action, new ArrayList<IH5EventHandle>());
         }
         ArrayList<IH5EventHandle> list = map.get(action);
-        if(list.contains(handle) == false) {
+        if(!list.contains(handle)) {
             list.add(handle);
         }
     }
