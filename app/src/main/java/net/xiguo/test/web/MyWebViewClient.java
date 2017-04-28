@@ -76,32 +76,7 @@ public class MyWebViewClient extends WebViewClient {
 
     @Override
     public void onPageFinished(WebView view, String args) {
-        if(h5Bridge != null) {
-            view.loadUrl("javascript:" + h5Bridge);
-            return;
-        }
-        InputStream is = null;
-        try {
-            is = BaseApplication.getContext().getAssets().open("h5_bridge.js");
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            StringBuilder sb = new StringBuilder();
-            String line = null;
-            while((line = br.readLine()) != null) {
-                sb.append(line);
-            }
-            h5Bridge = sb.toString();
-            LogUtil.i("javascript:" + h5Bridge);
-            view.loadUrl("javascript:" + h5Bridge);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if(is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        LogUtil.i("onPageFinished:" + args);
+        view.loadUrl("javascript:" + LoadBridge.getBridgeJs());
     }
 }

@@ -66,6 +66,8 @@ public class LoginActivity extends AppCompatActivity {
     private ForgetFragment forgetFragment;
     private ImageView forgetBack;
 
+    private ImageView temp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,6 +93,14 @@ public class LoginActivity extends AppCompatActivity {
         loginFragment = new LoginFragment();
         registerFragment = new RegisterFragment();
         forgetBack = (ImageView) findViewById(R.id.forgetBack);
+
+        temp = (ImageView) findViewById(R.id.temp);
+        temp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                login();
+            }
+        });
 
         loginLabel.setOnClickListener(new View.OnClickListener() {
             @Override

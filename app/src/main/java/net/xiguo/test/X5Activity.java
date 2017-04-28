@@ -42,7 +42,7 @@ public class X5Activity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.activity_x5);
+        setContentView(R.layout.activity_x5_transparent);
 
         initPlugins();
 
