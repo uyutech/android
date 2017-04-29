@@ -26,13 +26,13 @@ public class MyWebChromeClient extends WebChromeClient {
     }
     @Override
     public void onReceivedTitle(WebView view, String args) {
-        LogUtil.i("onReceivedTitle:" + args);
-        view.loadUrl("javascript:" + LoadBridge.getBridgeJs());
+        LogUtil.i("onReceivedTitle: " + args);
+        view.loadUrl("javascript: " + LoadBridge.getBridgeJs());
     }
     @Override
     public boolean onConsoleMessage(ConsoleMessage cm) {
         String msg = cm.message();
-        LogUtil.i("onConsoleMessage:" + msg);
+        LogUtil.i("onConsoleMessage: " + msg);
         if(msg.startsWith(PREFIX)) {
             JSONObject json = JSON.parseObject(msg.substring(PREFIX.length() - 1));
             H5EventDispatcher.dispatch(this.activity, json);

@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         LogUtil.i("start unZipH5Pack: " + start);
         ZipInputStream zis = null;
         try {
-            InputStream is = BaseApplication.getContext().getAssets().open("test.zip");
+            InputStream is = BaseApplication.getContext().getAssets().open("h5.zip");
             zis = new ZipInputStream(is);
             ZipEntry next = null;
             String fileName = null;

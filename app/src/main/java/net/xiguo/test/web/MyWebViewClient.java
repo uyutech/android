@@ -76,7 +76,7 @@ public class MyWebViewClient extends WebViewClient {
 
     @Override
     public void onPageFinished(WebView view, String args) {
-        LogUtil.i("onPageFinished:" + args);
-        view.loadUrl("javascript:" + LoadBridge.getBridgeJs());
+        LogUtil.i("onPageFinished: " + args);
+        view.loadUrl("javascript: " + LoadBridge.getBridgeJs());
     }
 }

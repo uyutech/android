@@ -5,6 +5,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -46,8 +47,7 @@ public class X5Activity extends AppCompatActivity {
 
         initPlugins();
 
-        back = (ImageView) findViewById(R.id.back);
-        WebView webView = (WebView) findViewById(R.id.x5);
+        final WebView webView = (WebView) findViewById(R.id.x5);
         webView.getSettings().setJavaScriptEnabled(true);
 
         MyWebViewClient webViewClient = new MyWebViewClient(this);
@@ -62,6 +62,15 @@ public class X5Activity extends AppCompatActivity {
         // 第一个web？
         firstWeb = intent.getBooleanExtra("firstWeb", false);
         LogUtil.i("firstWeb: " + firstWeb);
+
+        back = (ImageView) findViewById(R.id.back);
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LogUtil.i("click back");
+                webView.loadUrl("javascript: JSBridge.trigger('back');");
+            }
+        });
 
         // 离线包地址添加cookie
         if(url.startsWith(URLs.H5_DOMAIN)) {
@@ -99,6 +108,9 @@ public class X5Activity extends AppCompatActivity {
         Intent intent = new Intent(X5Activity.this, X5Activity.class);
         intent.putExtra("url", url);
         startActivityForResult(intent, 1);
+    }
+    public boolean isFirstWeb() {
+        return firstWeb;
     }
 
     @Override
