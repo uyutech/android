@@ -16,6 +16,8 @@ public abstract class H5Plugin implements IH5EventHandle {
     public static final String POP_WINDOW = "popWindow";
     public static final String BACK = "back";
     public static final String TOAST = "toast";
+    public static final String SHOW_LOADING = "showLoading";
+    public static final String HIDE_LOADING = "hideLoading";
 
     protected X5Activity activity;
 
