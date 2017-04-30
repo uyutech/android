@@ -17,8 +17,10 @@ import com.tencent.smtt.sdk.WebView;
 import net.xiguo.test.event.H5EventDispatcher;
 import net.xiguo.test.plugin.BackPlugin;
 import net.xiguo.test.plugin.H5Plugin;
+import net.xiguo.test.plugin.PopWindowPlugin;
 import net.xiguo.test.plugin.PushWindowPlugin;
 import net.xiguo.test.plugin.SetTitlePlugin;
+import net.xiguo.test.plugin.ToastPlugin;
 import net.xiguo.test.utils.LogUtil;
 import net.xiguo.test.web.MyCookies;
 import net.xiguo.test.web.MyWebChromeClient;
@@ -33,7 +35,9 @@ public class X5Activity extends AppCompatActivity {
 
     private SetTitlePlugin setTitlePlugin;
     private PushWindowPlugin pushWindowPlugin;
+    private PopWindowPlugin popWindowPlugin;
     private BackPlugin backPlugin;
+    private ToastPlugin toastPlugin;
 
     private ImageView back;
 
@@ -94,8 +98,14 @@ public class X5Activity extends AppCompatActivity {
         pushWindowPlugin = new PushWindowPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.PUSH_WINDOW, pushWindowPlugin);
 
+        popWindowPlugin = new PopWindowPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.POP_WINDOW, popWindowPlugin);
+
         backPlugin = new BackPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.BACK, backPlugin);
+
+        toastPlugin = new ToastPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.TOAST, toastPlugin);
     }
 
     public void setTitle(String title) {

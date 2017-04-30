@@ -25,6 +25,11 @@ public class PopWindowPlugin extends H5Plugin {
         Intent intent = new Intent();
         intent.putExtra("params", params);
         this.activity.setResult(Activity.RESULT_OK, intent);
-        this.activity.finish();
+        if(this.activity.isFirstWeb()) {
+            this.activity.moveTaskToBack(true);
+        }
+        else {
+            this.activity.finish();
+        }
     }
 }
