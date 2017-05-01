@@ -18,6 +18,7 @@ public abstract class H5Plugin implements IH5EventHandle {
     public static final String TOAST = "toast";
     public static final String SHOW_LOADING = "showLoading";
     public static final String HIDE_LOADING = "hideLoading";
+    public static final String ALERT = "alert";
 
     protected X5Activity activity;
 

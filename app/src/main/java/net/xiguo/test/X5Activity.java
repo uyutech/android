@@ -15,6 +15,7 @@ import com.tencent.smtt.sdk.CookieSyncManager;
 import com.tencent.smtt.sdk.WebView;
 
 import net.xiguo.test.event.H5EventDispatcher;
+import net.xiguo.test.plugin.AlertPlugin;
 import net.xiguo.test.plugin.BackPlugin;
 import net.xiguo.test.plugin.H5Plugin;
 import net.xiguo.test.plugin.HideLoadingPlugin;
@@ -42,6 +43,7 @@ public class X5Activity extends AppCompatActivity {
     private ToastPlugin toastPlugin;
     private ShowLoadingPlugin showLoadingPlugin;
     private HideLoadingPlugin hideLoadingPlugin;
+    private AlertPlugin alertPlugin;
 
     private ImageView back;
 
@@ -116,6 +118,9 @@ public class X5Activity extends AppCompatActivity {
 
         hideLoadingPlugin = new HideLoadingPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.HIDE_LOADING, hideLoadingPlugin);
+
+        alertPlugin = new AlertPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.ALERT, alertPlugin);
     }
 
     public void setTitle(String title) {
