@@ -19,6 +19,9 @@ public abstract class H5Plugin implements IH5EventHandle {
     public static final String SHOW_LOADING = "showLoading";
     public static final String HIDE_LOADING = "hideLoading";
     public static final String ALERT = "alert";
+    public static final String CONFIRM = "confirm";
+    public static final String HIDE_BACKBUTTON = "hideBackButton";
+    public static final String SHOW_BACKBUTTON = "showBackButton";
 
     protected X5Activity activity;
 

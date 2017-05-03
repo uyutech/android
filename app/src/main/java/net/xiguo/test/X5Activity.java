@@ -17,11 +17,14 @@ import com.tencent.smtt.sdk.WebView;
 import net.xiguo.test.event.H5EventDispatcher;
 import net.xiguo.test.plugin.AlertPlugin;
 import net.xiguo.test.plugin.BackPlugin;
+import net.xiguo.test.plugin.ConfirmPlugin;
 import net.xiguo.test.plugin.H5Plugin;
+import net.xiguo.test.plugin.HideBackButtonPlugin;
 import net.xiguo.test.plugin.HideLoadingPlugin;
 import net.xiguo.test.plugin.PopWindowPlugin;
 import net.xiguo.test.plugin.PushWindowPlugin;
 import net.xiguo.test.plugin.SetTitlePlugin;
+import net.xiguo.test.plugin.ShowBackButtonPlugin;
 import net.xiguo.test.plugin.ShowLoadingPlugin;
 import net.xiguo.test.plugin.ToastPlugin;
 import net.xiguo.test.utils.LogUtil;
@@ -44,8 +47,13 @@ public class X5Activity extends AppCompatActivity {
     private ShowLoadingPlugin showLoadingPlugin;
     private HideLoadingPlugin hideLoadingPlugin;
     private AlertPlugin alertPlugin;
+    private ConfirmPlugin confirmPlugin;
+    private HideBackButtonPlugin hideBackButtonPlugin;
+    private ShowBackButtonPlugin showBackButtonPlugin;
 
     private ImageView back;
+    private WebView webView;
+    private String url;
 
     private boolean firstWeb;
 
@@ -57,7 +65,7 @@ public class X5Activity extends AppCompatActivity {
 
         initPlugins();
 
-        final WebView webView = (WebView) findViewById(R.id.x5);
+        webView = (WebView) findViewById(R.id.x5);
         webView.getSettings().setJavaScriptEnabled(true);
 
         MyWebViewClient webViewClient = new MyWebViewClient(this);
@@ -67,7 +75,7 @@ public class X5Activity extends AppCompatActivity {
 
         // 从上个启动活动获取需要加载的url
         Intent intent = getIntent();
-        String url = intent.getStringExtra("url");
+        url = intent.getStringExtra("url");
         LogUtil.i("url: " + url);
         // 第一个web？
         firstWeb = intent.getBooleanExtra("firstWeb", false);
@@ -121,6 +129,15 @@ public class X5Activity extends AppCompatActivity {
 
         alertPlugin = new AlertPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.ALERT, alertPlugin);
+
+        confirmPlugin = new ConfirmPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.CONFIRM, confirmPlugin);
+
+        hideBackButtonPlugin = new HideBackButtonPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.HIDE_BACKBUTTON, hideBackButtonPlugin);
+
+        showBackButtonPlugin = new ShowBackButtonPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.SHOW_BACKBUTTON, showBackButtonPlugin);
     }
 
     public void setTitle(String title) {
@@ -136,6 +153,15 @@ public class X5Activity extends AppCompatActivity {
     }
     public boolean isFirstWeb() {
         return firstWeb;
+    }
+    public WebView getWebView() {
+        return webView;
+    }
+    public void hideBackButton() {
+        back.setVisibility(View.GONE);
+    }
+    public void showBackButton() {
+        back.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -159,5 +185,18 @@ public class X5Activity extends AppCompatActivity {
                 }
                 break;
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        LogUtil.i("onStart: ", url);
+        webView.loadUrl("javascript: JSBridge.trigger('back');");
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        LogUtil.i("onStop: ", url);
+        webView.loadUrl("javascript: JSBridge.trigger('back');");
     }
 }

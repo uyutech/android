@@ -130,7 +130,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onResume() {
         super.onResume();
-        LogUtil.i("test");
     }
 
     public void clearDelayShowError() {
