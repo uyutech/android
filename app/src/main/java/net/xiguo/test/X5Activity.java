@@ -56,6 +56,7 @@ public class X5Activity extends AppCompatActivity {
     private String url;
 
     private boolean firstWeb;
+    private boolean firstRun;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +65,7 @@ public class X5Activity extends AppCompatActivity {
         setContentView(R.layout.activity_x5_transparent);
 
         initPlugins();
+        firstRun = true;
 
         webView = (WebView) findViewById(R.id.x5);
         webView.getSettings().setJavaScriptEnabled(true);
@@ -191,12 +193,17 @@ public class X5Activity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         LogUtil.i("onStart: ", url);
-        webView.loadUrl("javascript: JSBridge.trigger('back');");
+        if(!firstRun) {
+            webView.loadUrl("javascript: JSBridge.trigger('resume');");
+        }
+        else {
+            firstRun = false;
+        }
     }
     @Override
     protected void onStop() {
         super.onStop();
         LogUtil.i("onStop: ", url);
-        webView.loadUrl("javascript: JSBridge.trigger('back');");
+        webView.loadUrl("javascript: JSBridge.trigger('pause');");
     }
 }
