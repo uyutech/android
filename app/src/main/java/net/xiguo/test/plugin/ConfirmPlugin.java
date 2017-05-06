@@ -34,13 +34,13 @@ public class ConfirmPlugin extends H5Plugin {
             dialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int which) {
-                    ConfirmPlugin.this.activity.getWebView().loadUrl("javascript: jsBridge.confirmCb('" + uid + "',true);");
+                    ConfirmPlugin.this.activity.getWebView().loadUrl("javascript: JSBridge.confirmCb('" + uid + "',true);");
                 }
             });
             dialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int which) {
-                    ConfirmPlugin.this.activity.getWebView().loadUrl("javascript: jsBridge.confirmCb('" + uid + "',false);");
+                    ConfirmPlugin.this.activity.getWebView().loadUrl("javascript: JSBridge.confirmCb('" + uid + "',false);");
                 }
             });
             dialog.show();
