@@ -20,7 +20,8 @@
             }
             var invokeMsg = JSON.stringify({
                 fn: fn,
-                param: param
+                param: param,
+                cb: cb
             });
             postMessage(invokeMsg);
         },

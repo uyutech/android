@@ -45,9 +45,13 @@ public class MyWebViewClient extends WebViewClient {
             LogUtil.i("shouldInterceptRequest: " + url);
             if (url.startsWith(URLs.H5_DOMAIN)
                     && (url.endsWith(".html")
+                    || url.endsWith(".htm")
                     || url.endsWith(".css")
                     || url.endsWith(".js")
-                    || url.endsWith(".png"))) {
+                    || url.endsWith(".png")
+                    || url.endsWith(".gif")
+                    || url.endsWith(".jpg")
+                    || url.endsWith(".jpeg"))) {
                 String path = url.substring(URLs.H5_DOMAIN.length());
                 LogUtil.i("shouldInterceptPath: " + path);
                 WebResourceResponse wrr = null;
@@ -58,12 +62,20 @@ public class MyWebViewClient extends WebViewClient {
                     is = BaseApplication.getContext().openFileInput(path);
                     if (path.endsWith(".html")) {
                         wrr = new WebResourceResponse("text/html", "utf-8", is);
+                    } else if (path.endsWith(".htm")) {
+                        wrr = new WebResourceResponse("text/html", "utf-8", is);
                     } else if (path.endsWith(".css")) {
                         wrr = new WebResourceResponse("text/css", "utf-8", is);
                     } else if (path.endsWith(".js")) {
                         wrr = new WebResourceResponse("application/javascript", "utf-8", is);
                     } else if (path.endsWith(".png")) {
                         wrr = new WebResourceResponse("image/png", "utf-8", is);
+                    } else if (path.endsWith(".gif")) {
+                        wrr = new WebResourceResponse("image/gif", "utf-8", is);
+                    } else if (path.endsWith(".jpg")) {
+                        wrr = new WebResourceResponse("image/jpg", "utf-8", is);
+                    } else if (path.endsWith(".jpeg")) {
+                        wrr = new WebResourceResponse("image/jpeg", "utf-8", is);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
