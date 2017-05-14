@@ -1,5 +1,6 @@
 package net.xiguo.test.login;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -14,6 +15,7 @@ import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,14 +23,26 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 
 import net.xiguo.test.LoginActivity;
 import net.xiguo.test.R;
 import net.xiguo.test.utils.LogUtil;
+import net.xiguo.test.web.URLs;
 import net.xiguo.test.widget.ErrorTip;
 
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * Created by army on 2017/3/26.
@@ -149,6 +163,130 @@ public class RegisterFragment extends Fragment {
                         checkRegButton();
                     }
                 }.start();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        LogUtil.i("SEND_REG_SMS run");
+                        try {
+                            OkHttpClient client = new OkHttpClient
+                                    .Builder()
+                                    .build();
+                            String url = URLs.LOGIN_DOMAIN + URLs.SEND_REG_SMS + "?mobile=" + userName.getText().toString();
+                            LogUtil.i(url);
+                            Request request = new Request.Builder()
+                                    .url(url)
+                                    .build();
+                            Response response = client.newCall(request).execute();
+                            String responseBody = response.body().string();
+                            LogUtil.i("SEND_REG_SMS: " + responseBody);
+                            if(responseBody.isEmpty()) {
+                                loginActivity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast toast = Toast.makeText(loginActivity, "网络异常请重试", Toast.LENGTH_SHORT);
+                                        toast.setGravity(Gravity.CENTER, 0, 0);
+                                        toast.show();
+                                    }
+                                });
+                                return;
+                            }
+                            JSONObject json = JSON.parseObject(responseBody);
+                            boolean success = json.getBoolean("success");
+                            if(success) {
+                                loginActivity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast toast = Toast.makeText(loginActivity, "短信发送成功", Toast.LENGTH_SHORT);
+                                        toast.setGravity(Gravity.CENTER, 0, 0);
+                                        toast.show();
+                                    }
+                                });
+                            }
+                            else {
+                                loginActivity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast toast = Toast.makeText(loginActivity, "网络异常请重试", Toast.LENGTH_SHORT);
+                                        toast.setGravity(Gravity.CENTER, 0, 0);
+                                        toast.show();
+                                    }
+                                });
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+            }
+        });
+        register.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final ProgressDialog progressDialog = new ProgressDialog(loginActivity);
+                progressDialog.setMessage("登录中");
+                progressDialog.setCancelable(false);
+                progressDialog.setCanceledOnTouchOutside(false);
+                progressDialog.show();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        LogUtil.i("REGISTER_BY_MOBILE run");
+                        try {
+                            OkHttpClient client = new OkHttpClient
+                                    .Builder()
+                                    .build();
+                            String url = URLs.LOGIN_DOMAIN + URLs.REGISTER_BY_MOBILE
+                                    + "?mobile=" + userName.getText().toString()
+                                    + "&password=" + userPass.getText().toString()
+                                    + "&verifyCode=" + userValid.getText().toString();
+                            LogUtil.i(url);
+                            Request request = new Request.Builder()
+                                    .url(url)
+                                    .build();
+                            Response response = client.newCall(request).execute();
+                            String responseBody = response.body().string();
+                            LogUtil.i("REGISTER_BY_MOBILE: " + responseBody);
+                            if(responseBody.isEmpty()) {
+                                loginActivity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        progressDialog.hide();
+                                        Toast toast = Toast.makeText(loginActivity, "网络异常请重试", Toast.LENGTH_SHORT);
+                                        toast.setGravity(Gravity.CENTER, 0, 0);
+                                        toast.show();
+                                    }
+                                });
+                                return;
+                            }
+                            JSONObject json = JSON.parseObject(responseBody);
+                            boolean success = json.getBoolean("success");
+                            if(success) {
+                                loginActivity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        progressDialog.hide();
+                                        Toast toast = Toast.makeText(loginActivity, "注册成功", Toast.LENGTH_SHORT);
+                                        toast.setGravity(Gravity.CENTER, 0, 0);
+                                        toast.show();
+                                    }
+                                });
+                            }
+                            else {
+                                loginActivity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        progressDialog.hide();
+                                        Toast toast = Toast.makeText(loginActivity, "网络异常请重试", Toast.LENGTH_SHORT);
+                                        toast.setGravity(Gravity.CENTER, 0, 0);
+                                        toast.show();
+                                    }
+                                });
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
             }
         });
 
