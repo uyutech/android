@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 
 import net.xiguo.test.LoginActivity;
@@ -171,7 +172,7 @@ public class RegisterFragment extends Fragment {
                             OkHttpClient client = new OkHttpClient
                                     .Builder()
                                     .build();
-                            String url = URLs.LOGIN_DOMAIN + URLs.SEND_REG_SMS + "?mobile=" + userName.getText().toString();
+                            String url = URLs.REGISTER_DOMAIN + URLs.SEND_REG_SMS + "?mobile=" + userName.getText().toString();
                             LogUtil.i(url);
                             Request request = new Request.Builder()
                                     .url(url)
@@ -219,11 +220,12 @@ public class RegisterFragment extends Fragment {
                 }).start();
             }
         });
+
         register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final ProgressDialog progressDialog = new ProgressDialog(loginActivity);
-                progressDialog.setMessage("登录中");
+                progressDialog.setMessage("注册中");
                 progressDialog.setCancelable(false);
                 progressDialog.setCanceledOnTouchOutside(false);
                 progressDialog.show();
@@ -235,7 +237,7 @@ public class RegisterFragment extends Fragment {
                             OkHttpClient client = new OkHttpClient
                                     .Builder()
                                     .build();
-                            String url = URLs.LOGIN_DOMAIN + URLs.REGISTER_BY_MOBILE
+                            String url = URLs.REGISTER_DOMAIN + URLs.REGISTER_BY_MOBILE
                                     + "?mobile=" + userName.getText().toString()
                                     + "&password=" + userPass.getText().toString()
                                     + "&verifyCode=" + userValid.getText().toString();
@@ -284,6 +286,16 @@ public class RegisterFragment extends Fragment {
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
+                        } catch (JSONException e) {
+                            loginActivity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    progressDialog.hide();
+                                    Toast toast = Toast.makeText(loginActivity, "网络异常请重试", Toast.LENGTH_SHORT);
+                                    toast.setGravity(Gravity.CENTER, 0, 0);
+                                    toast.show();
+                                }
+                            });
                         }
                     }
                 }).start();

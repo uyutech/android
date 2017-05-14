@@ -1,5 +1,6 @@
 package net.xiguo.test.login;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -7,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +16,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 
 import net.xiguo.test.LoginActivity;
@@ -122,6 +126,86 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                 }
                 userPass.setSelection(userPass.getText().toString().length());
                 showPass = !showPass;
+            }
+        });
+
+        login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final ProgressDialog progressDialog = new ProgressDialog(loginActivity);
+                progressDialog.setMessage("登录中");
+                progressDialog.setCancelable(false);
+                progressDialog.setCanceledOnTouchOutside(false);
+                progressDialog.show();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        LogUtil.i("LOGIN_BY_MOBILE run");
+                        try {
+                            OkHttpClient client = new OkHttpClient
+                                    .Builder()
+                                    .build();
+                            String url = URLs.LOGIN_DOMAIN + URLs.LOGIN_BY_MOBILE
+                                    + "?userName=" + userName.getText().toString()
+                                    + "&password=" + userPass.getText().toString();
+                            LogUtil.i(url);
+                            Request request = new Request.Builder()
+                                    .url(url)
+                                    .build();
+                            Response response = client.newCall(request).execute();
+                            String responseBody = response.body().string();
+                            LogUtil.i("LOGIN_BY_MOBILE: " + responseBody);
+                            if(responseBody.isEmpty()) {
+                                loginActivity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        progressDialog.hide();
+                                        Toast toast = Toast.makeText(loginActivity, "网络异常请重试", Toast.LENGTH_SHORT);
+                                        toast.setGravity(Gravity.CENTER, 0, 0);
+                                        toast.show();
+                                    }
+                                });
+                                return;
+                            }
+                            JSONObject json = JSON.parseObject(responseBody);
+                            boolean success = json.getBoolean("success");
+                            if(success) {
+                                loginActivity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        progressDialog.hide();
+                                        Toast toast = Toast.makeText(loginActivity, "登录成功", Toast.LENGTH_SHORT);
+                                        toast.setGravity(Gravity.CENTER, 0, 0);
+                                        toast.show();
+                                    }
+                                });
+                            }
+                            else {
+                                loginActivity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        progressDialog.hide();
+                                        Toast toast = Toast.makeText(loginActivity, "用户名/密码不匹配", Toast.LENGTH_SHORT);
+                                        toast.setGravity(Gravity.CENTER, 0, 0);
+                                        toast.show();
+                                    }
+                                });
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            loginActivity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    progressDialog.hide();
+                                    Toast toast = Toast.makeText(loginActivity, "网络异常请重试", Toast.LENGTH_SHORT);
+                                    toast.setGravity(Gravity.CENTER, 0, 0);
+                                    toast.show();
+                                }
+                            });
+                        }
+                    }
+                }).start();
             }
         });
 

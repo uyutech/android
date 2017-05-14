@@ -92,6 +92,7 @@ public class LoginActivity extends AppCompatActivity {
 
         loginFragment = new LoginFragment();
         registerFragment = new RegisterFragment();
+        forgetFragment = new ForgetFragment();
         forgetBack = (ImageView) findViewById(R.id.forgetBack);
 
         temp = (ImageView) findViewById(R.id.temp);
@@ -184,9 +185,7 @@ public class LoginActivity extends AppCompatActivity {
 
         loginFragment.clearDelayShowError();
         registerFragment.clearDelayShowError();
-        if(forgetFragment != null) {
-            forgetFragment.clearDelayShowError();
-        }
+        forgetFragment.clearDelayShowError();
         errorTip.hide();
     }
 
@@ -288,11 +287,11 @@ public class LoginActivity extends AppCompatActivity {
         loginFragment.clearDelayShowError();
         registerFragment.clearDelayShowError();
 
-        if(forgetFragment == null) {
-            forgetFragment = new ForgetFragment();
-        }
+        loginFragment.clearDelayShowError();
+        registerFragment.clearDelayShowError();
         forgetFragment.clearDelayShowError();
         errorTip.hide();
+
         if(!forgetFragment.isAdded()) {
             LogUtil.i("forgetFragment add");
             FragmentManager fragmentManager = getSupportFragmentManager();
