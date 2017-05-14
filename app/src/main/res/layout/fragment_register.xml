@@ -72,7 +72,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:id="@+id/switchShowPass"
-            android:src="@drawable/pass_visible"
+            android:src="@drawable/pass_invisible"
             android:layout_gravity="center"/>
     </LinearLayout>
     <LinearLayout

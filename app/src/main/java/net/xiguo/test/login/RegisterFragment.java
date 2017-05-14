@@ -106,11 +106,11 @@ public class RegisterFragment extends Fragment {
             public void onClick(View v) {
                 if (showPass) {
                     userPass.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                    switchShowPass.setBackgroundResource(R.drawable.pass_visible);
+                    switchShowPass.setImageResource(R.drawable.pass_invisible);
                 }
                 else {
                     userPass.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-                    switchShowPass.setBackgroundResource(R.drawable.pass_invisible);
+                    switchShowPass.setImageResource(R.drawable.pass_visible);
                 }
                 userPass.setSelection(userPass.getText().toString().length());
                 showPass = !showPass;
