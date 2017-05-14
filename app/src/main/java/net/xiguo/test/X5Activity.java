@@ -88,7 +88,7 @@ public class X5Activity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 LogUtil.i("click back");
-                webView.loadUrl("javascript: JSBridge.trigger('back');");
+                webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('back');");
             }
         });
 
@@ -194,7 +194,7 @@ public class X5Activity extends AppCompatActivity {
         super.onStart();
         LogUtil.i("onStart: ", url);
         if(!firstRun) {
-            webView.loadUrl("javascript: JSBridge.trigger('resume');");
+            webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('resume');");
         }
         else {
             firstRun = false;
@@ -204,6 +204,6 @@ public class X5Activity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         LogUtil.i("onStop: ", url);
-        webView.loadUrl("javascript: JSBridge.trigger('pause');");
+        webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('pause');");
     }
 }
