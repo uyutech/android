@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.AnimationSet;
@@ -13,15 +14,17 @@ import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.sina.weibo.sdk.WbSdk;
+import com.sina.weibo.sdk.auth.AccessTokenKeeper;
 import com.sina.weibo.sdk.auth.AuthInfo;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
-import com.sina.weibo.sdk.auth.WeiboAuthListener;
-import com.sina.weibo.sdk.auth.sso.AccessTokenKeeper;
+import com.sina.weibo.sdk.auth.WbAuthListener;
+import com.sina.weibo.sdk.auth.WbConnectErrorMessage;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
-import com.sina.weibo.sdk.exception.WeiboException;
 
 import net.xiguo.test.login.ForgetFragment;
 import net.xiguo.test.login.LoginFragment;
@@ -56,7 +59,6 @@ public class LoginActivity extends AppCompatActivity {
     private ImageView loginNiang;
 
     private ImageView loginWeibo;
-    private AuthInfo mAuthInfo;
     private SsoHandler mSsoHandler;
     private Oauth2AccessToken mAccessToken;
 
@@ -203,12 +205,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initWeibo() {
-        mAuthInfo = new AuthInfo(this, Constants.APP_KEY, Constants.REDIRECT_URL, Constants.SCOPE);
-        mSsoHandler = new SsoHandler(this, mAuthInfo);
+        WbSdk.install(this, new AuthInfo(this, Constants.APP_KEY, Constants.REDIRECT_URL, Constants.SCOPE));
+        mSsoHandler = new SsoHandler(this);
         loginWeibo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mSsoHandler.authorize(new AuthListener());
+                mSsoHandler.authorize(new SelfWbAuthListener());
             }
         });
         mAccessToken = AccessTokenKeeper.readAccessToken(this);
@@ -246,34 +248,10 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    class AuthListener implements WeiboAuthListener {
-        @Override
-        public void onComplete(final Bundle values) {
-            mAccessToken = Oauth2AccessToken.parseAccessToken(values);
-            if (mAccessToken.isSessionValid()) {
-                LogUtil.i(mAccessToken.toString());
-                AccessTokenKeeper.writeAccessToken(LoginActivity.this, mAccessToken);
-            }
-            else {
-                String code = values.getString("code");
-                LogUtil.i("fail: " + code);
-            }
-        }
-        @Override
-        public void onCancel() {
-            LogUtil.i("onCancel");
-        }
-        @Override
-        public void onWeiboException(WeiboException e) {
-            e.printStackTrace();
-            LogUtil.i("onWeiboException");
-        }
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        LogUtil.i("onActivityResult: " + requestCode + ", " + resultCode + ", " + data.toString());
+        LogUtil.i("onActivityResult: " + requestCode + ", " + resultCode + ", " + data);
         if (mSsoHandler != null) {
             mSsoHandler.authorizeCallBack(requestCode, resultCode, data);
         }
@@ -312,5 +290,40 @@ public class LoginActivity extends AppCompatActivity {
     }
     public ErrorTip getErrorTip() {
         return errorTip;
+    }
+
+    private class SelfWbAuthListener implements WbAuthListener {
+        @Override
+        public void onSuccess(final Oauth2AccessToken token) {
+            LogUtil.i("SelfWbAuthListener onSuccess");
+            LoginActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mAccessToken = token;
+                    LogUtil.i(mAccessToken.toString());
+                    if (mAccessToken.isSessionValid()) {
+                        // 保存 Token 到 SharedPreferences
+                        AccessTokenKeeper.writeAccessToken(LoginActivity.this, mAccessToken);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void cancel() {
+            LogUtil.i("SelfWbAuthListener cancel");
+            Toast toast = Toast.makeText(LoginActivity.this, "取消授权", Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+        }
+
+        @Override
+        public void onFailure(WbConnectErrorMessage errorMessage) {
+            LogUtil.i("SelfWbAuthListener onFailure");
+            Toast toast = Toast.makeText(LoginActivity.this, errorMessage.getErrorMessage(), Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+            LogUtil.i(errorMessage.getErrorMessage());
+        }
     }
 }

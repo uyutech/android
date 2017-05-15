@@ -18,5 +18,7 @@ public interface Constants {
      * WeiboSDKDemo 应用对应的权限，第三方开发者一般不需要这么多，可直接设置成空即可。
      * 详情请查看 Demo 中对应的注释。
      */
-    String SCOPE = "";
+    String SCOPE = "email,direct_messages_read,direct_messages_write,"
+            + "friendships_groups_read,friendships_groups_write,statuses_to_me_read,"
+            + "follow_app_official_microblog," + "invitation_write";
 }
