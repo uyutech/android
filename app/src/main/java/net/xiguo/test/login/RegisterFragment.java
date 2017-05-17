@@ -191,7 +191,7 @@ public class RegisterFragment extends Fragment {
                                 });
                                 return;
                             }
-                            JSONObject json = JSON.parseObject(responseBody);
+                            final JSONObject json = JSON.parseObject(responseBody);
                             boolean success = json.getBoolean("success");
                             if(success) {
                                 loginActivity.runOnUiThread(new Runnable() {
@@ -207,14 +207,25 @@ public class RegisterFragment extends Fragment {
                                 loginActivity.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Toast toast = Toast.makeText(loginActivity, "网络异常请重试", Toast.LENGTH_SHORT);
+                                        String message = json.getString("message");
+                                        if(message == null || message.isEmpty()) {
+                                            message = "网络异常请重试";
+                                        }
+                                        Toast toast = Toast.makeText(loginActivity, message, Toast.LENGTH_SHORT);
                                         toast.setGravity(Gravity.CENTER, 0, 0);
                                         toast.show();
                                     }
                                 });
                             }
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                        } catch (Exception e) {
+                            loginActivity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast toast = Toast.makeText(loginActivity, "网络异常请重试", Toast.LENGTH_SHORT);
+                                    toast.setGravity(Gravity.CENTER, 0, 0);
+                                    toast.show();
+                                }
+                            });
                         }
                     }
                 }).start();
@@ -260,14 +271,18 @@ public class RegisterFragment extends Fragment {
                                 });
                                 return;
                             }
-                            JSONObject json = JSON.parseObject(responseBody);
+                            final JSONObject json = JSON.parseObject(responseBody);
                             boolean success = json.getBoolean("success");
                             if(success) {
                                 loginActivity.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
                                         progressDialog.hide();
-                                        Toast toast = Toast.makeText(loginActivity, "注册成功", Toast.LENGTH_SHORT);
+                                        String message = json.getString("message");
+                                        if(message == null || message.isEmpty()) {
+                                            message = "网络异常请重试";
+                                        }
+                                        Toast toast = Toast.makeText(loginActivity, message, Toast.LENGTH_SHORT);
                                         toast.setGravity(Gravity.CENTER, 0, 0);
                                         toast.show();
                                     }
@@ -278,15 +293,13 @@ public class RegisterFragment extends Fragment {
                                     @Override
                                     public void run() {
                                         progressDialog.hide();
-                                        Toast toast = Toast.makeText(loginActivity, "网络异常请重试", Toast.LENGTH_SHORT);
+                                        Toast toast = Toast.makeText(loginActivity, json.getString("message"), Toast.LENGTH_SHORT);
                                         toast.setGravity(Gravity.CENTER, 0, 0);
                                         toast.show();
                                     }
                                 });
                             }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (JSONException e) {
+                        } catch (Exception e) {
                             loginActivity.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {

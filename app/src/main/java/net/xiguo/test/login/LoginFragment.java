@@ -167,7 +167,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                                 });
                                 return;
                             }
-                            JSONObject json = JSON.parseObject(responseBody);
+                            final JSONObject json = JSON.parseObject(responseBody);
                             boolean success = json.getBoolean("success");
                             if(success) {
                                 loginActivity.runOnUiThread(new Runnable() {
@@ -185,15 +185,17 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                                     @Override
                                     public void run() {
                                         progressDialog.hide();
-                                        Toast toast = Toast.makeText(loginActivity, "用户名/密码不匹配", Toast.LENGTH_SHORT);
+                                        String message = json.getString("message");
+                                        if(message == null || message.isEmpty()) {
+                                            message = "网络异常请重试";
+                                        }
+                                        Toast toast = Toast.makeText(loginActivity, message, Toast.LENGTH_SHORT);
                                         toast.setGravity(Gravity.CENTER, 0, 0);
                                         toast.show();
                                     }
                                 });
                             }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (JSONException e) {
+                        } catch (Exception e) {
                             loginActivity.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
