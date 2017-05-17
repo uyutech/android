@@ -1,5 +1,6 @@
 package net.xiguo.test;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -304,6 +305,86 @@ public class LoginActivity extends AppCompatActivity {
                     if (mAccessToken.isSessionValid()) {
                         // 保存 Token 到 SharedPreferences
                         AccessTokenKeeper.writeAccessToken(LoginActivity.this, mAccessToken);
+                        final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this);
+                        progressDialog.setMessage("登录中");
+                        progressDialog.setCancelable(false);
+                        progressDialog.setCanceledOnTouchOutside(false);
+                        progressDialog.show();
+                        final String openId = mAccessToken.getUid();
+                        final String token = mAccessToken.getToken();
+                        final String channelType = "1";
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                LogUtil.i("LOGIN_BY_OPEN_ID run");
+                                try {
+                                    OkHttpClient client = new OkHttpClient
+                                            .Builder()
+                                            .build();
+                                    String url = URLs.LOGIN_DOMAIN + URLs.LOGIN_BY_OPEN_ID
+                                            + "?openId=" + openId
+                                            + "&token=" + token
+                                            + "&channelType=" + channelType;
+                                    LogUtil.i(url);
+                                    Request request = new Request.Builder()
+                                            .url(url)
+                                            .build();
+                                    Response response = client.newCall(request).execute();
+                                    String responseBody = response.body().string();
+                                    LogUtil.i("LOGIN_BY_OPEN_ID: " + responseBody);
+                                    if(responseBody.isEmpty()) {
+                                        LoginActivity.this.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                progressDialog.hide();
+                                                Toast toast = Toast.makeText(LoginActivity.this, "网络异常请重试", Toast.LENGTH_SHORT);
+                                                toast.setGravity(Gravity.CENTER, 0, 0);
+                                                toast.show();
+                                            }
+                                        });
+                                        return;
+                                    }
+                                    final JSONObject json = JSON.parseObject(responseBody);
+                                    boolean success = json.getBoolean("success");
+                                    if(success) {
+                                        LoginActivity.this.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                progressDialog.hide();
+                                                Toast toast = Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT);
+                                                toast.setGravity(Gravity.CENTER, 0, 0);
+                                                toast.show();
+                                            }
+                                        });
+                                    }
+                                    else {
+                                        LoginActivity.this.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                progressDialog.hide();
+                                                String message = json.getString("message");
+                                                if(message == null || message.isEmpty()) {
+                                                    message = "网络异常请重试";
+                                                }
+                                                Toast toast = Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT);
+                                                toast.setGravity(Gravity.CENTER, 0, 0);
+                                                toast.show();
+                                            }
+                                        });
+                                    }
+                                } catch (Exception e) {
+                                    LoginActivity.this.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            progressDialog.hide();
+                                            Toast toast = Toast.makeText(LoginActivity.this, "网络异常请重试", Toast.LENGTH_SHORT);
+                                            toast.setGravity(Gravity.CENTER, 0, 0);
+                                            toast.show();
+                                        }
+                                    });
+                                }
+                            }
+                        }).start();
                     }
                 }
             });
