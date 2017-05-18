@@ -146,8 +146,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                                     .Builder()
                                     .build();
                             String url = URLs.LOGIN_DOMAIN + URLs.LOGIN_BY_MOBILE
-                                    + "?userName=" + userName.getText().toString()
-                                    + "&password=" + userPass.getText().toString();
+                                    + "?userName=" + android.net.Uri.encode(userName.getText().toString())
+                                    + "&password=" + android.net.Uri.encode(userPass.getText().toString());
                             LogUtil.i(url);
                             Request request = new Request.Builder()
                                     .url(url)

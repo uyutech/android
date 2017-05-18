@@ -301,7 +301,7 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     mAccessToken = token;
-                    LogUtil.i(mAccessToken.toString());
+                    LogUtil.i("mAccessToken", mAccessToken.toString());
                     if (mAccessToken.isSessionValid()) {
                         // 保存 Token 到 SharedPreferences
                         AccessTokenKeeper.writeAccessToken(LoginActivity.this, mAccessToken);
@@ -322,9 +322,9 @@ public class LoginActivity extends AppCompatActivity {
                                             .Builder()
                                             .build();
                                     String url = URLs.LOGIN_DOMAIN + URLs.LOGIN_BY_OPEN_ID
-                                            + "?openId=" + openId
-                                            + "&token=" + token
-                                            + "&channelType=" + channelType;
+                                            + "?openId=" + android.net.Uri.encode(openId)
+                                            + "&token=" + android.net.Uri.encode(token)
+                                            + "&channelType=" + android.net.Uri.encode(channelType);
                                     LogUtil.i(url);
                                     Request request = new Request.Builder()
                                             .url(url)
@@ -400,11 +400,10 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         public void onFailure(WbConnectErrorMessage errorMessage) {
-            LogUtil.i("SelfWbAuthListener onFailure");
+            LogUtil.i("SelfWbAuthListener onFailure", errorMessage.getErrorMessage());
             Toast toast = Toast.makeText(LoginActivity.this, errorMessage.getErrorMessage(), Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
-            LogUtil.i(errorMessage.getErrorMessage());
         }
     }
 }

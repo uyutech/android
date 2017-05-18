@@ -172,7 +172,8 @@ public class RegisterFragment extends Fragment {
                             OkHttpClient client = new OkHttpClient
                                     .Builder()
                                     .build();
-                            String url = URLs.REGISTER_DOMAIN + URLs.SEND_REG_SMS + "?mobile=" + userName.getText().toString();
+                            String url = URLs.REGISTER_DOMAIN + URLs.SEND_REG_SMS
+                                    + "?mobile=" + android.net.Uri.encode(userName.getText().toString());
                             LogUtil.i(url);
                             Request request = new Request.Builder()
                                     .url(url)
@@ -249,9 +250,9 @@ public class RegisterFragment extends Fragment {
                                     .Builder()
                                     .build();
                             String url = URLs.REGISTER_DOMAIN + URLs.REGISTER_BY_MOBILE
-                                    + "?mobile=" + userName.getText().toString()
-                                    + "&password=" + userPass.getText().toString()
-                                    + "&verifyCode=" + userValid.getText().toString();
+                                    + "?mobile=" + android.net.Uri.encode(userName.getText().toString())
+                                    + "&password=" + android.net.Uri.encode(userPass.getText().toString())
+                                    + "&verifyCode=" + android.net.Uri.encode(userValid.getText().toString());
                             LogUtil.i(url);
                             Request request = new Request.Builder()
                                     .url(url)
