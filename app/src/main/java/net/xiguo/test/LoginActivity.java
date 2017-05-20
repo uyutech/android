@@ -204,6 +204,20 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+    public void openUrl(int regStat) {
+        Intent intent = new Intent(LoginActivity.this, X5Activity.class);
+        String url = null;
+        if(regStat >= 4) {
+            url = URLs.H5_DOMAIN + "index.html";
+        }
+        else {
+            url = URLs.H5_DOMAIN + "guide.html?step=" + regStat;
+        }
+        intent.putExtra("url", url);
+        intent.putExtra("firstWeb", true);
+        startActivity(intent);
+        this.finish();
+    }
 
     private void initWeibo() {
         WbSdk.install(this, new AuthInfo(this, Constants.APP_KEY, Constants.REDIRECT_URL, Constants.SCOPE));

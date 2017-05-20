@@ -50,7 +50,7 @@ import okhttp3.Response;
  * Created by army on 2017/3/26.
  */
 
-public class LoginFragment extends Fragment implements View.OnClickListener {
+public class LoginFragment extends Fragment {
     private EditText userName;
     private EditText userPass;
     private ImageView switchShowPass;
@@ -144,6 +144,141 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                         try {
                             OkHttpClient client = new OkHttpClient
                                     .Builder()
+                                    .cookieJar(new CookieJar() {
+                                        @Override
+                                        public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
+                                            LogUtil.i("saveFromResponse: " + url);
+                                            for(Cookie cookie : cookies) {
+                                                LogUtil.i("cookie: " + cookie.toString());
+                                                MyCookies.add(cookie.toString());
+                                            }
+                                        }
+
+                                        @Override
+                                        public List<Cookie> loadForRequest(HttpUrl url) {
+                                            return new List<Cookie>() {
+                                                @Override
+                                                public int size() {
+                                                    return 0;
+                                                }
+
+                                                @Override
+                                                public boolean isEmpty() {
+                                                    return false;
+                                                }
+
+                                                @Override
+                                                public boolean contains(Object o) {
+                                                    return false;
+                                                }
+
+                                                @NonNull
+                                                @Override
+                                                public Iterator<Cookie> iterator() {
+                                                    return null;
+                                                }
+
+                                                @NonNull
+                                                @Override
+                                                public Object[] toArray() {
+                                                    return new Object[0];
+                                                }
+
+                                                @NonNull
+                                                @Override
+                                                public <T> T[] toArray(@NonNull T[] a) {
+                                                    return null;
+                                                }
+
+                                                @Override
+                                                public boolean add(Cookie cookie) {
+                                                    return false;
+                                                }
+
+                                                @Override
+                                                public boolean remove(Object o) {
+                                                    return false;
+                                                }
+
+                                                @Override
+                                                public boolean containsAll(@NonNull Collection<?> c) {
+                                                    return false;
+                                                }
+
+                                                @Override
+                                                public boolean addAll(@NonNull Collection<? extends Cookie> c) {
+                                                    return false;
+                                                }
+
+                                                @Override
+                                                public boolean addAll(int index, @NonNull Collection<? extends Cookie> c) {
+                                                    return false;
+                                                }
+
+                                                @Override
+                                                public boolean removeAll(@NonNull Collection<?> c) {
+                                                    return false;
+                                                }
+
+                                                @Override
+                                                public boolean retainAll(@NonNull Collection<?> c) {
+                                                    return false;
+                                                }
+
+                                                @Override
+                                                public void clear() {
+
+                                                }
+
+                                                @Override
+                                                public Cookie get(int index) {
+                                                    return null;
+                                                }
+
+                                                @Override
+                                                public Cookie set(int index, Cookie element) {
+                                                    return null;
+                                                }
+
+                                                @Override
+                                                public void add(int index, Cookie element) {
+
+                                                }
+
+                                                @Override
+                                                public Cookie remove(int index) {
+                                                    return null;
+                                                }
+
+                                                @Override
+                                                public int indexOf(Object o) {
+                                                    return 0;
+                                                }
+
+                                                @Override
+                                                public int lastIndexOf(Object o) {
+                                                    return 0;
+                                                }
+
+                                                @Override
+                                                public ListIterator<Cookie> listIterator() {
+                                                    return null;
+                                                }
+
+                                                @NonNull
+                                                @Override
+                                                public ListIterator<Cookie> listIterator(int index) {
+                                                    return null;
+                                                }
+
+                                                @NonNull
+                                                @Override
+                                                public List<Cookie> subList(int fromIndex, int toIndex) {
+                                                    return null;
+                                                }
+                                            };
+                                        }
+                                    })
                                     .build();
                             String url = URLs.LOGIN_DOMAIN + URLs.LOGIN_BY_MOBILE
                                     + "?userName=" + android.net.Uri.encode(userName.getText().toString())
@@ -174,9 +309,12 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                                     @Override
                                     public void run() {
                                         progressDialog.hide();
+                                        progressDialog.dismiss();
                                         Toast toast = Toast.makeText(loginActivity, "登录成功", Toast.LENGTH_SHORT);
                                         toast.setGravity(Gravity.CENTER, 0, 0);
                                         toast.show();
+                                        JSONObject data = json.getJSONObject("data");
+                                        loginActivity.openUrl(data.getIntValue("regStat"));
                                     }
                                 });
                             }
@@ -290,9 +428,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         login.setEnabled(valid);
     }
 
-    @Override
-    public void onClick(View v) {
-    }
     private void sendLoginRequest(final String name, final String pass) {
         new Thread(new Runnable() {
             @Override

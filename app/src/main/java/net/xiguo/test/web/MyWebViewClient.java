@@ -42,17 +42,21 @@ public class MyWebViewClient extends WebViewClient {
     private WebResourceResponse shouldInterceptRequest(String url) {
         // 离线包地址拦截本地资源
         if(url.startsWith(URLs.H5_DOMAIN)) {
-            LogUtil.i("shouldInterceptRequest: " + url);
-            if (url.startsWith(URLs.H5_DOMAIN)
-                    && (url.endsWith(".html")
-                    || url.endsWith(".htm")
-                    || url.endsWith(".css")
-                    || url.endsWith(".js")
-                    || url.endsWith(".png")
-                    || url.endsWith(".gif")
-                    || url.endsWith(".jpg")
-                    || url.endsWith(".jpeg"))) {
-                String path = url.substring(URLs.H5_DOMAIN.length());
+            String path = url.substring(URLs.H5_DOMAIN.length());
+            // 忽略掉search
+            int i = path.indexOf('?');
+            if(i > 0) {
+                path = path.substring(0, i);
+            }
+            LogUtil.i("shouldInterceptRequest: " + url + ", " + path);
+            if (path.endsWith(".html")
+                    || path.endsWith(".htm")
+                    || path.endsWith(".css")
+                    || path.endsWith(".js")
+                    || path.endsWith(".png")
+                    || path.endsWith(".gif")
+                    || path.endsWith(".jpg")
+                    || path.endsWith(".jpeg")) {
                 String noSepPath = path.replaceAll("/", "__");
                 LogUtil.i("shouldInterceptPath: " + path + ", " + noSepPath);
                 WebResourceResponse wrr = null;
