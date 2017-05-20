@@ -99,9 +99,12 @@ public class X5Activity extends AppCompatActivity {
             for (String s : MyCookies.getAll()) {
                 cookieManager.setCookie(url, s);
             }
-            if (Build.VERSION.SDK_INT < 21) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                LogUtil.i("CookieSyncManager sync");
+                CookieSyncManager.createInstance(this);
                 CookieSyncManager.getInstance().sync();
             } else {
+                LogUtil.i("CookieManager flush");
                 CookieManager.getInstance().flush();
             }
         }

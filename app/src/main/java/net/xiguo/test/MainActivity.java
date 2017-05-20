@@ -84,13 +84,14 @@ public class MainActivity extends AppCompatActivity {
             String fileName = null;
             while((next = zis.getNextEntry()) != null) {
                 fileName = next.getName();
-                LogUtil.i("upZipName: " + fileName);
+                String noSepFileName = fileName.replaceAll("/", "__");
+                LogUtil.i("upZipName: " + fileName + ", " + noSepFileName + ", isDirectory: " + next.isDirectory());
                 if(next.isDirectory()) {
                 }
                 else {
                     FileOutputStream fos = null;
                     try {
-                        fos = openFileOutput(fileName, Context.MODE_PRIVATE);
+                        fos = openFileOutput(noSepFileName, Context.MODE_PRIVATE);
                         int len;
                         byte[] buffer = new byte[1024];
                         while((len = zis.read(buffer)) != -1) {

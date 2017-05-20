@@ -53,28 +53,29 @@ public class MyWebViewClient extends WebViewClient {
                     || url.endsWith(".jpg")
                     || url.endsWith(".jpeg"))) {
                 String path = url.substring(URLs.H5_DOMAIN.length());
-                LogUtil.i("shouldInterceptPath: " + path);
+                String noSepPath = path.replaceAll("/", "__");
+                LogUtil.i("shouldInterceptPath: " + path + ", " + noSepPath);
                 WebResourceResponse wrr = null;
                 InputStream is = null;
                 try {
 //                InputStream is = BaseApplication.getContext().getResources().openRawResource(R.raw.test);
 //                InputStream is = BaseApplication.getContext().getAssets().open("test.html");
-                    is = BaseApplication.getContext().openFileInput(path);
-                    if (path.endsWith(".html")) {
+                    is = BaseApplication.getContext().openFileInput(noSepPath);
+                    if (noSepPath.endsWith(".html")) {
                         wrr = new WebResourceResponse("text/html", "utf-8", is);
-                    } else if (path.endsWith(".htm")) {
+                    } else if (noSepPath.endsWith(".htm")) {
                         wrr = new WebResourceResponse("text/html", "utf-8", is);
-                    } else if (path.endsWith(".css")) {
+                    } else if (noSepPath.endsWith(".css")) {
                         wrr = new WebResourceResponse("text/css", "utf-8", is);
-                    } else if (path.endsWith(".js")) {
+                    } else if (noSepPath.endsWith(".js")) {
                         wrr = new WebResourceResponse("application/javascript", "utf-8", is);
-                    } else if (path.endsWith(".png")) {
+                    } else if (noSepPath.endsWith(".png")) {
                         wrr = new WebResourceResponse("image/png", "utf-8", is);
-                    } else if (path.endsWith(".gif")) {
+                    } else if (noSepPath.endsWith(".gif")) {
                         wrr = new WebResourceResponse("image/gif", "utf-8", is);
-                    } else if (path.endsWith(".jpg")) {
+                    } else if (noSepPath.endsWith(".jpg")) {
                         wrr = new WebResourceResponse("image/jpg", "utf-8", is);
-                    } else if (path.endsWith(".jpeg")) {
+                    } else if (noSepPath.endsWith(".jpeg")) {
                         wrr = new WebResourceResponse("image/jpeg", "utf-8", is);
                     }
                 } catch (Exception e) {
