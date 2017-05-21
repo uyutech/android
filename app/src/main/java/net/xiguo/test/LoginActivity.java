@@ -41,6 +41,7 @@ import net.xiguo.test.widget.ErrorTip;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -363,7 +364,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                                 @Override
                                                 public List<Cookie> loadForRequest(HttpUrl url) {
-                                                    return null;
+                                                    return new ArrayList<>();
                                                 }
                                             })
                                             .build();

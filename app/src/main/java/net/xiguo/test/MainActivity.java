@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
 
                                     @Override
                                     public List<Cookie> loadForRequest(HttpUrl url) {
-                                        return null;
+                                        return new ArrayList<>();
                                     }
                                 })
                                 .build();
@@ -176,6 +176,7 @@ public class MainActivity extends AppCompatActivity {
                             showLogin();
                         }
                     } catch (Exception e) {
+                        e.printStackTrace();
                         showLogin();
                     }
                 }

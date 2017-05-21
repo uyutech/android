@@ -33,6 +33,7 @@ import net.xiguo.test.web.URLs;
 import net.xiguo.test.widget.ErrorTip;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -165,127 +166,7 @@ public class LoginFragment extends Fragment {
 
                                         @Override
                                         public List<Cookie> loadForRequest(HttpUrl url) {
-                                            return new List<Cookie>() {
-                                                @Override
-                                                public int size() {
-                                                    return 0;
-                                                }
-
-                                                @Override
-                                                public boolean isEmpty() {
-                                                    return false;
-                                                }
-
-                                                @Override
-                                                public boolean contains(Object o) {
-                                                    return false;
-                                                }
-
-                                                @NonNull
-                                                @Override
-                                                public Iterator<Cookie> iterator() {
-                                                    return null;
-                                                }
-
-                                                @NonNull
-                                                @Override
-                                                public Object[] toArray() {
-                                                    return new Object[0];
-                                                }
-
-                                                @NonNull
-                                                @Override
-                                                public <T> T[] toArray(@NonNull T[] a) {
-                                                    return null;
-                                                }
-
-                                                @Override
-                                                public boolean add(Cookie cookie) {
-                                                    return false;
-                                                }
-
-                                                @Override
-                                                public boolean remove(Object o) {
-                                                    return false;
-                                                }
-
-                                                @Override
-                                                public boolean containsAll(@NonNull Collection<?> c) {
-                                                    return false;
-                                                }
-
-                                                @Override
-                                                public boolean addAll(@NonNull Collection<? extends Cookie> c) {
-                                                    return false;
-                                                }
-
-                                                @Override
-                                                public boolean addAll(int index, @NonNull Collection<? extends Cookie> c) {
-                                                    return false;
-                                                }
-
-                                                @Override
-                                                public boolean removeAll(@NonNull Collection<?> c) {
-                                                    return false;
-                                                }
-
-                                                @Override
-                                                public boolean retainAll(@NonNull Collection<?> c) {
-                                                    return false;
-                                                }
-
-                                                @Override
-                                                public void clear() {
-
-                                                }
-
-                                                @Override
-                                                public Cookie get(int index) {
-                                                    return null;
-                                                }
-
-                                                @Override
-                                                public Cookie set(int index, Cookie element) {
-                                                    return null;
-                                                }
-
-                                                @Override
-                                                public void add(int index, Cookie element) {
-
-                                                }
-
-                                                @Override
-                                                public Cookie remove(int index) {
-                                                    return null;
-                                                }
-
-                                                @Override
-                                                public int indexOf(Object o) {
-                                                    return 0;
-                                                }
-
-                                                @Override
-                                                public int lastIndexOf(Object o) {
-                                                    return 0;
-                                                }
-
-                                                @Override
-                                                public ListIterator<Cookie> listIterator() {
-                                                    return null;
-                                                }
-
-                                                @NonNull
-                                                @Override
-                                                public ListIterator<Cookie> listIterator(int index) {
-                                                    return null;
-                                                }
-
-                                                @NonNull
-                                                @Override
-                                                public List<Cookie> subList(int fromIndex, int toIndex) {
-                                                    return null;
-                                                }
-                                            };
+                                            return new ArrayList<>();
                                         }
                                     })
                                     .build();
