@@ -1,8 +1,11 @@
 package net.xiguo.test;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -32,13 +35,21 @@ import net.xiguo.test.login.LoginFragment;
 import net.xiguo.test.login.RegisterFragment;
 import net.xiguo.test.login.oauth.Constants;
 import net.xiguo.test.utils.LogUtil;
+import net.xiguo.test.web.MyCookies;
 import net.xiguo.test.web.URLs;
 import net.xiguo.test.widget.ErrorTip;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
+import okhttp3.Cookie;
+import okhttp3.CookieJar;
 import okhttp3.FormBody;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -80,7 +91,7 @@ public class LoginActivity extends AppCompatActivity {
         loginDiv = (LinearLayout) findViewById(R.id.loginDiv);
         forgetDiv = (LinearLayout) findViewById(R.id.forgetDiv);
         loginWeibo = (ImageView) findViewById(R.id.loginWeibo);
-        initWeibo();
+//        initWeibo();
 
         errorTip = (ErrorTip) findViewById(R.id.errorTip);
 
@@ -334,6 +345,27 @@ public class LoginActivity extends AppCompatActivity {
                                 try {
                                     OkHttpClient client = new OkHttpClient
                                             .Builder()
+                                            .cookieJar(new CookieJar() {
+                                                @Override
+                                                public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
+                                                    LogUtil.i("saveFromResponse: " + url);
+                                                    for(Cookie cookie : cookies) {
+                                                        LogUtil.i("cookie: " + cookie.toString());
+                                                        MyCookies.add(cookie.toString());
+                                                        if(cookie.name().equals("JSESSIONID")) {
+                                                            LogUtil.i("cookie: ", cookie.value());
+                                                            SharedPreferences.Editor editor = LoginActivity.this.getSharedPreferences("cookie", Context.MODE_PRIVATE).edit();
+                                                            editor.putString("JSESSIONID", cookie.value());
+                                                            editor.apply();
+                                                        }
+                                                    }
+                                                }
+
+                                                @Override
+                                                public List<Cookie> loadForRequest(HttpUrl url) {
+                                                    return null;
+                                                }
+                                            })
                                             .build();
                                     String url = URLs.LOGIN_DOMAIN + URLs.LOGIN_BY_OPEN_ID
                                             + "?openId=" + android.net.Uri.encode(openId)
@@ -347,7 +379,7 @@ public class LoginActivity extends AppCompatActivity {
                                     String responseBody = response.body().string();
                                     LogUtil.i("LOGIN_BY_OPEN_ID: " + responseBody);
                                     if(responseBody.isEmpty()) {
-                                        LoginActivity.this.runOnUiThread(new Runnable() {
+                                        runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
                                                 progressDialog.hide();
@@ -361,18 +393,21 @@ public class LoginActivity extends AppCompatActivity {
                                     final JSONObject json = JSON.parseObject(responseBody);
                                     boolean success = json.getBoolean("success");
                                     if(success) {
-                                        LoginActivity.this.runOnUiThread(new Runnable() {
+                                        runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
                                                 progressDialog.hide();
+                                                progressDialog.dismiss();
                                                 Toast toast = Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT);
                                                 toast.setGravity(Gravity.CENTER, 0, 0);
                                                 toast.show();
+                                                JSONObject data = json.getJSONObject("data");
+                                                LoginActivity.this.openUrl(data.getIntValue("regStat"));
                                             }
                                         });
                                     }
                                     else {
-                                        LoginActivity.this.runOnUiThread(new Runnable() {
+                                        runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
                                                 progressDialog.hide();
@@ -387,7 +422,7 @@ public class LoginActivity extends AppCompatActivity {
                                         });
                                     }
                                 } catch (Exception e) {
-                                    LoginActivity.this.runOnUiThread(new Runnable() {
+                                    runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
                                             progressDialog.hide();

@@ -1,10 +1,13 @@
 package net.xiguo.test.login;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.SharedPreferencesCompat;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -151,6 +154,12 @@ public class LoginFragment extends Fragment {
                                             for(Cookie cookie : cookies) {
                                                 LogUtil.i("cookie: " + cookie.toString());
                                                 MyCookies.add(cookie.toString());
+                                                if(cookie.name().equals("JSESSIONID")) {
+                                                    LogUtil.i("cookie: ", cookie.value());
+                                                    SharedPreferences.Editor editor = loginActivity.getSharedPreferences("cookie", Context.MODE_PRIVATE).edit();
+                                                    editor.putString("JSESSIONID", cookie.value());
+                                                    editor.apply();
+                                                }
                                             }
                                         }
 
@@ -427,168 +436,4 @@ public class LoginFragment extends Fragment {
         // 设置按钮禁用状态
         login.setEnabled(valid);
     }
-
-    private void sendLoginRequest(final String name, final String pass) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                LogUtil.i("sendLoginRequest run");
-                try {
-                    OkHttpClient client = new OkHttpClient
-                        .Builder()
-                        .cookieJar(new CookieJar() {
-                            @Override
-                            public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
-                                LogUtil.i("saveFromResponse: " + url);
-                                for(Cookie cookie : cookies) {
-                                    LogUtil.i("cookie: " + cookie.toString());
-                                    MyCookies.add(cookie.toString());
-                                }
-                            }
-
-                            @Override
-                            public List<Cookie> loadForRequest(HttpUrl url) {
-                                return new List<Cookie>() {
-                                    @Override
-                                    public int size() {
-                                        return 0;
-                                    }
-
-                                    @Override
-                                    public boolean isEmpty() {
-                                        return false;
-                                    }
-
-                                    @Override
-                                    public boolean contains(Object o) {
-                                        return false;
-                                    }
-
-                                    @NonNull
-                                    @Override
-                                    public Iterator<Cookie> iterator() {
-                                        return null;
-                                    }
-
-                                    @NonNull
-                                    @Override
-                                    public Object[] toArray() {
-                                        return new Object[0];
-                                    }
-
-                                    @NonNull
-                                    @Override
-                                    public <T> T[] toArray(@NonNull T[] a) {
-                                        return null;
-                                    }
-
-                                    @Override
-                                    public boolean add(Cookie cookie) {
-                                        return false;
-                                    }
-
-                                    @Override
-                                    public boolean remove(Object o) {
-                                        return false;
-                                    }
-
-                                    @Override
-                                    public boolean containsAll(@NonNull Collection<?> c) {
-                                        return false;
-                                    }
-
-                                    @Override
-                                    public boolean addAll(@NonNull Collection<? extends Cookie> c) {
-                                        return false;
-                                    }
-
-                                    @Override
-                                    public boolean addAll(int index, @NonNull Collection<? extends Cookie> c) {
-                                        return false;
-                                    }
-
-                                    @Override
-                                    public boolean removeAll(@NonNull Collection<?> c) {
-                                        return false;
-                                    }
-
-                                    @Override
-                                    public boolean retainAll(@NonNull Collection<?> c) {
-                                        return false;
-                                    }
-
-                                    @Override
-                                    public void clear() {
-
-                                    }
-
-                                    @Override
-                                    public Cookie get(int index) {
-                                        return null;
-                                    }
-
-                                    @Override
-                                    public Cookie set(int index, Cookie element) {
-                                        return null;
-                                    }
-
-                                    @Override
-                                    public void add(int index, Cookie element) {
-
-                                    }
-
-                                    @Override
-                                    public Cookie remove(int index) {
-                                        return null;
-                                    }
-
-                                    @Override
-                                    public int indexOf(Object o) {
-                                        return 0;
-                                    }
-
-                                    @Override
-                                    public int lastIndexOf(Object o) {
-                                        return 0;
-                                    }
-
-                                    @Override
-                                    public ListIterator<Cookie> listIterator() {
-                                        return null;
-                                    }
-
-                                    @NonNull
-                                    @Override
-                                    public ListIterator<Cookie> listIterator(int index) {
-                                        return null;
-                                    }
-
-                                    @NonNull
-                                    @Override
-                                    public List<Cookie> subList(int fromIndex, int toIndex) {
-                                        return null;
-                                    }
-                                };
-                            }
-                        })
-                        .build();
-                    Request request = new Request.Builder()
-                        .url(URLs.LOGIN_DOMAIN + "user/login.htm?mobile=" + name + "&password=" + pass)
-                        .build();
-                    Response response = client.newCall(request).execute();
-//                Headers headers = response.headers();
-//                for(int i = 0; i < headers.size(); i++) {
-//                    LogUtil.i("header: " + headers.name(i) + ", " + headers.value(i));
-//                }
-                    String responseBody = response.body().string();
-                    LogUtil.i("loginResponse: " + responseBody);
-                    JSONObject json = JSON.parseObject(responseBody);
-                    loginActivity.login();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-    }
-
 }
