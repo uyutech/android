@@ -173,10 +173,10 @@ public class X5Activity extends AppCompatActivity {
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        LogUtil.i("keyup: " + keyCode + ", " + firstWeb);
-        if(firstWeb && keyCode == KeyEvent.KEYCODE_BACK) {
-            // 此时此activity已经是root了，所以参数无所谓，保险起见还是传true忽视
-            moveTaskToBack(true);
+        LogUtil.i("keyup: " + keyCode);
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+            LogUtil.i("KEYCODE_BACK");
+            webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('back');");
             return true;
         }
         return super.onKeyUp(keyCode, event);

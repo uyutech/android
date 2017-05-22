@@ -1,6 +1,8 @@
 package net.xiguo.test.login;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -32,14 +34,20 @@ import com.alibaba.fastjson.JSONObject;
 import net.xiguo.test.LoginActivity;
 import net.xiguo.test.R;
 import net.xiguo.test.utils.LogUtil;
+import net.xiguo.test.web.MyCookies;
 import net.xiguo.test.web.URLs;
 import net.xiguo.test.widget.ErrorTip;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import okhttp3.Cookie;
+import okhttp3.CookieJar;
 import okhttp3.FormBody;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -248,6 +256,27 @@ public class RegisterFragment extends Fragment {
                         try {
                             OkHttpClient client = new OkHttpClient
                                     .Builder()
+                                    .cookieJar(new CookieJar() {
+                                        @Override
+                                        public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
+                                            LogUtil.i("saveFromResponse: " + url);
+                                            for(Cookie cookie : cookies) {
+                                                LogUtil.i("cookie: " + cookie.toString());
+                                                MyCookies.add(cookie.toString());
+                                                if(cookie.name().equals("JSESSIONID")) {
+                                                    LogUtil.i("cookie: ", cookie.value());
+                                                    SharedPreferences.Editor editor = loginActivity.getSharedPreferences("cookie", Context.MODE_PRIVATE).edit();
+                                                    editor.putString("JSESSIONID", cookie.value());
+                                                    editor.apply();
+                                                }
+                                            }
+                                        }
+
+                                        @Override
+                                        public List<Cookie> loadForRequest(HttpUrl url) {
+                                            return new ArrayList<>();
+                                        }
+                                    })
                                     .build();
                             String url = URLs.REGISTER_DOMAIN + URLs.REGISTER_BY_MOBILE
                                     + "?mobile=" + android.net.Uri.encode(userName.getText().toString())
@@ -279,13 +308,11 @@ public class RegisterFragment extends Fragment {
                                     @Override
                                     public void run() {
                                         progressDialog.hide();
-                                        String message = json.getString("message");
-                                        if(message == null || message.isEmpty()) {
-                                            message = "网络异常请重试";
-                                        }
-                                        Toast toast = Toast.makeText(loginActivity, message, Toast.LENGTH_SHORT);
+                                        progressDialog.dismiss();
+                                        Toast toast = Toast.makeText(loginActivity, "注册成功", Toast.LENGTH_SHORT);
                                         toast.setGravity(Gravity.CENTER, 0, 0);
                                         toast.show();
+                                        loginActivity.openUrl(1);
                                     }
                                 });
                             }
