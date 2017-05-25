@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
+import net.xiguo.test.login.UserInfo;
 import net.xiguo.test.utils.LogUtil;
 import net.xiguo.test.web.MyCookies;
 import net.xiguo.test.web.URLs;
@@ -152,6 +153,9 @@ public class MainActivity extends AppCompatActivity {
                         final JSONObject json = JSON.parseObject(responseBody);
                         boolean success = json.getBoolean("success");
                         if(success) {
+                            // 记录用户信息
+                            JSONObject data = json.getJSONObject("data");
+                            UserInfo.setUserInfo(data);
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {

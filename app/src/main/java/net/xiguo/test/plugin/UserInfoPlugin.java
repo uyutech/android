@@ -21,14 +21,10 @@ public class UserInfoPlugin extends H5Plugin {
         LogUtil.i("UserInfoPlugin: " + params);
         String clientId = param.getString("clientId");
         if(clientId != null && !clientId.isEmpty()) {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("clientId", clientId);
             JSONObject userInfo = new JSONObject();
             userInfo.put("userId", UserInfo.getUserId());
             userInfo.put("userName", UserInfo.getUserName());
-            jsonObject.put("param", userInfo);
-            LogUtil.i("111111", jsonObject.toJSONString());
-            UserInfoPlugin.this.activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + jsonObject.toString() + "');");
+            UserInfoPlugin.this.activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "', '" + userInfo.toString() + "');");
         }
     }
 }

@@ -46,13 +46,12 @@
                 ZhuanQuanJSBridge.call(name, { prevent: prevent });
             }
         },
-        _invokeJS: function(resp) {
-            console.log("_invokeJS: " + resp);
-            console.log("hhhhhhhh" + callbackHash[resp.clientId]);
+        _invokeJS: function(clientId, resp) {
+            console.log("_invokeJS: " + clientId + ", " + resp);
             resp = JSON.parse(resp);
-            var func = callbackHash[resp.clientId];
+            var func = callbackHash[clientId];
             setTimeout(function() {
-                func(resp.param);
+                func(resp);
             }, 1);
         }
     };
