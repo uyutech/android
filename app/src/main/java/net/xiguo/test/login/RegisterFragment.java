@@ -304,6 +304,9 @@ public class RegisterFragment extends Fragment {
                             final JSONObject json = JSON.parseObject(responseBody);
                             boolean success = json.getBoolean("success");
                             if(success) {
+                                // 记录用户信息
+                                JSONObject data = json.getJSONObject("data");
+                                UserInfo.setUserInfo(data);
                                 loginActivity.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {

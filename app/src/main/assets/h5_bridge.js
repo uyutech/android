@@ -9,6 +9,8 @@
         log.call(console, 'h5container.message: ' + msg);
     };
 
+    var callbackHash = {};
+
     window.ZhuanQuanJSBridge = {
         call: function(fn, param, cb) {
             if(typeof fn !== 'string') {
@@ -18,9 +20,15 @@
                 cb = param;
                 param = null;
             }
+            var clientId = new Date().getTime() + '' + Math.random();
+            if('function' === typeof cb) {
+                callbackHash[clientId] = cb;
+                console.log('pppppppppppp' + clientId + callbackHash[clientId]);
+            }
             var invokeMsg = JSON.stringify({
                 fn: fn,
                 param: param,
+                clientId: clientId,
                 cb: cb
             });
             postMessage(invokeMsg);
@@ -37,6 +45,15 @@
                 var prevent = !document.dispatchEvent(event);
                 ZhuanQuanJSBridge.call(name, { prevent: prevent });
             }
+        },
+        _invokeJS: function(resp) {
+            console.log("_invokeJS: " + resp);
+            console.log("hhhhhhhh" + callbackHash[resp.clientId]);
+            resp = JSON.parse(resp);
+            var func = callbackHash[resp.clientId];
+            setTimeout(function() {
+                func(resp.param);
+            }, 1);
         }
     };
 

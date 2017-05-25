@@ -27,6 +27,7 @@ import net.xiguo.test.plugin.SetTitlePlugin;
 import net.xiguo.test.plugin.ShowBackButtonPlugin;
 import net.xiguo.test.plugin.ShowLoadingPlugin;
 import net.xiguo.test.plugin.ToastPlugin;
+import net.xiguo.test.plugin.UserInfoPlugin;
 import net.xiguo.test.utils.LogUtil;
 import net.xiguo.test.web.MyCookies;
 import net.xiguo.test.web.MyWebChromeClient;
@@ -50,6 +51,7 @@ public class X5Activity extends AppCompatActivity {
     private ConfirmPlugin confirmPlugin;
     private HideBackButtonPlugin hideBackButtonPlugin;
     private ShowBackButtonPlugin showBackButtonPlugin;
+    private UserInfoPlugin userInfoPlugin;
 
     private ImageView back;
     private WebView webView;
@@ -145,6 +147,9 @@ public class X5Activity extends AppCompatActivity {
 
         showBackButtonPlugin = new ShowBackButtonPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.SHOW_BACKBUTTON, showBackButtonPlugin);
+
+        userInfoPlugin = new UserInfoPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.USER_INFO, userInfoPlugin);
     }
 
     public void setTitle(String title) {

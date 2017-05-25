@@ -33,6 +33,7 @@ import com.sina.weibo.sdk.auth.sso.SsoHandler;
 import net.xiguo.test.login.ForgetFragment;
 import net.xiguo.test.login.LoginFragment;
 import net.xiguo.test.login.RegisterFragment;
+import net.xiguo.test.login.UserInfo;
 import net.xiguo.test.login.oauth.Constants;
 import net.xiguo.test.utils.LogUtil;
 import net.xiguo.test.web.MyCookies;
@@ -394,6 +395,9 @@ public class LoginActivity extends AppCompatActivity {
                                     final JSONObject json = JSON.parseObject(responseBody);
                                     boolean success = json.getBoolean("success");
                                     if(success) {
+                                        // 记录用户信息
+                                        JSONObject data = json.getJSONObject("data");
+                                        UserInfo.setUserInfo(data);
                                         runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
