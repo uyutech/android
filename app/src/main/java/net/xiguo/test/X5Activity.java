@@ -72,6 +72,11 @@ public class X5Activity extends AppCompatActivity {
         webView = (WebView) findViewById(R.id.x5);
         webView.getSettings().setJavaScriptEnabled(true);
 
+        // 关闭小窗播放
+        Bundle data = new Bundle();
+        data.putBoolean("supportLiteWnd", false);
+        webView.getX5WebViewExtension().invokeMiscMethod("setVideoParams", data);
+
         MyWebViewClient webViewClient = new MyWebViewClient(this);
         webView.setWebViewClient(webViewClient);
         MyWebChromeClient webChromeClient = new MyWebChromeClient(this);
