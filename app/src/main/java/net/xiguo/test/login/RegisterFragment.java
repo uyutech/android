@@ -267,6 +267,7 @@ public class RegisterFragment extends Fragment {
                                                     LogUtil.i("cookie: ", cookie.value());
                                                     SharedPreferences.Editor editor = loginActivity.getSharedPreferences("cookie", Context.MODE_PRIVATE).edit();
                                                     editor.putString("JSESSIONID", cookie.value());
+                                                    editor.putString("JSESSIONID_FULL", cookie.toString());
                                                     editor.apply();
                                                 }
                                             }

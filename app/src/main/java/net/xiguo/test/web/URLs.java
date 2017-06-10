@@ -13,6 +13,6 @@ public class URLs {
     public static final String LOGIN_BY_OPEN_ID = "loginByOpenId.json";
     public static final String SESSON_CHECK = "sessionCheck.json";
 
-    public static final String H5_DOMAIN = "http://h5.circling.cc/";
-//    public static final String H5_DOMAIN = "http://106.14.223.219:8089/";
+//    public static final String H5_DOMAIN = "http://h5.circling.cc/";
+    public static final String H5_DOMAIN = "http://106.14.223.219:8089/";
 }

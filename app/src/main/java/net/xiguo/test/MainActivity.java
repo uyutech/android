@@ -89,7 +89,9 @@ public class MainActivity extends AppCompatActivity {
         }
         SharedPreferences sharedPreferences = getSharedPreferences("cookie", MODE_PRIVATE);
         final String JSESSIONID = sharedPreferences.getString("JSESSIONID", "");
+        final String JSESSIONID_FULL = sharedPreferences.getString("JSESSIONID_FULL", "");
         LogUtil.i("JSESSIONID: ", JSESSIONID);
+        LogUtil.i("JSESSIONID_FULL: ", JSESSIONID_FULL);
         if(JSESSIONID.isEmpty()) {
             // 暂停3s后跳转
             new Handler().postDelayed(new Runnable() {
@@ -109,27 +111,6 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         OkHttpClient client = new OkHttpClient
                                 .Builder()
-                                .cookieJar(new CookieJar() {
-                                    @Override
-                                    public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
-                                        LogUtil.i("saveFromResponse: " + url);
-                                        for (Cookie cookie : cookies) {
-                                            LogUtil.i("cookie: " + cookie.toString());
-                                            MyCookies.add(cookie.toString());
-                                            if (cookie.name().equals("JSESSIONID")) {
-                                                LogUtil.i("cookie: ", cookie.value());
-                                                SharedPreferences.Editor editor = MainActivity.this.getSharedPreferences("cookie", Context.MODE_PRIVATE).edit();
-                                                editor.putString("JSESSIONID", cookie.value());
-                                                editor.apply();
-                                            }
-                                        }
-                                    }
-
-                                    @Override
-                                    public List<Cookie> loadForRequest(HttpUrl url) {
-                                        return new ArrayList<>();
-                                    }
-                                })
                                 .build();
                         String url = URLs.LOGIN_DOMAIN + URLs.SESSON_CHECK;
                         LogUtil.i(url);
@@ -153,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
                         final JSONObject json = JSON.parseObject(responseBody);
                         boolean success = json.getBoolean("success");
                         if(success) {
+                            MyCookies.add(JSESSIONID_FULL);
                             // 记录用户信息
                             JSONObject data = json.getJSONObject("data");
                             UserInfo.setUserInfo(data);

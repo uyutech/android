@@ -358,6 +358,7 @@ public class LoginActivity extends AppCompatActivity {
                                                             LogUtil.i("cookie: ", cookie.value());
                                                             SharedPreferences.Editor editor = LoginActivity.this.getSharedPreferences("cookie", Context.MODE_PRIVATE).edit();
                                                             editor.putString("JSESSIONID", cookie.value());
+                                                            editor.putString("JSESSIONID_FULL", cookie.value());
                                                             editor.apply();
                                                         }
                                                     }
