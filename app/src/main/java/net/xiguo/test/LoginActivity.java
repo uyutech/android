@@ -93,7 +93,7 @@ public class LoginActivity extends AppCompatActivity {
         loginDiv = (LinearLayout) findViewById(R.id.loginDiv);
         forgetDiv = (LinearLayout) findViewById(R.id.forgetDiv);
         loginWeibo = (ImageView) findViewById(R.id.loginWeibo);
-//        initWeibo();
+        initWeibo();
 
         errorTip = (ErrorTip) findViewById(R.id.errorTip);
 

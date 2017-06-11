@@ -151,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
                                     else {
                                         url = URLs.H5_DOMAIN + "guide.html?step=" + regStat;
                                     }
+                                    url = "http://192.168.100.199:8080/index.html?id=1";
                                     intent.putExtra("url", url);
                                     intent.putExtra("firstWeb", true);
                                     startActivity(intent);

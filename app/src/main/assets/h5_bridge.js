@@ -23,7 +23,6 @@
             var clientId = new Date().getTime() + '' + Math.random();
             if('function' === typeof cb) {
                 callbackHash[clientId] = cb;
-                console.log('pppppppppppp' + clientId + callbackHash[clientId]);
             }
             var invokeMsg = JSON.stringify({
                 fn: fn,
