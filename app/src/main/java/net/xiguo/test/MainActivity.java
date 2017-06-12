@@ -92,7 +92,8 @@ public class MainActivity extends AppCompatActivity {
         final String JSESSIONID_FULL = sharedPreferences.getString("JSESSIONID_FULL", "");
         LogUtil.i("JSESSIONID: ", JSESSIONID);
         LogUtil.i("JSESSIONID_FULL: ", JSESSIONID_FULL);
-        if(JSESSIONID.isEmpty()) {
+        boolean focusLogin = false;
+        if(JSESSIONID.isEmpty() || focusLogin) {
             // 暂停3s后跳转
             new Handler().postDelayed(new Runnable() {
                 public void run() {
@@ -151,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
                                     else {
                                         url = URLs.H5_DOMAIN + "guide.html?step=" + regStat;
                                     }
-                                    url = "http://192.168.100.199:8080/index.html?id=1";
+//                                    url = "http://192.168.100.199:8080/index.html?id=1";
                                     intent.putExtra("url", url);
                                     intent.putExtra("firstWeb", true);
                                     startActivity(intent);

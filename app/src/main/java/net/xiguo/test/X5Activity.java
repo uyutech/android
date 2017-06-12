@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -15,7 +16,8 @@ import android.widget.TextView;
 import com.tencent.smtt.sdk.CookieManager;
 import com.tencent.smtt.sdk.CookieSyncManager;
 import com.tencent.smtt.sdk.WebSettings;
-import com.tencent.smtt.sdk.WebView;
+//import com.tencent.smtt.sdk.WebView;
+import net.xiguo.test.web.WebView;
 
 import net.xiguo.test.event.H5EventDispatcher;
 import net.xiguo.test.plugin.AlertPlugin;
@@ -56,6 +58,7 @@ public class X5Activity extends AppCompatActivity {
     private ShowBackButtonPlugin showBackButtonPlugin;
     private UserInfoPlugin userInfoPlugin;
 
+    private SwipeRefreshLayout swipeRefreshLayout;
     private ImageView back;
     private WebView webView;
     private String url;
@@ -82,6 +85,17 @@ public class X5Activity extends AppCompatActivity {
         String ua = webSettings.getUserAgentString();
         webSettings.setUserAgentString(ua + "; app/ZhuanQuan");
         webSettings.setJavaScriptEnabled(true);
+
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
+        webView.setSwipeRefreshLayout(swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                LogUtil.i("swipeRefreshLayout onRefresh");
+                webView.reload();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
 
         // 关闭小窗播放
         Bundle data = new Bundle();
