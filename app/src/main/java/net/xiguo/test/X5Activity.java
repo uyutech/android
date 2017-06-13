@@ -17,6 +17,7 @@ import com.tencent.smtt.sdk.CookieManager;
 import com.tencent.smtt.sdk.CookieSyncManager;
 import com.tencent.smtt.sdk.WebSettings;
 //import com.tencent.smtt.sdk.WebView;
+import net.xiguo.test.plugin.SwipeRefreshPlugin;
 import net.xiguo.test.web.WebView;
 
 import net.xiguo.test.event.H5EventDispatcher;
@@ -57,6 +58,7 @@ public class X5Activity extends AppCompatActivity {
     private HideBackButtonPlugin hideBackButtonPlugin;
     private ShowBackButtonPlugin showBackButtonPlugin;
     private UserInfoPlugin userInfoPlugin;
+    private SwipeRefreshPlugin swipeRefreshPlugin;
 
     private SwipeRefreshLayout swipeRefreshLayout;
     private ImageView back;
@@ -180,6 +182,9 @@ public class X5Activity extends AppCompatActivity {
 
         userInfoPlugin = new UserInfoPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.USER_INFO, userInfoPlugin);
+
+        swipeRefreshPlugin = new SwipeRefreshPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.SWIPE_REFRESH, swipeRefreshPlugin);
     }
 
     public void setTitle(String title) {
@@ -250,5 +255,9 @@ public class X5Activity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         webView.destroy();
+    }
+
+    public SwipeRefreshLayout getSwipeRefreshLayout() {
+        return swipeRefreshLayout;
     }
 }
