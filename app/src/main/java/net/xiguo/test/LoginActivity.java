@@ -83,6 +83,7 @@ public class LoginActivity extends AppCompatActivity {
     private ImageView forgetBack;
 
     private ImageView temp;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -238,6 +239,10 @@ public class LoginActivity extends AppCompatActivity {
         loginWeibo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                progressDialog = new ProgressDialog(LoginActivity.this);
+                progressDialog.setCanceledOnTouchOutside(false);
+                progressDialog.setMessage("正在打开微博...");
+                progressDialog.show();
                 mSsoHandler.authorize(new SelfWbAuthListener());
             }
         });
@@ -323,6 +328,7 @@ public class LoginActivity extends AppCompatActivity {
     private class SelfWbAuthListener implements WbAuthListener {
         @Override
         public void onSuccess(final Oauth2AccessToken token) {
+            progressDialog.dismiss();
             LogUtil.i("SelfWbAuthListener onSuccess");
             LoginActivity.this.runOnUiThread(new Runnable() {
                 @Override
@@ -447,6 +453,7 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         public void cancel() {
+            progressDialog.dismiss();
             LogUtil.i("SelfWbAuthListener cancel");
             Toast toast = Toast.makeText(LoginActivity.this, "取消授权", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
@@ -455,6 +462,7 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         public void onFailure(WbConnectErrorMessage errorMessage) {
+            progressDialog.dismiss();
             LogUtil.i("SelfWbAuthListener onFailure", errorMessage.getErrorMessage());
             Toast toast = Toast.makeText(LoginActivity.this, errorMessage.getErrorMessage(), Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
