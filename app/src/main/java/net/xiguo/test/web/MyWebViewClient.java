@@ -1,5 +1,6 @@
 package net.xiguo.test.web;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 
 import com.tencent.smtt.export.external.interfaces.WebResourceRequest;
@@ -15,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 
 /**
@@ -24,10 +26,12 @@ import java.io.InputStreamReader;
 public class MyWebViewClient extends WebViewClient {
     private String h5Bridge = null;
     private X5Activity activity;
+    private ArrayList<String> arrayList;
 
     public MyWebViewClient(X5Activity activity) {
         super();
         this.activity = activity;
+        arrayList = new ArrayList<>();
     }
 
     @Override
@@ -91,6 +95,10 @@ public class MyWebViewClient extends WebViewClient {
         return null;
     }
 
+    @Override
+    public void onPageStarted(WebView view, String url, Bitmap favicon) {
+        LogUtil.i("onPageStarted: " + url);
+    }
     @Override
     public void onPageFinished(WebView view, String args) {
         LogUtil.i("onPageFinished: " + args);

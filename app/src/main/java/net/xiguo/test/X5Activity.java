@@ -113,7 +113,7 @@ public class X5Activity extends AppCompatActivity {
         Intent intent = getIntent();
         url = intent.getStringExtra("url");
         LogUtil.i("url: " + url);
-        // 第一个web？
+        // 是否第一个web
         firstWeb = intent.getBooleanExtra("firstWeb", false);
         LogUtil.i("firstWeb: " + firstWeb);
 

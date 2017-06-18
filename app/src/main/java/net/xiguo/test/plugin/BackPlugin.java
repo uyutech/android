@@ -23,7 +23,10 @@ public class BackPlugin extends H5Plugin {
         if(p != null) {
             boolean prevent = p.getBoolean("prevent");
             if(!prevent) {
-                if(this.activity.isFirstWeb()) {
+                if(this.activity.getWebView().canGoBack()) {
+                    this.activity.getWebView().goBack();
+                }
+                else if(this.activity.isFirstWeb()) {
                     this.activity.moveTaskToBack(true);
                 }
                 else {
