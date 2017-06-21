@@ -2,6 +2,7 @@ package net.xiguo.test;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -13,6 +14,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.tencent.smtt.export.external.extension.interfaces.IX5WebViewExtension;
 import com.tencent.smtt.sdk.CookieManager;
 import com.tencent.smtt.sdk.CookieSyncManager;
 import com.tencent.smtt.sdk.WebSettings;
@@ -78,6 +80,7 @@ public class X5Activity extends AppCompatActivity {
         window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
         setContentView(R.layout.activity_x5_transparent);
+        getWindow().setFormat(PixelFormat.TRANSLUCENT);
 
         initPlugins();
         firstRun = true;
@@ -87,6 +90,8 @@ public class X5Activity extends AppCompatActivity {
         String ua = webSettings.getUserAgentString();
         webSettings.setUserAgentString(ua + "; app/ZhuanQuan");
         webSettings.setJavaScriptEnabled(true);
+        IX5WebViewExtension ix5 = webView.getX5WebViewExtension();
+        webView.setDrawingCacheEnabled(true);
 
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
         webView.setSwipeRefreshLayout(swipeRefreshLayout);
@@ -99,10 +104,13 @@ public class X5Activity extends AppCompatActivity {
             }
         });
 
-        // 关闭小窗播放
+        // 关闭小窗播放和方块滚动条
         Bundle data = new Bundle();
         data.putBoolean("supportLiteWnd", false);
-        webView.getX5WebViewExtension().invokeMiscMethod("setVideoParams", data);
+        if(null != ix5) {
+            ix5.invokeMiscMethod("setVideoParams", data);
+            ix5.setScrollBarFadingEnabled(false);
+        }
 
         MyWebViewClient webViewClient = new MyWebViewClient(this);
         webView.setWebViewClient(webViewClient);
