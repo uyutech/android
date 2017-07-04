@@ -161,11 +161,21 @@ public class MainActivity extends AppCompatActivity {
                             });
                         }
                         else {
-                            showLogin();
+                            MainActivity.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    showLogin();
+                                }
+                            });
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                        showLogin();
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                showLogin();
+                            }
+                        });
                     }
                 }
             }).start();
@@ -233,16 +243,12 @@ public class MainActivity extends AppCompatActivity {
             time = 3000 - ((int)(end - checkSessionStart));
         }
         LogUtil.i("showLogin: ", time + "");
+        // TODO: bug
         new Handler().postDelayed(new Runnable() {
             public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                        MainActivity.this.startActivity(intent);
-                        MainActivity.this.finish();
-                    }
-                });
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                MainActivity.this.startActivity(intent);
+                MainActivity.this.finish();
             }
         }, time);
     }
