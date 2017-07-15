@@ -155,6 +155,8 @@ public class RegisterFragment extends Fragment {
         sendValid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                clearDelayShowError();
+                errorTip.showNeedUserValid();
                 sendValid.setEnabled(false);
                 userValid.setEnabled(true);
                 validViewGroup.setAlpha(1);
@@ -169,7 +171,8 @@ public class RegisterFragment extends Fragment {
                     public void onFinish() {
                         sendDelay = 0;
                         sendValid.setText("重新发送");
-                        checkRegButton();
+                        sendValid.setEnabled(true);
+//                        checkRegButton();
                     }
                 }.start();
                 new Thread(new Runnable() {
@@ -365,15 +368,17 @@ public class RegisterFragment extends Fragment {
         // 清除上次可能的延迟校验
         clearDelayShowError();
         boolean valid = true;
-        // 空则清除提示信息
+        // 空则提示需要用户名
         if(userNameText.equals("")) {
-            runnable = new Runnable() {
-                @Override
-                public void run() {
-                    errorTip.showNeedUserName();
-                }
-            };
-            handler.postDelayed(runnable, 500);
+            if(isVisible()) {
+                runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        errorTip.showNeedUserName();
+                    }
+                };
+                handler.postDelayed(runnable, 500);
+            }
             valid = false;
         }
         else {
@@ -381,13 +386,15 @@ public class RegisterFragment extends Fragment {
             Pattern pattern = Pattern.compile("^1[356789]\\d{9}$");
             Matcher matcher = pattern.matcher(userNameText);
             if(!matcher.matches()) {
-                runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        errorTip.showPhoneUnValid();
-                    }
-                };
-                handler.postDelayed(runnable, 500);
+                if(isVisible()) {
+                    runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            errorTip.showPhoneUnValid();
+                        }
+                    };
+                    handler.postDelayed(runnable, 500);
+                }
                 valid = false;
             }
             else {
@@ -398,23 +405,27 @@ public class RegisterFragment extends Fragment {
         if(valid) {
             // 空则清除提示信息
             if(userPassText.equals("")) {
-                runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        errorTip.showNeedUserPass();
-                    }
-                };
-                handler.postDelayed(runnable, 500);
+                if(isVisible()) {
+                    runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            errorTip.showNeedUserPass();
+                        }
+                    };
+                    handler.postDelayed(runnable, 500);
+                }
                 valid = false;
             }
             else if(userPassText.length() < 8) {
-                runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        errorTip.showUserPassTooShort();
-                    }
-                };
-                handler.postDelayed(runnable, 500);
+                if(isVisible()) {
+                    runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            errorTip.showUserPassTooShort();
+                        }
+                    };
+                    handler.postDelayed(runnable, 500);
+                }
                 valid = false;
             }
             else {
@@ -422,55 +433,64 @@ public class RegisterFragment extends Fragment {
             }
         }
         // 密码也正确，放开发送验证码按钮
-        if(valid) {
-            // 可能上次发送没结束，判断是否倒计时到0秒
-            if(sendDelay == 0) {
-                sendValid.setEnabled(true);
-            }
-        }
-        else if(sendDelay == 0) {
-            sendValid.setEnabled(false);
-        }
+//        if(valid) {
+//            // 可能上次发送没结束，判断是否倒计时到0秒
+//            if(sendDelay == 0) {
+//                sendValid.setEnabled(true);
+//            }
+//        }
+//        else if(sendDelay == 0) {
+//            sendValid.setEnabled(false);
+//        }
         // 判断输入验证码里的内容
         if(valid) {
             // 是否可用
             if(userValid.isEnabled()) {
                 // 空则清除提示信息
                 if (userValidText.equals("")) {
-                    runnable = new Runnable() {
-                        @Override
-                        public void run() {
-                            errorTip.showNeedUserValid();
-                        }
-                    };
-                    handler.postDelayed(runnable, 500);
+                    if(isVisible()) {
+                        runnable = new Runnable() {
+                            @Override
+                            public void run() {
+                                errorTip.showNeedUserValid();
+                            }
+                        };
+                        handler.postDelayed(runnable, 500);
+                    }
                     valid = false;
                 } else if (userValidText.length() != 6) {
-                    runnable = new Runnable() {
-                        @Override
-                        public void run() {
-                            errorTip.showUserValidError();
-                        }
-                    };
-                    handler.postDelayed(runnable, 500);
+                    if(isVisible()) {
+                        runnable = new Runnable() {
+                            @Override
+                            public void run() {
+                                errorTip.showUserValidError();
+                            }
+                        };
+                        handler.postDelayed(runnable, 500);
+                    }
                     valid = false;
                 } else {
                     errorTip.hide();
                 }
             }
             else if(sendDelay == 0){
-                runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        errorTip.showNeedSendUserValid();
-                    }
-                };
-                handler.postDelayed(runnable, 500);
+                if(isVisible()) {
+                    runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            errorTip.showNeedSendUserValid();
+                        }
+                    };
+                    handler.postDelayed(runnable, 500);
+                }
                 valid = false;
             }
         }
         // 设置按钮禁用状态
         register.setEnabled(valid);
+    }
+    public void checkButton() {
+        checkRegButton();
     }
     private SpannableString getClickableSpan(String s) {
         SpannableString spannableString = new SpannableString(s);

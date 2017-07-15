@@ -211,7 +211,8 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void run() {
                 Intent intent = new Intent(LoginActivity.this, X5Activity.class);
-                intent.putExtra("url", URLs.H5_DOMAIN + "guide.html");
+                intent.putExtra("url", URLs.H5_DOMAIN + "index.html");
+//                intent.putExtra("url", "http://192.168.100.199:8080/index.html?id=1");
                 intent.putExtra("firstWeb", true);
                 startActivityForResult(intent, 1);
                 LoginActivity.this.finish();

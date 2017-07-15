@@ -262,15 +262,17 @@ public class LoginFragment extends Fragment {
         // 清除上次可能的延迟校验
         clearDelayShowError();
         boolean valid = true;
-        // 空则清除提示信息
+        // 空则提示需要用户名
         if(userNameText.equals("")) {
-            runnable = new Runnable() {
-                @Override
-                public void run() {
-                    errorTip.showNeedUserName();
-                }
-            };
-            handler.postDelayed(runnable, 500);
+            if(isVisible()) {
+                runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        errorTip.showNeedUserName();
+                    }
+                };
+                handler.postDelayed(runnable, 500);
+            }
             valid = false;
         }
         else {
@@ -278,13 +280,15 @@ public class LoginFragment extends Fragment {
             Pattern pattern = Pattern.compile("^1[356789]\\d{9}$");
             Matcher matcher = pattern.matcher(userNameText);
             if(!matcher.matches()) {
-                runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        errorTip.showPhoneUnValid();
-                    }
-                };
-                handler.postDelayed(runnable, 500);
+                if(isVisible()) {
+                    runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            errorTip.showPhoneUnValid();
+                        }
+                    };
+                    handler.postDelayed(runnable, 500);
+                }
                 valid = false;
             }
             else {
@@ -295,23 +299,27 @@ public class LoginFragment extends Fragment {
         if(valid) {
             // 空则清除提示信息
             if(userPassText.equals("")) {
-                runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        errorTip.showNeedUserPass();
-                    }
-                };
-                handler.postDelayed(runnable, 500);
+                if(isVisible()) {
+                    runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            errorTip.showNeedUserPass();
+                        }
+                    };
+                    handler.postDelayed(runnable, 500);
+                }
                 valid = false;
             }
             else if(userPassText.length() < 8) {
-                runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        errorTip.showUserPassTooShort();
-                    }
-                };
-                handler.postDelayed(runnable, 500);
+                if(isVisible()) {
+                    runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            errorTip.showUserPassTooShort();
+                        }
+                    };
+                    handler.postDelayed(runnable, 500);
+                }
                 valid = false;
             }
             else {
@@ -320,5 +328,8 @@ public class LoginFragment extends Fragment {
         }
         // 设置按钮禁用状态
         login.setEnabled(valid);
+    }
+    public void checkButton() {
+        checkLoginButton();
     }
 }
