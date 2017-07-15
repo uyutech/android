@@ -52,6 +52,11 @@ public class MyWebViewClient extends WebViewClient {
             if(i > 0) {
                 path = path.substring(0, i);
             }
+            // 忽略掉hash
+            i = path.indexOf('#');
+            if(i > 0) {
+                path = path.substring(0, i);
+            }
             LogUtil.i("shouldInterceptRequest: " + url + ", " + path);
             if (path.endsWith(".html")
                     || path.endsWith(".htm")
