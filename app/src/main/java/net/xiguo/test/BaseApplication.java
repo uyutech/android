@@ -21,7 +21,7 @@ public class BaseApplication extends Application {
     public void onCreate() {
         super.onCreate();
         context = getApplicationContext();
-        CookieSyncManager.createInstance(this);
+//        CookieSyncManager.createInstance(this);
 
         QbSdk.PreInitCallback cb = new QbSdk.PreInitCallback() {
 

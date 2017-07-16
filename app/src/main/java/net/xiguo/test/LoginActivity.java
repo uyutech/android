@@ -247,39 +247,39 @@ public class LoginActivity extends AppCompatActivity {
                 mSsoHandler.authorize(new SelfWbAuthListener());
             }
         });
-        mAccessToken = AccessTokenKeeper.readAccessToken(this);
-        if (mAccessToken.isSessionValid()) {
-            String date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(
-                    new java.util.Date(mAccessToken.getExpiresTime()));
-            LogUtil.i("token: " + mAccessToken.getToken() + ", " + date);
-
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    LogUtil.i("sendWeiboRequest run");
-                    try {
-                        OkHttpClient client = new OkHttpClient
-                                .Builder()
-                                .build();
-                        RequestBody requestBody = new FormBody.Builder()
-                                .add("access_token", mAccessToken.getToken())
-                                .build();
-                        Request request = new Request.Builder()
-                                .url("https://api.weibo.com/oauth2/get_token_info")
-                                .post(requestBody)
-                                .build();
-                        Response response = client.newCall(request).execute();
-                        String responseBody = response.body().string();
-                        LogUtil.i("loginWeiboResponse: " + responseBody);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
-        }
-        else {
-            LogUtil.i("no weibo");
-        }
+//        mAccessToken = AccessTokenKeeper.readAccessToken(this);
+//        if (mAccessToken.isSessionValid()) {
+//            String date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(
+//                    new java.util.Date(mAccessToken.getExpiresTime()));
+//            LogUtil.i("token: " + mAccessToken.getToken() + ", " + date);
+//
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    LogUtil.i("sendWeiboRequest run");
+//                    try {
+//                        OkHttpClient client = new OkHttpClient
+//                                .Builder()
+//                                .build();
+//                        RequestBody requestBody = new FormBody.Builder()
+//                                .add("access_token", mAccessToken.getToken())
+//                                .build();
+//                        Request request = new Request.Builder()
+//                                .url("https://api.weibo.com/oauth2/get_token_info")
+//                                .post(requestBody)
+//                                .build();
+//                        Response response = client.newCall(request).execute();
+//                        String responseBody = response.body().string();
+//                        LogUtil.i("loginWeiboResponse: " + responseBody);
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }).start();
+//        }
+//        else {
+//            LogUtil.i("no weibo");
+//        }
     }
 
     @Override
@@ -365,7 +365,7 @@ public class LoginActivity extends AppCompatActivity {
                                                             LogUtil.i("cookie: ", cookie.value());
                                                             SharedPreferences.Editor editor = LoginActivity.this.getSharedPreferences("cookie", Context.MODE_PRIVATE).edit();
                                                             editor.putString("JSESSIONID", cookie.value());
-                                                            editor.putString("JSESSIONID_FULL", cookie.value());
+                                                            editor.putString("JSESSIONID_FULL", cookie.toString());
                                                             editor.apply();
                                                         }
                                                     }

@@ -8,7 +8,7 @@ public class URLs {
     public static final String REGISTER_DOMAIN = "http://116.62.244.93:8089/register/";
     public static final String SEND_REG_SMS = "sendRegSms.action";
     public static final String REGISTER_BY_MOBILE = "registerByMobile.action";
-    public static final String LOGIN_DOMAIN = "http://106.14.223.219:8089/login/";
+    public static final String LOGIN_DOMAIN = "http://116.62.244.93:8089/login/";
     public static final String LOGIN_BY_MOBILE = "loginByMobile.action";
     public static final String LOGIN_BY_OPEN_ID = "loginByOpenId.action";
     public static final String SESSON_CHECK = "sessionCheck.action";

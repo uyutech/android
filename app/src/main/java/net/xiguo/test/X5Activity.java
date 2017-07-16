@@ -136,8 +136,19 @@ public class X5Activity extends AppCompatActivity {
 
         // 离线包地址添加cookie
         if(url.startsWith(URLs.H5_DOMAIN)) {
+            CookieSyncManager.createInstance(this);
             CookieManager cookieManager = CookieManager.getInstance();
+
             cookieManager.setAcceptCookie(true);
+            cookieManager.removeSessionCookie();
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                LogUtil.i("CookieSyncManager sync");
+                CookieSyncManager.getInstance().sync();
+            } else {
+                LogUtil.i("CookieManager flush");
+                CookieManager.getInstance().flush();
+            }
+
             for (String s : MyCookies.getAll()) {
                 LogUtil.i("CookieManager: ", url + ", " + s);
                 cookieManager.setCookie(url, s);
@@ -145,7 +156,6 @@ public class X5Activity extends AppCompatActivity {
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                 LogUtil.i("CookieSyncManager sync");
-                CookieSyncManager.createInstance(this);
                 CookieSyncManager.getInstance().sync();
             } else {
                 LogUtil.i("CookieManager flush");
