@@ -19,4 +19,16 @@ public class LogUtil {
     public static void d(String log) {
         Log.d("d日志" + getCallerStackTraceElement(), log);
     }
+    public static void w(String log) {
+        Log.w("w日志" + getCallerStackTraceElement(), log);
+    }
+    public static void w(String tag, String log) {
+        Log.w("w日志" + getCallerStackTraceElement(), tag + log);
+    }
+    public static void e(String log) {
+        Log.e("e日志" + getCallerStackTraceElement(), log);
+    }
+    public static void e(String tag, String log) {
+        Log.e("e日志" + getCallerStackTraceElement(), tag + log);
+    }
 }

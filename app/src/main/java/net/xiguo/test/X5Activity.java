@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -41,6 +40,7 @@ import net.xiguo.test.web.MyCookies;
 import net.xiguo.test.web.MyWebChromeClient;
 import net.xiguo.test.web.MyWebViewClient;
 import net.xiguo.test.web.URLs;
+import net.xiguo.test.web.SwipeRefreshLayout;
 
 /**
  * Created by army on 2017/3/16.

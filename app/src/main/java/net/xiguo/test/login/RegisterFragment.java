@@ -171,8 +171,8 @@ public class RegisterFragment extends Fragment {
                     public void onFinish() {
                         sendDelay = 0;
                         sendValid.setText("重新发送");
-                        sendValid.setEnabled(true);
-//                        checkRegButton();
+//                        sendValid.setEnabled(true);
+                        checkRegButton();
                     }
                 }.start();
                 new Thread(new Runnable() {
@@ -433,15 +433,15 @@ public class RegisterFragment extends Fragment {
             }
         }
         // 密码也正确，放开发送验证码按钮
-//        if(valid) {
-//            // 可能上次发送没结束，判断是否倒计时到0秒
-//            if(sendDelay == 0) {
-//                sendValid.setEnabled(true);
-//            }
-//        }
-//        else if(sendDelay == 0) {
-//            sendValid.setEnabled(false);
-//        }
+        if(valid) {
+            // 可能上次发送没结束，判断是否倒计时到0秒
+            if(sendDelay == 0) {
+                sendValid.setEnabled(true);
+            }
+        }
+        else if(sendDelay == 0) {
+            sendValid.setEnabled(false);
+        }
         // 判断输入验证码里的内容
         if(valid) {
             // 是否可用

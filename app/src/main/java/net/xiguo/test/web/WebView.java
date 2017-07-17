@@ -1,10 +1,10 @@
 package net.xiguo.test.web;
 
 import android.content.Context;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.AttributeSet;
 
 import net.xiguo.test.utils.LogUtil;
+import net.xiguo.test.web.SwipeRefreshLayout;
 
 /**
  * Created by army on 2017/6/12.
