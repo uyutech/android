@@ -14,6 +14,7 @@ import android.view.Window;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,10 +57,10 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity {
     private boolean hasUnZipPack = false;
     private ImageView bgi;
+    private ProgressBar progressBar;
     private TextView domain;
     private TextView copyright;
     private long timeStart;
-    private long checkSessionStart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         bgi = (ImageView) findViewById(R.id.bgi);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
         domain = (TextView) findViewById(R.id.domain);
         copyright = (TextView) findViewById(R.id.copyright);
 
@@ -98,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                LogUtil.i("checkH5Package run");
+                LogUtil.i("checkUpdate run");
                 try {
                     OkHttpClient client = new OkHttpClient
                             .Builder()
@@ -108,9 +110,9 @@ public class MainActivity extends AppCompatActivity {
                             .build();
                     Response response = client.newCall(request).execute();
                     String responseBody = response.body().string();
-                    LogUtil.i("checkH5Package: " + responseBody);
+                    LogUtil.i("checkUpdate: " + responseBody);
                     if(responseBody.isEmpty()) {
-                        LogUtil.i("checkSession isEmpty");
+                        LogUtil.i("checkUpdate isEmpty");
                         MainActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -127,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
                         // 获取本地版本信息
                         SharedPreferences sharedPreferences = getSharedPreferences("h5_package", MODE_PRIVATE);
                         final int curVersion = sharedPreferences.getInt("version", 0);
-                        LogUtil.i("checkH5Package version: ", version + ", " + curVersion);
+                        LogUtil.i("checkUpdate version: ", version + ", " + curVersion);
                         if(curVersion < version) {
                             SharedPreferences.Editor editor = MainActivity.this.getSharedPreferences("h5_package", Context.MODE_PRIVATE).edit();
                             editor.putInt("version", version);
@@ -174,10 +176,11 @@ public class MainActivity extends AppCompatActivity {
                                     long total = response.body().contentLength();
                                     LogUtil.i("Download h5zip total: ", total + "");
                                     long sum = 0;
-                                    int len = -1;
+                                    int len;
                                     while((len = is.read(buffer)) != -1) {
                                         sum += len;
                                         int progress = (int) (sum * 1.0f / total * 100);
+                                        progressBar.setProgress(progress);
 //                                        LogUtil.i("Download h5zip progress: ", sum + ", " + total + ", " + progress + "");
                                         outStream.write(buffer, 0, len);
                                     }
@@ -230,6 +233,7 @@ public class MainActivity extends AppCompatActivity {
         unZipH5Pack(null);
     }
     private void unZipH5Pack(InputStream is) {
+        progressBar.setProgress(100);
         LogUtil.i("unZipH5Pack inputStream is null: " + (is == null));
         // 确保解压方法此次实例只运行一次
         if(hasUnZipPack) {
@@ -268,8 +272,8 @@ public class MainActivity extends AppCompatActivity {
                     FileOutputStream fos = null;
                     try {
                         fos = openFileOutput(noSepFileName, Context.MODE_PRIVATE);
-                        int len = -1;
-                        byte[] buffer = new byte[1024];
+                        int len;
+                        byte[] buffer = new byte[2048];
                         while((len = zis.read(buffer)) != -1) {
                             fos.write(buffer, 0, len);
                             fos.flush();
@@ -314,20 +318,13 @@ public class MainActivity extends AppCompatActivity {
         boolean focusLogin = false;
         if(JSESSIONID.isEmpty() || focusLogin) {
             // 暂停3s后跳转
-            new Handler().postDelayed(new Runnable() {
-                public void run() {
-                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                    MainActivity.this.startActivity(intent);
-                    MainActivity.this.finish();
-                }
-            }, 3000);
+            showLogin();
         }
         else {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     LogUtil.i("checkSession run");
-                    checkSessionStart = new Date().getTime();
                     try {
                         OkHttpClient client = new OkHttpClient
                                 .Builder()
@@ -404,11 +401,11 @@ public class MainActivity extends AppCompatActivity {
     private void showLogin() {
         long end = new Date().getTime();
         int time;
-        if(end - checkSessionStart >= 3000) {
+        if(end - timeStart >= 3000) {
             time = 0;
         }
         else {
-            time = 3000 - ((int)(end - checkSessionStart));
+            time = 3000 - ((int)(end - timeStart));
         }
         LogUtil.i("showLogin: ", time + "");
         new Handler().postDelayed(new Runnable() {
