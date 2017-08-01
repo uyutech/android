@@ -25,9 +25,12 @@ import net.xiguo.test.utils.LogUtil;
 import net.xiguo.test.web.MyCookies;
 import net.xiguo.test.web.URLs;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -37,6 +40,8 @@ import java.util.ListIterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.Cookie;
 import okhttp3.CookieJar;
 import okhttp3.HttpUrl;
@@ -49,10 +54,11 @@ import okhttp3.Response;
  */
 
 public class MainActivity extends AppCompatActivity {
-    private boolean hasUnZipDefaultPack = false;
+    private boolean hasUnZipPack = false;
     private ImageView bgi;
     private TextView domain;
     private TextView copyright;
+    private long timeStart;
     private long checkSessionStart;
 
     @Override
@@ -70,11 +76,7 @@ public class MainActivity extends AppCompatActivity {
         alphaAnimation.setDuration(1000);
         bgi.setAnimation(alphaAnimation);
         alphaAnimation.startNow();
-
-        if(!hasUnZipDefaultPack) {
-            hasUnZipDefaultPack = true;
-            unZipH5Pack();
-        }
+        timeStart = new Date().getTime();
 
         Intent intent = getIntent();
         LogUtil.i("schema: " + intent.getScheme());
@@ -87,11 +89,228 @@ public class MainActivity extends AppCompatActivity {
             LogUtil.i("query: " + uri.getQuery());
             LogUtil.i("param: " + uri.getQueryParameter("key"));
         }
+
+        checkUpdate();
+    }
+
+    private void checkUpdate() {
+        // 检测更新情况
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                LogUtil.i("checkH5Package run");
+                try {
+                    OkHttpClient client = new OkHttpClient
+                            .Builder()
+                            .build();
+                    Request request = new Request.Builder()
+                            .url(URLs.CHECK_H5_PACKAGE_URL)
+                            .build();
+                    Response response = client.newCall(request).execute();
+                    String responseBody = response.body().string();
+                    LogUtil.i("checkH5Package: " + responseBody);
+                    if(responseBody.isEmpty()) {
+                        LogUtil.i("checkSession isEmpty");
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                unZipH5Pack();
+                                checkSession();
+                            }
+                        });
+                        return;
+                    }
+                    final JSONObject json = JSON.parseObject(responseBody);
+                    boolean success = json.getBoolean("success");
+                    if(success) {
+                        int version = json.getIntValue("version");
+                        // 获取本地版本信息
+                        SharedPreferences sharedPreferences = getSharedPreferences("h5_package", MODE_PRIVATE);
+                        final int curVersion = sharedPreferences.getInt("version", 0);
+                        LogUtil.i("checkH5Package version: ", version + ", " + curVersion);
+                        if(curVersion < version) {
+                            SharedPreferences.Editor editor = MainActivity.this.getSharedPreferences("h5_package", Context.MODE_PRIVATE).edit();
+                            editor.putInt("version", version);
+                            editor.putBoolean("hasUnZip", false);
+                            editor.apply();
+                            final String url = json.getString("url");
+                            LogUtil.i("Download h5zip: ", url);
+                            OkHttpClient client2 = new OkHttpClient
+                                    .Builder()
+                                    .build();
+                            Request request2 = new Request.Builder()
+                                    .url(url)
+                                    .build();
+                            client2.newCall(request2).enqueue(new Callback() {
+                                @Override
+                                public void onFailure(Call call, IOException e) {
+                                    LogUtil.i("Download h5zip failure: ", e.toString());
+                                    MainActivity.this.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            unZipH5Pack();
+                                            checkSession();
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void onResponse(Call call, Response response) throws IOException {
+                                    if(response.code() != 200 && response.code() != 304) {
+                                        LogUtil.i("Download h5zip failure: ", response.toString());
+                                        MainActivity.this.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                unZipH5Pack();
+                                                checkSession();
+                                            }
+                                        });
+                                        return;
+                                    }
+                                    InputStream is = null;
+                                    byte[] buffer = new byte[10240];
+                                    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+                                    is = response.body().byteStream();
+                                    long total = response.body().contentLength();
+                                    LogUtil.i("Download h5zip total: ", total + "");
+                                    long sum = 0;
+                                    int len = -1;
+                                    while((len = is.read(buffer)) != -1) {
+                                        sum += len;
+                                        int progress = (int) (sum * 1.0f / total * 100);
+//                                        LogUtil.i("Download h5zip progress: ", sum + ", " + total + ", " + progress + "");
+                                        outStream.write(buffer, 0, len);
+                                    }
+                                    final ByteArrayInputStream inputStream = new ByteArrayInputStream(outStream.toByteArray());
+                                    LogUtil.i("Download h5zip finish： ", outStream.size() + ", " + inputStream.available());
+                                    MainActivity.this.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            unZipH5Pack(inputStream);
+                                            checkSession();
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                        else {
+                            MainActivity.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    unZipH5Pack();
+                                    checkSession();
+                                }
+                            });
+                        }
+                    }
+                    else {
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                unZipH5Pack();
+                                checkSession();
+                            }
+                        });
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    LogUtil.i("checkSession exception", e.toString());
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            unZipH5Pack();
+                            checkSession();
+                        }
+                    });
+                }
+            }
+        }).start();
+    }
+    private void unZipH5Pack() {
+        unZipH5Pack(null);
+    }
+    private void unZipH5Pack(InputStream is) {
+        LogUtil.i("unZipH5Pack inputStream is null: " + (is == null));
+        // 确保解压方法此次实例只运行一次
+        if(hasUnZipPack) {
+            return;
+        }
+        hasUnZipPack = true;
+
+        // 是否已经解压过
+        SharedPreferences sharedPreferences = getSharedPreferences("h5_package", MODE_PRIVATE);
+        boolean hasUnZip = sharedPreferences.getBoolean("hasUnZip", false);
+        LogUtil.i("unZipH5Pack hasUnZip: " + hasUnZip);
+        if(hasUnZip) {
+            return;
+        }
+        // 标识已经解压
+        SharedPreferences.Editor editor = this.getSharedPreferences("h5_package", Context.MODE_PRIVATE).edit();
+        editor.putBoolean("hasUnZip", true);
+        editor.apply();
+
+        Date start = new Date();
+        LogUtil.i("start unZipH5Pack: " + start);
+        ZipInputStream zis = null;
+        try {
+            // 默认读取附带的assets文件夹下的文件
+            if(is == null) {
+                is = BaseApplication.getContext().getAssets().open("h5.zip");
+            }
+            zis = new ZipInputStream(is);
+            ZipEntry next = null;
+            String fileName = null;
+            while((next = zis.getNextEntry()) != null) {
+                fileName = next.getName();
+                String noSepFileName = fileName.replaceAll("/", "__");
+                LogUtil.i("upZipName: " + fileName + ", " + noSepFileName + ", isDirectory: " + next.isDirectory());
+                if(!next.isDirectory()) {
+                    FileOutputStream fos = null;
+                    try {
+                        fos = openFileOutput(noSepFileName, Context.MODE_PRIVATE);
+                        int len = -1;
+                        byte[] buffer = new byte[1024];
+                        while((len = zis.read(buffer)) != -1) {
+                            fos.write(buffer, 0, len);
+                            fos.flush();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            if(fos != null) {
+                                fos.close();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(zis != null) {
+                try {
+                    zis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            Date end = new Date();
+            LogUtil.i("end unZipH5Pack: " + end);
+        }
+    }
+
+    private void checkSession() {
+        // 获取已登录信息
         SharedPreferences sharedPreferences = getSharedPreferences("cookie", MODE_PRIVATE);
         final String JSESSIONID = sharedPreferences.getString("JSESSIONID", "");
         final String JSESSIONID_FULL = sharedPreferences.getString("JSESSIONID_FULL", "");
         LogUtil.i("JSESSIONID: ", JSESSIONID);
         LogUtil.i("JSESSIONID_FULL: ", JSESSIONID_FULL);
+
+        // 检测登录
         boolean focusLogin = false;
         if(JSESSIONID.isEmpty() || focusLogin) {
             // 暂停3s后跳转
@@ -182,57 +401,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void unZipH5Pack() {
-        Date start = new Date();
-        LogUtil.i("start unZipH5Pack: " + start);
-        ZipInputStream zis = null;
-        try {
-            InputStream is = BaseApplication.getContext().getAssets().open("h5.zip");
-            zis = new ZipInputStream(is);
-            ZipEntry next = null;
-            String fileName = null;
-            while((next = zis.getNextEntry()) != null) {
-                fileName = next.getName();
-                String noSepFileName = fileName.replaceAll("/", "__");
-                LogUtil.i("upZipName: " + fileName + ", " + noSepFileName + ", isDirectory: " + next.isDirectory());
-                if(!next.isDirectory()) {
-                    FileOutputStream fos = null;
-                    try {
-                        fos = openFileOutput(noSepFileName, Context.MODE_PRIVATE);
-                        int len;
-                        byte[] buffer = new byte[1024];
-                        while((len = zis.read(buffer)) != -1) {
-                            fos.write(buffer, 0, len);
-                            fos.flush();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        try {
-                            if(fos != null) {
-                                fos.close();
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if(zis != null) {
-                try {
-                    zis.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            Date end = new Date();
-            LogUtil.i("end unZipH5Pack: " + end);
-        }
-    }
-
     private void showLogin() {
         long end = new Date().getTime();
         int time;
@@ -243,7 +411,6 @@ public class MainActivity extends AppCompatActivity {
             time = 3000 - ((int)(end - checkSessionStart));
         }
         LogUtil.i("showLogin: ", time + "");
-        // TODO: bug
         new Handler().postDelayed(new Runnable() {
             public void run() {
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);

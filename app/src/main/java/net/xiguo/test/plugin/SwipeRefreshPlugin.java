@@ -17,7 +17,7 @@ public class SwipeRefreshPlugin extends H5Plugin {
     @Override
     public void handle(JSONObject param) {
         String params = param.toJSONString();
-        LogUtil.i("AlertPlugin: " + params);
+        LogUtil.i("SwipeRefreshPlugin: " + params);
         boolean p = param.getBoolean("param");
         this.activity.getSwipeRefreshLayout().setFoceEnabled(p);
     }

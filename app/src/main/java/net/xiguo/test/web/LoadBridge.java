@@ -29,7 +29,7 @@ public class LoadBridge {
                 sb.append(line);
             }
             h5Bridge = sb.toString();
-            LogUtil.i("h5Bridge: " + h5Bridge);
+//            LogUtil.i("h5Bridge: " + h5Bridge);
         } catch (IOException e) {
             e.printStackTrace();
             h5Bridge = null;

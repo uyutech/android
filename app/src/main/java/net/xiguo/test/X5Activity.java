@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -88,8 +89,12 @@ public class X5Activity extends AppCompatActivity {
         webView = (WebView) findViewById(R.id.x5);
         WebSettings webSettings = webView.getSettings();
         String ua = webSettings.getUserAgentString();
-        webSettings.setUserAgentString(ua + "; app/ZhuanQuan");
+        webSettings.setUserAgentString(ua + " app/ZhuanQuan");
         webSettings.setJavaScriptEnabled(true);
+        // 支持缩放viewport
+        webSettings.setUseWideViewPort(true);
+        webSettings.setLoadWithOverviewMode(true);
+
         IX5WebViewExtension ix5 = webView.getX5WebViewExtension();
         webView.setDrawingCacheEnabled(true);
 
@@ -272,7 +277,11 @@ public class X5Activity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        webView.loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
+        webView.clearHistory();
+        ((ViewGroup) webView.getParent()).removeView(webView);
         webView.destroy();
+        webView = null;
     }
 
     public SwipeRefreshLayout getSwipeRefreshLayout() {
