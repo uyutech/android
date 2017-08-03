@@ -16,6 +16,7 @@ import android.widget.ImageView;
 
 import net.xiguo.test.LoginActivity;
 import net.xiguo.test.R;
+import net.xiguo.test.utils.LogUtil;
 import net.xiguo.test.widget.ErrorTip;
 
 import java.util.regex.Matcher;
@@ -40,15 +41,21 @@ public class ForgetFragment extends Fragment {
     private Handler handler;
     private Runnable runnable;
 
+    private String initName;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        LogUtil.i("onCreateView", initName);
         View view = inflater.inflate(R.layout.fragment_forget, container, false);
         loginActivity = (LoginActivity) getActivity();
         errorTip = loginActivity.getErrorTip();
         handler = new Handler();
 
         userName = (EditText) view.findViewById(R.id.userName);
+        if(initName != null) {
+            setUserName(initName);
+        }
         userPass = (EditText) view.findViewById(R.id.userPass);
         userValid = (EditText) view.findViewById(R.id.userValid);
         validViewGroup = (ViewGroup) userValid.getParent();
@@ -114,11 +121,12 @@ public class ForgetFragment extends Fragment {
         sendValid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendValid.setEnabled(false);
-                userValid.setEnabled(true);
+//                sendValid.setEnabled(false);
+//                userValid.setEnabled(true);
                 validViewGroup.setAlpha(1);
                 sendDelay = 60;
                 sendValid.setText(sendDelay + "秒后重新发送");
+                checkOkButton();
                 new CountDownTimer(60000, 1000) {
                     @Override
                     public void onTick(long millisUntilFinished) {
@@ -151,7 +159,7 @@ public class ForgetFragment extends Fragment {
         // 清除上次可能的延迟校验
         clearDelayShowError();
         boolean valid = true;
-        // 空则清除提示信息
+        // 空则提示需要用户名
         if(userNameText.equals("")) {
             if(isVisible()) {
                 runnable = new Runnable() {
@@ -186,7 +194,7 @@ public class ForgetFragment extends Fragment {
         }
         // 用户名如果正确合法，则判断密码输入状态
         if(valid) {
-            // 空则清除提示信息
+            // 空则提示需要密码
             if(userPassText.equals("")) {
                 if(isVisible()) {
                     runnable = new Runnable() {
@@ -221,15 +229,18 @@ public class ForgetFragment extends Fragment {
             if(sendDelay == 0) {
                 sendValid.setEnabled(true);
             }
+            else {
+                sendValid.setEnabled(false);
+            }
         }
-        else if(sendDelay == 0) {
+        else {
             sendValid.setEnabled(false);
         }
         // 判断输入验证码里的内容
         if(valid) {
             // 是否可用
             if(userValid.isEnabled()) {
-                // 空则清除提示信息
+                // 空则提示需要验证码
                 if (userValidText.equals("")) {
                     if(isVisible()) {
                         runnable = new Runnable() {
@@ -271,5 +282,15 @@ public class ForgetFragment extends Fragment {
         }
         // 设置按钮禁用状态
         ok.setEnabled(valid);
+    }
+
+    public void setUserName(String name) {
+        LogUtil.i("setUserName ", (userName == null) + ", " + name);
+        if(userName != null) {
+            userName.setText(name);
+        }
+        else {
+            initName = name;
+        }
     }
 }

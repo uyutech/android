@@ -14,8 +14,8 @@ public class UserInfo {
 
     public static void setUserInfo(JSONObject jsonObject) {
         LogUtil.i("setUserInfo: ", jsonObject.toJSONString());
-        userId = jsonObject.getString("uid");
-        userName = jsonObject.getString("nickName");
+        userId = jsonObject.getString("ID");
+        userName = jsonObject.getString("User_Phone");
     }
     public static String getUserId() {
         return userId;

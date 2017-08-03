@@ -291,7 +291,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    public void showForgetDiv() {
+    public void showForgetDiv(String name) {
         LogUtil.i("showForgetDiv");
         loginDiv.setVisibility(View.GONE);
         forgetDiv.setVisibility(View.VISIBLE);
@@ -311,6 +311,7 @@ public class LoginActivity extends AppCompatActivity {
             transaction.replace(R.id.forgetFrame, forgetFragment);
             transaction.commit();
         }
+        forgetFragment.setUserName(name);
     }
     public void showLoginDiv() {
         LogUtil.i("showLoginDiv");
@@ -357,15 +358,15 @@ public class LoginActivity extends AppCompatActivity {
                                             .cookieJar(new CookieJar() {
                                                 @Override
                                                 public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
-                                                    LogUtil.i("saveFromResponse: " + url);
+//                                                    LogUtil.i("saveFromResponse: " + url);
                                                     for(Cookie cookie : cookies) {
                                                         LogUtil.i("cookie: " + cookie.toString());
                                                         MyCookies.add(cookie.toString());
-                                                        if(cookie.name().equals("JSESSIONID")) {
-                                                            LogUtil.i("cookie: ", cookie.value());
+                                                        if(cookie.name().equals(MyCookies.COOKIE_NAME)) {
+                                                            LogUtil.i("sessionid: ", cookie.toString());
                                                             SharedPreferences.Editor editor = LoginActivity.this.getSharedPreferences("cookie", Context.MODE_PRIVATE).edit();
-                                                            editor.putString("JSESSIONID", cookie.value());
-                                                            editor.putString("JSESSIONID_FULL", cookie.toString());
+                                                            editor.putString(MyCookies.COOKIE_NAME, cookie.toString());
+//                                                            editor.putString("JSESSIONID_FULL", cookie.toString());
                                                             editor.apply();
                                                         }
                                                     }
@@ -377,9 +378,9 @@ public class LoginActivity extends AppCompatActivity {
                                                 }
                                             })
                                             .build();
-                                    String url = URLs.LOGIN_DOMAIN + URLs.LOGIN_BY_OPEN_ID
-                                            + "?openId=" + android.net.Uri.encode(openId)
-                                            + "&token=" + android.net.Uri.encode(token)
+                                    String url = URLs.LOGIN_BY_WEIBO
+                                            + "?mAccessTokenuid=" + android.net.Uri.encode(openId)
+                                            + "&access_token=" + android.net.Uri.encode(token)
                                             + "&channelType=" + android.net.Uri.encode(channelType);
                                     LogUtil.i(url);
                                     Request request = new Request.Builder()
@@ -387,7 +388,7 @@ public class LoginActivity extends AppCompatActivity {
                                             .build();
                                     Response response = client.newCall(request).execute();
                                     String responseBody = response.body().string();
-                                    LogUtil.i("LOGIN_BY_OPEN_ID: " + responseBody);
+                                    LogUtil.i("LOGIN_BY_WEIBO: " + responseBody);
                                     if(responseBody.isEmpty()) {
                                         runOnUiThread(new Runnable() {
                                             @Override
@@ -415,7 +416,7 @@ public class LoginActivity extends AppCompatActivity {
                                                 toast.setGravity(Gravity.CENTER, 0, 0);
                                                 toast.show();
                                                 JSONObject data = json.getJSONObject("data");
-                                                LoginActivity.this.openUrl(data.getIntValue("regStat"));
+                                                LoginActivity.this.openUrl(data.getIntValue("User_Reg_Stat"));
                                             }
                                         });
                                     }

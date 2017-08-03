@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
                             .Builder()
                             .build();
                     Request request = new Request.Builder()
-                            .url(URLs.CHECK_H5_PACKAGE_URL)
+                            .url(URLs.CHECK_H5_PACKAGE)
                             .build();
                     Response response = client.newCall(request).execute();
                     String responseBody = response.body().string();
@@ -309,14 +309,12 @@ public class MainActivity extends AppCompatActivity {
     private void checkSession() {
         // 获取已登录信息
         SharedPreferences sharedPreferences = getSharedPreferences("cookie", MODE_PRIVATE);
-        final String JSESSIONID = sharedPreferences.getString("JSESSIONID", "");
-        final String JSESSIONID_FULL = sharedPreferences.getString("JSESSIONID_FULL", "");
-        LogUtil.i("JSESSIONID: ", JSESSIONID);
-        LogUtil.i("JSESSIONID_FULL: ", JSESSIONID_FULL);
+        final String sessionid = sharedPreferences.getString(MyCookies.COOKIE_NAME, "");
+        LogUtil.i("sessionid: ", sessionid);
 
         // 检测登录
         boolean focusLogin = false;
-        if(JSESSIONID.isEmpty() || focusLogin) {
+        if(sessionid.isEmpty() || focusLogin) {
             // 暂停3s后跳转
             showLogin();
         }
@@ -329,11 +327,11 @@ public class MainActivity extends AppCompatActivity {
                         OkHttpClient client = new OkHttpClient
                                 .Builder()
                                 .build();
-                        String url = URLs.LOGIN_DOMAIN + URLs.SESSON_CHECK;
+                        String url = URLs.SESSON_CHECK;
                         LogUtil.i(url);
                         Request request = new Request.Builder()
                                 .url(url)
-                                .header("cookie", "JSESSIONID=" + JSESSIONID)
+                                .header("cookie", sessionid)
                                 .build();
                         Response response = client.newCall(request).execute();
                         String responseBody = response.body().string();
@@ -351,7 +349,7 @@ public class MainActivity extends AppCompatActivity {
                         final JSONObject json = JSON.parseObject(responseBody);
                         boolean success = json.getBoolean("success");
                         if(success) {
-                            MyCookies.add(JSESSIONID_FULL);
+                            MyCookies.add(sessionid);
                             // 记录用户信息
                             JSONObject data = json.getJSONObject("data");
                             UserInfo.setUserInfo(data);
@@ -385,6 +383,7 @@ public class MainActivity extends AppCompatActivity {
                             });
                         }
                     } catch (Exception e) {
+                        LogUtil.i("checkSession Exception: " + e.toString());
                         e.printStackTrace();
                         MainActivity.this.runOnUiThread(new Runnable() {
                             @Override

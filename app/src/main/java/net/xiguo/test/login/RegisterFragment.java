@@ -155,13 +155,14 @@ public class RegisterFragment extends Fragment {
         sendValid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                clearDelayShowError();
-                errorTip.showNeedUserValid();
+//                clearDelayShowError();
+//                errorTip.showNeedUserValid();
                 sendValid.setEnabled(false);
                 userValid.setEnabled(true);
                 validViewGroup.setAlpha(1);
                 sendDelay = 60;
                 sendValid.setText(sendDelay + "秒后重新发送");
+                checkRegButton();
                 new CountDownTimer(60000, 1000) {
                     @Override
                     public void onTick(long millisUntilFinished) {
@@ -183,11 +184,15 @@ public class RegisterFragment extends Fragment {
                             OkHttpClient client = new OkHttpClient
                                     .Builder()
                                     .build();
-                            String url = URLs.REGISTER_DOMAIN + URLs.SEND_REG_SMS
-                                    + "?mobile=" + android.net.Uri.encode(userName.getText().toString());
+                            String url = URLs.SEND_REG_SMS;
                             LogUtil.i(url);
+                            RequestBody requestBody = new FormBody.Builder()
+                                    .add("User_Phone", android.net.Uri.encode(userName.getText().toString()))
+                                    .add("SendSource", "Regist")
+                                    .build();
                             Request request = new Request.Builder()
                                     .url(url)
+                                    .post(requestBody)
                                     .build();
                             Response response = client.newCall(request).execute();
                             String responseBody = response.body().string();
@@ -262,15 +267,14 @@ public class RegisterFragment extends Fragment {
                                     .cookieJar(new CookieJar() {
                                         @Override
                                         public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
-                                            LogUtil.i("saveFromResponse: " + url);
+//                                            LogUtil.i("saveFromResponse: " + url);
                                             for(Cookie cookie : cookies) {
                                                 LogUtil.i("cookie: " + cookie.toString());
-                                                MyCookies.add(cookie.toString());
-                                                if(cookie.name().equals("JSESSIONID")) {
-                                                    LogUtil.i("cookie: ", cookie.value());
+                                                MyCookies.add(cookie.name() + '=' + cookie.value());
+                                                if(cookie.name().equals(MyCookies.COOKIE_NAME)) {
+                                                    LogUtil.i("sessionid: ", cookie.value());
                                                     SharedPreferences.Editor editor = loginActivity.getSharedPreferences("cookie", Context.MODE_PRIVATE).edit();
-                                                    editor.putString("JSESSIONID", cookie.value());
-                                                    editor.putString("JSESSIONID_FULL", cookie.toString());
+                                                    editor.putString(MyCookies.COOKIE_NAME, cookie.name() + '=' + cookie.value());
                                                     editor.apply();
                                                 }
                                             }
@@ -282,13 +286,16 @@ public class RegisterFragment extends Fragment {
                                         }
                                     })
                                     .build();
-                            String url = URLs.REGISTER_DOMAIN + URLs.REGISTER_BY_MOBILE
-                                    + "?mobile=" + android.net.Uri.encode(userName.getText().toString())
-                                    + "&password=" + android.net.Uri.encode(userPass.getText().toString())
-                                    + "&verifyCode=" + android.net.Uri.encode(userValid.getText().toString());
+                            String url = URLs.REGISTER_BY_MOBILE;
                             LogUtil.i(url);
+                            RequestBody requestBody = new FormBody.Builder()
+                                    .add("User_Phone", android.net.Uri.encode(userName.getText().toString()))
+                                    .add("User_Pwd", android.net.Uri.encode(userPass.getText().toString()))
+                                    .add("YZMCode", android.net.Uri.encode(userValid.getText().toString()))
+                                    .build();
                             Request request = new Request.Builder()
                                     .url(url)
+                                    .post(requestBody)
                                     .build();
                             Response response = client.newCall(request).execute();
                             String responseBody = response.body().string();
@@ -403,7 +410,7 @@ public class RegisterFragment extends Fragment {
         }
         // 用户名如果正确合法，则判断密码输入状态
         if(valid) {
-            // 空则清除提示信息
+            // 空则提示需要密码
             if(userPassText.equals("")) {
                 if(isVisible()) {
                     runnable = new Runnable() {
@@ -438,15 +445,18 @@ public class RegisterFragment extends Fragment {
             if(sendDelay == 0) {
                 sendValid.setEnabled(true);
             }
+            else {
+                sendValid.setEnabled(false);
+            }
         }
-        else if(sendDelay == 0) {
+        else {
             sendValid.setEnabled(false);
         }
         // 判断输入验证码里的内容
         if(valid) {
             // 是否可用
             if(userValid.isEnabled()) {
-                // 空则清除提示信息
+                // 空则提示需要验证码
                 if (userValidText.equals("")) {
                     if(isVisible()) {
                         runnable = new Runnable() {
@@ -473,7 +483,7 @@ public class RegisterFragment extends Fragment {
                     errorTip.hide();
                 }
             }
-            else if(sendDelay == 0){
+            else if(sendDelay == 0) {
                 if(isVisible()) {
                     runnable = new Runnable() {
                         @Override

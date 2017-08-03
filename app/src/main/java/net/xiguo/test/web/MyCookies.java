@@ -8,6 +8,8 @@ import java.util.HashMap;
  */
 
 public class MyCookies {
+    public static final String COOKIE_NAME = "sessionid";
+
     private static ArrayList<String> cookies = new ArrayList();
 
     public MyCookies() {

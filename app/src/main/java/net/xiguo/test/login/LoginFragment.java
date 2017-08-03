@@ -112,7 +112,7 @@ public class LoginFragment extends Fragment {
         forgetPass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loginActivity.showForgetDiv();
+                loginActivity.showForgetDiv(userName.getText().toString());
             }
         });
 
@@ -151,15 +151,15 @@ public class LoginFragment extends Fragment {
                                     .cookieJar(new CookieJar() {
                                         @Override
                                         public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
-                                            LogUtil.i("saveFromResponse: " + url);
+//                                            LogUtil.i("saveFromResponse: " + url);
                                             for(Cookie cookie : cookies) {
                                                 LogUtil.i("cookie: " + cookie.toString());
-                                                MyCookies.add(cookie.toString());
-                                                if(cookie.name().equals("JSESSIONID")) {
-                                                    LogUtil.i("cookie: ", cookie.value());
+                                                MyCookies.add(cookie.name() + '=' + cookie.value());
+                                                if(cookie.name().equals(MyCookies.COOKIE_NAME)) {
+                                                    LogUtil.i("sessionid: ", cookie.value());
                                                     SharedPreferences.Editor editor = loginActivity.getSharedPreferences("cookie", Context.MODE_PRIVATE).edit();
-                                                    editor.putString("JSESSIONID", cookie.value());
-                                                    editor.putString("JSESSIONID_FULL", cookie.toString());
+                                                    editor.putString(MyCookies.COOKIE_NAME, cookie.name() + '=' + cookie.value());
+//                                                    editor.putString("JSESSIONID_FULL", cookie.toString());
                                                     editor.apply();
                                                 }
                                             }
@@ -171,12 +171,15 @@ public class LoginFragment extends Fragment {
                                         }
                                     })
                                     .build();
-                            String url = URLs.LOGIN_DOMAIN + URLs.LOGIN_BY_MOBILE
-                                    + "?userName=" + android.net.Uri.encode(userName.getText().toString())
-                                    + "&password=" + android.net.Uri.encode(userPass.getText().toString());
+                            String url = URLs.LOGIN_BY_MOBILE;
                             LogUtil.i(url);
+                            RequestBody requestBody = new FormBody.Builder()
+                                    .add("User_Phone", android.net.Uri.encode(userName.getText().toString()))
+                                    .add("User_Pwd", android.net.Uri.encode(userPass.getText().toString()))
+                                    .build();
                             Request request = new Request.Builder()
                                     .url(url)
+                                    .post(requestBody)
                                     .build();
                             Response response = client.newCall(request).execute();
                             String responseBody = response.body().string();
@@ -297,7 +300,7 @@ public class LoginFragment extends Fragment {
         }
         // 用户名如果正确合法，则判断密码输入状态
         if(valid) {
-            // 空则清除提示信息
+            // 空则提示需要密码
             if(userPassText.equals("")) {
                 if(isVisible()) {
                     runnable = new Runnable() {

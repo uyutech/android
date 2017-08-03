@@ -155,8 +155,9 @@ public class X5Activity extends AppCompatActivity {
             }
 
             for (String s : MyCookies.getAll()) {
-                LogUtil.i("CookieManager: ", url + ", " + s);
-                cookieManager.setCookie(url, s);
+                LogUtil.i("CookieManager: ", s);
+                cookieManager.setCookie(URLs.H5_DOMAIN, s);
+                cookieManager.setCookie(URLs.WEB_DOMAIN, s);
             }
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
