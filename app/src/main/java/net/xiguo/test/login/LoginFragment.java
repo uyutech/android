@@ -211,7 +211,7 @@ public class LoginFragment extends Fragment {
                                         toast.setGravity(Gravity.CENTER, 0, 0);
                                         toast.show();
                                         JSONObject data = json.getJSONObject("data");
-                                        loginActivity.openUrl(data.getIntValue("regStat"));
+                                        loginActivity.openUrl(data.getIntValue("User_Reg_Stat"));
                                     }
                                 });
                             }

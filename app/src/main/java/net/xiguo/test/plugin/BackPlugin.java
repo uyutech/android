@@ -23,6 +23,8 @@ public class BackPlugin extends H5Plugin {
         if(p != null) {
             boolean prevent = p.getBoolean("prevent");
             if(!prevent) {
+                LogUtil.i("BackPlugin: " + this.activity.getWebView().canGoBack());
+                // TODO: 权限交由h5来控制，无需firstweb
                 if(this.activity.getWebView().canGoBack()) {
                     this.activity.getWebView().goBack();
                 }

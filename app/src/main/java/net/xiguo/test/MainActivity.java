@@ -217,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    LogUtil.i("checkSession exception", e.toString());
+                    LogUtil.i("checkUpdate exception", e.toString());
                     MainActivity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -357,7 +357,7 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     JSONObject data = json.getJSONObject("data");
-                                    int regStat = data.getIntValue("regStat");
+                                    int regStat = data.getIntValue("User_Reg_Stat");
                                     Intent intent = new Intent(MainActivity.this, X5Activity.class);
                                     String url;
                                     if(regStat >= 4) {
@@ -366,7 +366,8 @@ public class MainActivity extends AppCompatActivity {
                                     else {
                                         url = URLs.H5_DOMAIN + "guide.html?step=" + regStat;
                                     }
-//                                    url = "http://192.168.100.199:8080/index.html?id=1";
+//                                    url = "http://192.168.100.117:8080/guide.html?step=" + regStat;
+                                    url = "http://192.168.100.117:8080/redirect.html?data=" + data.toJSONString();
                                     intent.putExtra("url", url);
                                     intent.putExtra("firstWeb", true);
                                     startActivity(intent);
@@ -409,8 +410,13 @@ public class MainActivity extends AppCompatActivity {
         LogUtil.i("showLogin: ", time + "");
         new Handler().postDelayed(new Runnable() {
             public void run() {
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                MainActivity.this.startActivity(intent);
+//                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+//                MainActivity.this.startActivity(intent);
+                Intent intent = new Intent(MainActivity.this, X5Activity.class);
+                String url = "http://192.168.100.117:8080/redirect.html";
+                intent.putExtra("url", url);
+                intent.putExtra("firstWeb", true);
+                startActivity(intent);
                 MainActivity.this.finish();
             }
         }, time);
