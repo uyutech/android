@@ -7,28 +7,20 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="40sp"
+        android:layout_height="64dp"
         android:layout_gravity="center"
-        android:background="@color/titleBar">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="10dp"
-            android:paddingEnd="0dp"
+        android:paddingTop="24dp"
+        android:background="@drawable/title_bg">
+
+        <ImageView
             android:id="@+id/back"
-            android:text="@string/webBack"
-            android:textSize="16sp"
-            android:textColor="@color/titleText"
-            android:layout_gravity="center"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="10dp"
-            android:paddingEnd="0dp"
-            android:text="@string/webClose"
-            android:textSize="16sp"
-            android:textColor="@color/titleText"
-            android:layout_gravity="center"/>
+            android:layout_width="18dp"
+            android:layout_height="28dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="5dp"
+            android:padding="4dp"
+            android:src="@drawable/left_arrow" />
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -40,21 +32,27 @@
             android:textColor="@color/titleText"
             android:textAlignment="center"
             android:layout_gravity="center"/>
-        <TextView
-            android:layout_width="wrap_content"
+        <FrameLayout
+            android:layout_width="30dp"
             android:layout_height="wrap_content"
-            android:paddingStart="0dp"
-            android:paddingEnd="10sp"
-            android:text="@string/webMore"
-            android:textSize="16sp"
-            android:textColor="@color/titleText"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="viewEnd"/>
+        </FrameLayout>
     </LinearLayout>
 
-    <com.tencent.smtt.sdk.WebView
+    <net.xiguo.test.web.WebView
         android:id="@+id/x5"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_height="match_parent" />
+
+    <net.xiguo.test.web.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></net.xiguo.test.web.SwipeRefreshLayout>
 
 </LinearLayout>

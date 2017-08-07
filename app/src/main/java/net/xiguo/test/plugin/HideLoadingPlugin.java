@@ -17,7 +17,7 @@ public class HideLoadingPlugin extends H5Plugin {
     @Override
     public void handle(JSONObject param) {
         String params = param.toJSONString();
-        LogUtil.i("ShowLoadingPlugin: " + params);
+        LogUtil.i("HideLoadingPlugin: " + params);
         if(ShowLoadingPlugin.lastProgressDialog != null) {
             ShowLoadingPlugin.lastProgressDialog.dismiss();
         }

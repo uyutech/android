@@ -114,13 +114,47 @@ public class X5Activity extends AppCompatActivity {
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
         window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-        setContentView(R.layout.activity_x5_transparent);
-        getWindow().setFormat(PixelFormat.TRANSLUCENT);
+        window.setFormat(PixelFormat.TRANSLUCENT);
+
+        Intent intent = getIntent();
+        // 标题栏是否为透明或者自定义几号标题栏
+        int titleBar = intent.getIntExtra("titleBar", 0);
+        LogUtil.i("titleBar", titleBar + "");
+        switch(titleBar) {
+            case 1:
+                setContentView(R.layout.activity_x5);
+                break;
+            default:
+                setContentView(R.layout.activity_x5_transparent);
+                break;
+        }
+
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
+        webView = (WebView) findViewById(R.id.x5);
+        back = (ImageView) findViewById(R.id.back);
+
+        // webview背景色
+        String backgroundColor = intent.getStringExtra("backgroundColor");
+        LogUtil.i("backgroundColor", backgroundColor);
+        if(backgroundColor != null && backgroundColor.length() > 0) {
+            int color = Color.parseColor(backgroundColor);
+            LogUtil.i("backgroundColor", color + "");
+            webView.setBackgroundColor(color);
+        }
+
+        // 是否显示back键
+        boolean showBack = intent.getBooleanExtra("showBack", false);
+        LogUtil.i("showBack", showBack + "");
+        if(showBack) {
+            back.setVisibility(View.VISIBLE);
+        }
+        else {
+            back.setVisibility(View.GONE);
+        }
 
         initPlugins();
         firstRun = true;
 
-        webView = (WebView) findViewById(R.id.x5);
         WebSettings webSettings = webView.getSettings();
         String ua = webSettings.getUserAgentString();
         webSettings.setUserAgentString(ua + " app/ZhuanQuan");
@@ -132,7 +166,6 @@ public class X5Activity extends AppCompatActivity {
         IX5WebViewExtension ix5 = webView.getX5WebViewExtension();
         webView.setDrawingCacheEnabled(true);
 
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
         webView.setSwipeRefreshLayout(swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -157,14 +190,12 @@ public class X5Activity extends AppCompatActivity {
         webView.setWebChromeClient(webChromeClient);
 
         // 从上个启动活动获取需要加载的url
-        Intent intent = getIntent();
         url = intent.getStringExtra("url");
         LogUtil.i("url: " + url);
         // 是否第一个web
         firstWeb = intent.getBooleanExtra("firstWeb", false);
         LogUtil.i("firstWeb: " + firstWeb);
 
-        back = (ImageView) findViewById(R.id.back);
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -257,12 +288,18 @@ public class X5Activity extends AppCompatActivity {
     public void setTitle(String title) {
         LogUtil.i("setTitle: " + title);
         TextView tv = (TextView) findViewById(R.id.webViewTitle);
-        tv.setText(title);
+        // 有可能没有titleBar
+        if(tv != null) {
+            tv.setText(title);
+        }
     }
-    public void pushWindow(String url) {
-        LogUtil.i("pushWindow: " + url);
+    public void pushWindow(String url, JSONObject params) {
+        LogUtil.i("pushWindow: " + url + "," + params.toJSONString());
         Intent intent = new Intent(X5Activity.this, X5Activity.class);
         intent.putExtra("url", url);
+        intent.putExtra("backgroundColor", params.getString("backgroundColor"));
+        intent.putExtra("titleBar", params.getIntValue("titleBar"));
+        intent.putExtra("showBack", params.getBooleanValue("showBack"));
         startActivityForResult(intent, 1);
     }
     public boolean isFirstWeb() {
@@ -314,6 +351,8 @@ public class X5Activity extends AppCompatActivity {
         super.onStart();
         LogUtil.i("onStart: ", url);
         if(!firstRun) {
+            webView.onResume();
+            webView.getSettings().setJavaScriptEnabled(true);
             webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('resume');");
         }
         else {
@@ -323,6 +362,8 @@ public class X5Activity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        webView.onPause();
+        webView.getSettings().setJavaScriptEnabled(false);
         LogUtil.i("onStop: ", url);
         webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('pause');");
     }

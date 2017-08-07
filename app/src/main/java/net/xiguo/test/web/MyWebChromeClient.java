@@ -26,7 +26,11 @@ public class MyWebChromeClient extends WebChromeClient {
     }
     @Override
     public void onReceivedTitle(WebView view, String args) {
+        super.onReceivedTitle(view, args);
         LogUtil.i("onReceivedTitle: " + args);
+        if(args != null && args.length() > 0) {
+            activity.setTitle(args);
+        }
         view.loadUrl("javascript: " + LoadBridge.getBridgeJs());
     }
     @Override
