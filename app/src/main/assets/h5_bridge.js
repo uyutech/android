@@ -47,7 +47,9 @@
         },
         _invokeJS: function(clientId, resp) {
             console.log("_invokeJS: " + clientId + ", " + resp);
-            resp = JSON.parse(resp);
+            if(resp !== undefined) {
+                resp = JSON.parse(resp);
+            }
             var func = callbackHash[clientId];
             setTimeout(function() {
                 func(resp);

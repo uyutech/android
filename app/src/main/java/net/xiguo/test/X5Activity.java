@@ -1,11 +1,15 @@
 package net.xiguo.test;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +17,27 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.sina.weibo.sdk.WbSdk;
+import com.sina.weibo.sdk.auth.AccessTokenKeeper;
+import com.sina.weibo.sdk.auth.AuthInfo;
+import com.sina.weibo.sdk.auth.Oauth2AccessToken;
+import com.sina.weibo.sdk.auth.WbAuthListener;
+import com.sina.weibo.sdk.auth.WbConnectErrorMessage;
+import com.sina.weibo.sdk.auth.sso.SsoHandler;
 import com.tencent.smtt.export.external.extension.interfaces.IX5WebViewExtension;
 import com.tencent.smtt.sdk.CookieManager;
 import com.tencent.smtt.sdk.CookieSyncManager;
 import com.tencent.smtt.sdk.WebSettings;
 //import com.tencent.smtt.sdk.WebView;
+import net.xiguo.test.login.UserInfo;
+import net.xiguo.test.login.oauth.Constants;
+import net.xiguo.test.plugin.LoginWeiboPlugin;
+import net.xiguo.test.plugin.GetPreferencePlugin;
+import net.xiguo.test.plugin.SetPreferencePlugin;
 import net.xiguo.test.plugin.SwipeRefreshPlugin;
 import net.xiguo.test.web.WebView;
 
@@ -43,6 +62,16 @@ import net.xiguo.test.web.MyWebViewClient;
 import net.xiguo.test.web.URLs;
 import net.xiguo.test.web.SwipeRefreshLayout;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import okhttp3.Cookie;
+import okhttp3.CookieJar;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 /**
  * Created by army on 2017/3/16.
  */
@@ -62,6 +91,9 @@ public class X5Activity extends AppCompatActivity {
     private ShowBackButtonPlugin showBackButtonPlugin;
     private UserInfoPlugin userInfoPlugin;
     private SwipeRefreshPlugin swipeRefreshPlugin;
+    private LoginWeiboPlugin loginWeiboPlugin;
+    private GetPreferencePlugin getPreferencePlugin;
+    private SetPreferencePlugin setPreferencePlugin;
 
     private SwipeRefreshLayout swipeRefreshLayout;
     private ImageView back;
@@ -70,6 +102,8 @@ public class X5Activity extends AppCompatActivity {
 
     private boolean firstWeb;
     private boolean firstRun;
+
+    private SsoHandler mSsoHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -209,6 +243,15 @@ public class X5Activity extends AppCompatActivity {
 
         swipeRefreshPlugin = new SwipeRefreshPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.SWIPE_REFRESH, swipeRefreshPlugin);
+
+        loginWeiboPlugin = new LoginWeiboPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.LOGIN_WEIBO, loginWeiboPlugin);
+
+        getPreferencePlugin = new GetPreferencePlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.GET_PRE_FERENCE, getPreferencePlugin);
+
+        setPreferencePlugin = new SetPreferencePlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.SET_PRE_FERENCE, setPreferencePlugin);
     }
 
     public void setTitle(String title) {
@@ -248,13 +291,21 @@ public class X5Activity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch(requestCode) {
-            case 1:
-                if(resultCode == RESULT_OK) {
-                    String params = data.getStringExtra("params");
-                    LogUtil.i("onActivityResult: " + params);
-                }
-                break;
+        super.onActivityResult(requestCode, resultCode, data);
+        LogUtil.i("onActivityResult: " + requestCode + ", " + resultCode + ", " + data);
+        if (mSsoHandler != null) {
+            mSsoHandler.authorizeCallBack(requestCode, resultCode, data);
+            mSsoHandler = null;
+        }
+        else {
+            switch (requestCode) {
+                case 1:
+                    if (resultCode == RESULT_OK) {
+                        String params = data.getStringExtra("params");
+                        LogUtil.i("onActivityResult: " + params);
+                    }
+                    break;
+            }
         }
     }
 
@@ -287,5 +338,43 @@ public class X5Activity extends AppCompatActivity {
 
     public SwipeRefreshLayout getSwipeRefreshLayout() {
         return swipeRefreshLayout;
+    }
+
+    public void loginWeibo() {
+        LogUtil.i("loginWeibo");
+        WbSdk.install(this, new AuthInfo(this, Constants.APP_KEY, Constants.REDIRECT_URL, Constants.SCOPE));
+        mSsoHandler = new SsoHandler(this);
+        mSsoHandler.authorize(new SelfWbAuthListener());
+    }
+
+    private class SelfWbAuthListener implements WbAuthListener {
+        @Override
+        public void onSuccess(final Oauth2AccessToken mAccessToken) {
+//            progressDialog.dismiss();
+            LogUtil.i("SelfWbAuthListener onSuccess");
+            final String openId = mAccessToken.getUid();
+            final String token = mAccessToken.getToken();
+            loginWeiboPlugin.success(openId, token);
+        }
+
+        @Override
+        public void cancel() {
+//            progressDialog.dismiss();
+            LogUtil.i("SelfWbAuthListener cancel");
+            loginWeiboPlugin.cancel();
+//            Toast toast = Toast.makeText(LoginActivity.this, "取消授权", Toast.LENGTH_SHORT);
+//            toast.setGravity(Gravity.CENTER, 0, 0);
+//            toast.show();
+        }
+
+        @Override
+        public void onFailure(WbConnectErrorMessage errorMessage) {
+//            progressDialog.dismiss();
+            LogUtil.i("SelfWbAuthListener onFailure", errorMessage.getErrorMessage());
+            loginWeiboPlugin.failure(errorMessage.getErrorMessage());
+//            Toast toast = Toast.makeText(LoginActivity.this, errorMessage.getErrorMessage(), Toast.LENGTH_SHORT);
+//            toast.setGravity(Gravity.CENTER, 0, 0);
+//            toast.show();
+        }
     }
 }

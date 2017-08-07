@@ -24,7 +24,7 @@ public class UserInfoPlugin extends H5Plugin {
             JSONObject userInfo = new JSONObject();
             userInfo.put("userId", UserInfo.getUserId());
             userInfo.put("userName", UserInfo.getUserName());
-            UserInfoPlugin.this.activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "', '" + userInfo.toString() + "');");
+            UserInfoPlugin.this.activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "', '" + userInfo.toJSONString() + "');");
         }
     }
 }
