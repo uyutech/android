@@ -401,11 +401,11 @@ public class MainActivity extends AppCompatActivity {
     private void showLogin() {
         long end = new Date().getTime();
         int time;
-        if(end - timeStart >= 3000) {
+        if(end - timeStart >= 2000) {
             time = 0;
         }
         else {
-            time = 3000 - ((int)(end - timeStart));
+            time = 2000 - ((int)(end - timeStart));
         }
         LogUtil.i("showLogin: ", time + "");
         new Handler().postDelayed(new Runnable() {
@@ -416,6 +416,8 @@ public class MainActivity extends AppCompatActivity {
                 String url = "http://192.168.100.117:8080/redirect.html";
                 intent.putExtra("url", url);
                 intent.putExtra("firstWeb", true);
+                intent.putExtra("transparentTitle", true);
+                intent.putExtra("hideBackButton", true);
                 startActivity(intent);
                 MainActivity.this.finish();
             }

@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,9 +36,12 @@ import com.tencent.smtt.sdk.WebSettings;
 //import com.tencent.smtt.sdk.WebView;
 import net.xiguo.test.login.UserInfo;
 import net.xiguo.test.login.oauth.Constants;
+import net.xiguo.test.plugin.HideOptionMenu;
 import net.xiguo.test.plugin.LoginWeiboPlugin;
 import net.xiguo.test.plugin.GetPreferencePlugin;
+import net.xiguo.test.plugin.SetOptionMenu;
 import net.xiguo.test.plugin.SetPreferencePlugin;
+import net.xiguo.test.plugin.ShowOptionMenu;
 import net.xiguo.test.plugin.SwipeRefreshPlugin;
 import net.xiguo.test.web.WebView;
 
@@ -94,14 +98,21 @@ public class X5Activity extends AppCompatActivity {
     private LoginWeiboPlugin loginWeiboPlugin;
     private GetPreferencePlugin getPreferencePlugin;
     private SetPreferencePlugin setPreferencePlugin;
+    private ShowOptionMenu showOptionMenu;
+    private HideOptionMenu hideOptionMenu;
+    private SetOptionMenu setOptionMenu;
 
     private SwipeRefreshLayout swipeRefreshLayout;
     private ImageView back;
     private WebView webView;
+    private TextView optionMenuText;
+
     private String url;
 
     private boolean firstWeb;
     private boolean firstRun;
+    private boolean hasSetTitle = false;
+    private boolean readTitle;
 
     private SsoHandler mSsoHandler;
 
@@ -117,40 +128,69 @@ public class X5Activity extends AppCompatActivity {
         window.setFormat(PixelFormat.TRANSLUCENT);
 
         Intent intent = getIntent();
-        // 标题栏是否为透明或者自定义几号标题栏
-        int titleBar = intent.getIntExtra("titleBar", 0);
-        LogUtil.i("titleBar", titleBar + "");
-        switch(titleBar) {
-            case 1:
-                setContentView(R.layout.activity_x5);
-                break;
-            default:
-                setContentView(R.layout.activity_x5_transparent);
-                break;
+        // 标题栏是否为透明
+        boolean transparentTitle = intent.getBooleanExtra("transparentTitle", false);
+        LogUtil.i("transparentTitle ", transparentTitle + "");
+        if(transparentTitle) {
+            setContentView(R.layout.activity_x5_transparent);
+        }
+        else {
+            setContentView(R.layout.activity_x5);
         }
 
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
         webView = (WebView) findViewById(R.id.x5);
         back = (ImageView) findViewById(R.id.back);
+        optionMenuText = (TextView) findViewById(R.id.optionMenuText);
 
         // webview背景色
         String backgroundColor = intent.getStringExtra("backgroundColor");
         LogUtil.i("backgroundColor", backgroundColor);
         if(backgroundColor != null && backgroundColor.length() > 0) {
             int color = Color.parseColor(backgroundColor);
-            LogUtil.i("backgroundColor", color + "");
+            LogUtil.i("backgroundColor ", color + "");
             webView.setBackgroundColor(color);
         }
 
-        // 是否显示back键
-        boolean showBack = intent.getBooleanExtra("showBack", false);
-        LogUtil.i("showBack", showBack + "");
-        if(showBack) {
-            back.setVisibility(View.VISIBLE);
-        }
-        else {
+        // 是否隐藏back键
+        boolean hideBackButton = intent.getBooleanExtra("hideBackButton", false);
+        LogUtil.i("hideBackButton ", hideBackButton + "");
+        if(hideBackButton) {
             back.setVisibility(View.GONE);
         }
+        else {
+            back.setVisibility(View.VISIBLE);
+        }
+
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LogUtil.i("click back");
+                webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('back');");
+            }
+        });
+
+        // 是否显示optionMenu
+        boolean showOptionMenu = intent.getBooleanExtra("showOptionMenu", false);
+        LogUtil.i("showOptionMenu ", showOptionMenu + "");
+        if(showOptionMenu) {
+            optionMenuText.setVisibility(View.VISIBLE);
+        }
+        else {
+            optionMenuText.setVisibility(View.GONE);
+        }
+        optionMenuText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LogUtil.i("click optionMenuText");
+                webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('optionMenu');");
+            }
+        });
+
+        // 是否读取网页标题
+        boolean readTitle = intent.getBooleanExtra("readTitle", false);
+        LogUtil.i("readTitle ", readTitle + "");
+        this.readTitle = readTitle;
 
         initPlugins();
         firstRun = true;
@@ -196,14 +236,6 @@ public class X5Activity extends AppCompatActivity {
         firstWeb = intent.getBooleanExtra("firstWeb", false);
         LogUtil.i("firstWeb: " + firstWeb);
 
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LogUtil.i("click back");
-                webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('back');");
-            }
-        });
-
         // 离线包地址添加cookie
         if(url.startsWith(URLs.H5_DOMAIN)) {
             CookieSyncManager.createInstance(this);
@@ -237,8 +269,9 @@ public class X5Activity extends AppCompatActivity {
     }
 
     private void initPlugins() {
-//        setTitlePlugin = new SetTitlePlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.SET_TITLE, setTitlePlugin);
+        setTitlePlugin = new SetTitlePlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.SET_TITLE, setTitlePlugin);
+
         pushWindowPlugin = new PushWindowPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.PUSH_WINDOW, pushWindowPlugin);
 
@@ -283,23 +316,44 @@ public class X5Activity extends AppCompatActivity {
 
         setPreferencePlugin = new SetPreferencePlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.SET_PRE_FERENCE, setPreferencePlugin);
+
+        showOptionMenu = new ShowOptionMenu(this);
+        H5EventDispatcher.addEventListener(H5Plugin.SHOW_OPTIONMENU, showOptionMenu);
+
+        hideOptionMenu = new HideOptionMenu(this);
+        H5EventDispatcher.addEventListener(H5Plugin.HIDE_OPTIONMENU, hideOptionMenu);
+
+        setOptionMenu = new SetOptionMenu(this);
+        H5EventDispatcher.addEventListener(H5Plugin.SET_OPTIONMENU, setOptionMenu);
     }
 
+    public void setDefaultTitle(String title) {
+        LogUtil.i("setDefaultTitle: " + title + ", " + hasSetTitle);
+        if(!hasSetTitle && readTitle) {
+            TextView tv = (TextView) findViewById(R.id.webViewTitle);
+            // 有可能没有titleBar
+            if(tv != null) {
+                tv.setText(title);
+            }
+        }
+    }
     public void setTitle(String title) {
-        LogUtil.i("setTitle: " + title);
+        LogUtil.i("setTitle: " + title + ", " + hasSetTitle);
         TextView tv = (TextView) findViewById(R.id.webViewTitle);
         // 有可能没有titleBar
         if(tv != null) {
             tv.setText(title);
         }
+        hasSetTitle = true;
     }
     public void pushWindow(String url, JSONObject params) {
         LogUtil.i("pushWindow: " + url + "," + params.toJSONString());
         Intent intent = new Intent(X5Activity.this, X5Activity.class);
         intent.putExtra("url", url);
         intent.putExtra("backgroundColor", params.getString("backgroundColor"));
-        intent.putExtra("titleBar", params.getIntValue("titleBar"));
-        intent.putExtra("showBack", params.getBooleanValue("showBack"));
+        intent.putExtra("transparentTitle", params.getBooleanValue("transparentTitle"));
+        intent.putExtra("hideBackButton", params.getBooleanValue("hideBackButton"));
+        intent.putExtra("readTitle", params.getBooleanValue("readTitle"));
         startActivityForResult(intent, 1);
     }
     public boolean isFirstWeb() {
@@ -313,6 +367,15 @@ public class X5Activity extends AppCompatActivity {
     }
     public void showBackButton() {
         back.setVisibility(View.VISIBLE);
+    }
+    public void hideOptionMenu() {
+        optionMenuText.setVisibility(View.GONE);
+    }
+    public void showOptionMenu() {
+        optionMenuText.setVisibility(View.VISIBLE);
+    }
+    public void setOptionMenuText(String text) {
+        optionMenuText.setText(text);
     }
 
     @Override
@@ -391,7 +454,6 @@ public class X5Activity extends AppCompatActivity {
     private class SelfWbAuthListener implements WbAuthListener {
         @Override
         public void onSuccess(final Oauth2AccessToken mAccessToken) {
-//            progressDialog.dismiss();
             LogUtil.i("SelfWbAuthListener onSuccess");
             final String openId = mAccessToken.getUid();
             final String token = mAccessToken.getToken();
@@ -400,22 +462,14 @@ public class X5Activity extends AppCompatActivity {
 
         @Override
         public void cancel() {
-//            progressDialog.dismiss();
             LogUtil.i("SelfWbAuthListener cancel");
             loginWeiboPlugin.cancel();
-//            Toast toast = Toast.makeText(LoginActivity.this, "取消授权", Toast.LENGTH_SHORT);
-//            toast.setGravity(Gravity.CENTER, 0, 0);
-//            toast.show();
         }
 
         @Override
         public void onFailure(WbConnectErrorMessage errorMessage) {
-//            progressDialog.dismiss();
             LogUtil.i("SelfWbAuthListener onFailure", errorMessage.getErrorMessage());
             loginWeiboPlugin.failure(errorMessage.getErrorMessage());
-//            Toast toast = Toast.makeText(LoginActivity.this, errorMessage.getErrorMessage(), Toast.LENGTH_SHORT);
-//            toast.setGravity(Gravity.CENTER, 0, 0);
-//            toast.show();
         }
     }
 }

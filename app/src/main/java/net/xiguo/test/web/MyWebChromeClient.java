@@ -29,7 +29,7 @@ public class MyWebChromeClient extends WebChromeClient {
         super.onReceivedTitle(view, args);
         LogUtil.i("onReceivedTitle: " + args);
         if(args != null && args.length() > 0) {
-            activity.setTitle(args);
+            activity.setDefaultTitle(args);
         }
         view.loadUrl("javascript: " + LoadBridge.getBridgeJs());
     }
