@@ -41,6 +41,7 @@ import net.xiguo.test.plugin.LoginWeiboPlugin;
 import net.xiguo.test.plugin.GetPreferencePlugin;
 import net.xiguo.test.plugin.SetOptionMenu;
 import net.xiguo.test.plugin.SetPreferencePlugin;
+import net.xiguo.test.plugin.SetSubTitlePlugin;
 import net.xiguo.test.plugin.ShowOptionMenu;
 import net.xiguo.test.plugin.SwipeRefreshPlugin;
 import net.xiguo.test.web.WebView;
@@ -83,6 +84,7 @@ import okhttp3.Response;
 public class X5Activity extends AppCompatActivity {
 
     private SetTitlePlugin setTitlePlugin;
+    private SetSubTitlePlugin setSubTitlePlugin;
     private PushWindowPlugin pushWindowPlugin;
     private PopWindowPlugin popWindowPlugin;
     private BackPlugin backPlugin;
@@ -102,6 +104,8 @@ public class X5Activity extends AppCompatActivity {
     private HideOptionMenu hideOptionMenu;
     private SetOptionMenu setOptionMenu;
 
+    private TextView title;
+    private TextView subTitle;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ImageView back;
     private WebView webView;
@@ -138,6 +142,8 @@ public class X5Activity extends AppCompatActivity {
             setContentView(R.layout.activity_x5);
         }
 
+        title = (TextView) findViewById(R.id.title);
+        subTitle = (TextView) findViewById(R.id.subTitle);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
         webView = (WebView) findViewById(R.id.x5);
         back = (ImageView) findViewById(R.id.back);
@@ -272,6 +278,9 @@ public class X5Activity extends AppCompatActivity {
         setTitlePlugin = new SetTitlePlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.SET_TITLE, setTitlePlugin);
 
+        setSubTitlePlugin = new SetSubTitlePlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.SET_SUB_TITLE, setSubTitlePlugin);
+
         pushWindowPlugin = new PushWindowPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.PUSH_WINDOW, pushWindowPlugin);
 
@@ -327,24 +336,35 @@ public class X5Activity extends AppCompatActivity {
         H5EventDispatcher.addEventListener(H5Plugin.SET_OPTIONMENU, setOptionMenu);
     }
 
-    public void setDefaultTitle(String title) {
-        LogUtil.i("setDefaultTitle: " + title + ", " + hasSetTitle);
+    public void setDefaultTitle(String s) {
+        LogUtil.i("setDefaultTitle: " + s + ", " + hasSetTitle);
         if(!hasSetTitle && readTitle) {
-            TextView tv = (TextView) findViewById(R.id.webViewTitle);
             // 有可能没有titleBar
-            if(tv != null) {
-                tv.setText(title);
+            if(title != null) {
+                title.setText(s);
             }
         }
     }
-    public void setTitle(String title) {
-        LogUtil.i("setTitle: " + title + ", " + hasSetTitle);
-        TextView tv = (TextView) findViewById(R.id.webViewTitle);
+    public void setTitle(String s) {
+        LogUtil.i("setTitle: " + s + ", " + hasSetTitle);
         // 有可能没有titleBar
-        if(tv != null) {
-            tv.setText(title);
+        if(title != null) {
+            title.setText(s);
         }
         hasSetTitle = true;
+    }
+    public void setSubTitle(String s) {
+        LogUtil.i("setSubTitle: " + s);
+        // 有可能没有titleBar
+        if(subTitle != null) {
+            if(s != null && s.length() > 0) {
+                subTitle.setVisibility(View.VISIBLE);
+            }
+            else {
+                subTitle.setVisibility(View.GONE);
+            }
+            subTitle.setText(s);
+        }
     }
     public void pushWindow(String url, JSONObject params) {
         LogUtil.i("pushWindow: " + url + "," + params.toJSONString());

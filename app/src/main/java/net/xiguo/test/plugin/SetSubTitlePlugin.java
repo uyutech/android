@@ -6,19 +6,19 @@ import net.xiguo.test.X5Activity;
 import net.xiguo.test.utils.LogUtil;
 
 /**
- * Created by army on 2017/3/23.
+ * Created by army8735 on 2017/8/10.
  */
 
-public class SetTitlePlugin extends H5Plugin {
+public class SetSubTitlePlugin extends H5Plugin {
 
-    public SetTitlePlugin(X5Activity activity) {
+    public SetSubTitlePlugin(X5Activity activity) {
         super(activity);
     }
 
     @Override
     public void handle(JSONObject data) {
         String title = data.getString("param");
-        LogUtil.i("SetTitlePlugin: " + title);
-        this.activity.setTitle(title);
+        LogUtil.i("SetSubTitlePlugin: " + title);
+        this.activity.setSubTitle(title);
     }
 }
