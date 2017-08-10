@@ -9,6 +9,7 @@ import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -358,9 +359,11 @@ public class X5Activity extends AppCompatActivity {
         // 有可能没有titleBar
         if(subTitle != null) {
             if(s != null && s.length() > 0) {
+                title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
                 subTitle.setVisibility(View.VISIBLE);
             }
             else {
+                title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
                 subTitle.setVisibility(View.GONE);
             }
             subTitle.setText(s);
