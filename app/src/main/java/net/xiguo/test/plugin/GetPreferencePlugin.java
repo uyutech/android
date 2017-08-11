@@ -19,16 +19,15 @@ public class GetPreferencePlugin extends H5Plugin {
         super(activity);
     }
     @Override
-    public void handle(JSONObject param) {
-        String params = param.toJSONString();
-        LogUtil.i("GetPreferencePlugin: " + params);
-        String clientId = param.getString("clientId");
-        JSONObject p = param.getJSONObject("param");
-        if(p != null) {
-            String key = p.getString("key");
+    public void handle(JSONObject data) {
+        LogUtil.i("GetPreferencePlugin: " + data.toJSONString());
+        String clientId = data.getString("clientId");
+        JSONObject param = data.getJSONObject("param");
+        if(param != null) {
+            String key = param.getString("key");
             SharedPreferences sharedPreferences = BaseApplication.getContext().getSharedPreferences("global", Context.MODE_PRIVATE);
-            String sessionid = sharedPreferences.getString(key, "");
-            activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + sessionid + "');");
+            String value = sharedPreferences.getString(key, "");
+            activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + value + "');");
         }
     }
 }

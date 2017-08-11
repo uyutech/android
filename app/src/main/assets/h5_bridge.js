@@ -21,6 +21,7 @@
                 param = null;
             }
             var clientId = new Date().getTime() + '' + Math.random();
+            cb = cb || function() {};
             if('function' === typeof cb) {
                 callbackHash[clientId] = cb;
             }

@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="64dp"
         android:layout_gravity="center"
-        android:paddingTop="24dp"
+        android:paddingTop="20dp"
         android:background="@drawable/title_bg">
 
         <ImageView

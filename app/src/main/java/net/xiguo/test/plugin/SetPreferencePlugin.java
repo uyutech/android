@@ -20,14 +20,13 @@ public class SetPreferencePlugin extends H5Plugin {
         super(activity);
     }
     @Override
-    public void handle(JSONObject param) {
-        String params = param.toJSONString();
-        LogUtil.i("SetPreferencePlugin: " + params);
-        String clientId = param.getString("clientId");
-        JSONObject p = param.getJSONObject("param");
-        if(p != null) {
-            String key = p.getString("key");
-            String value = p.getString("value");
+    public void handle(JSONObject data) {
+        LogUtil.i("SetPreferencePlugin: " + data.toJSONString());
+        String clientId = data.getString("clientId");
+        JSONObject param = data.getJSONObject("param");
+        if(param != null) {
+            String key = param.getString("key");
+            String value = param.getString("value");
             SharedPreferences.Editor editor = BaseApplication.getContext().getSharedPreferences("global", Context.MODE_PRIVATE).edit();
             editor.putString(key, value);
             editor.apply();

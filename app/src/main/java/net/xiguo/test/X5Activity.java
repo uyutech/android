@@ -152,7 +152,7 @@ public class X5Activity extends AppCompatActivity {
 
         // webview背景色
         String backgroundColor = intent.getStringExtra("backgroundColor");
-        LogUtil.i("backgroundColor", backgroundColor);
+        LogUtil.i("backgroundColor ", backgroundColor);
         if(backgroundColor != null && backgroundColor.length() > 0) {
             int color = Color.parseColor(backgroundColor);
             LogUtil.i("backgroundColor ", color + "");
@@ -359,11 +359,9 @@ public class X5Activity extends AppCompatActivity {
         // 有可能没有titleBar
         if(subTitle != null) {
             if(s != null && s.length() > 0) {
-                title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
                 subTitle.setVisibility(View.VISIBLE);
             }
             else {
-                title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
                 subTitle.setVisibility(View.GONE);
             }
             subTitle.setText(s);

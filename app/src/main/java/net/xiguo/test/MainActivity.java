@@ -308,7 +308,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void checkSession() {
         // 获取已登录信息
-        SharedPreferences sharedPreferences = getSharedPreferences("cookie", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("global", MODE_PRIVATE);
         final String sessionid = sharedPreferences.getString(MyCookies.COOKIE_NAME, "");
         LogUtil.i("sessionid: ", sessionid);
 
@@ -331,7 +331,7 @@ public class MainActivity extends AppCompatActivity {
                         LogUtil.i(url);
                         Request request = new Request.Builder()
                                 .url(url)
-                                .header("cookie", sessionid)
+                                .header("cookie", "sessionid=" + sessionid)
                                 .build();
                         Response response = client.newCall(request).execute();
                         String responseBody = response.body().string();
@@ -370,6 +370,8 @@ public class MainActivity extends AppCompatActivity {
                                     url = "http://192.168.100.117:8080/redirect.html?data=" + data.toJSONString();
                                     intent.putExtra("url", url);
                                     intent.putExtra("firstWeb", true);
+                                    intent.putExtra("transparentTitle", true);
+                                    intent.putExtra("hideBackButton", true);
                                     startActivity(intent);
                                     MainActivity.this.finish();
                                 }
