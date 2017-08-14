@@ -316,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
         boolean focusLogin = false;
         if(sessionid.isEmpty() || focusLogin) {
             // 暂停3s后跳转
-            showLogin();
+            showRedirect();
         }
         else {
             new Thread(new Runnable() {
@@ -341,7 +341,7 @@ public class MainActivity extends AppCompatActivity {
                             MainActivity.this.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    showLogin();
+                                    showRedirect();
                                 }
                             });
                             return;
@@ -352,28 +352,29 @@ public class MainActivity extends AppCompatActivity {
                             MyCookies.add(sessionid);
                             // 记录用户信息
                             JSONObject data = json.getJSONObject("data");
-                            UserInfo.setUserInfo(data);
+//                            UserInfo.setUserInfo(data);
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     JSONObject data = json.getJSONObject("data");
-                                    int regStat = data.getIntValue("User_Reg_Stat");
-                                    Intent intent = new Intent(MainActivity.this, X5Activity.class);
-                                    String url;
-                                    if(regStat >= 4) {
-                                        url = URLs.H5_DOMAIN + "index.html";
-                                    }
-                                    else {
-                                        url = URLs.H5_DOMAIN + "guide.html?step=" + regStat;
-                                    }
+                                    showRedirect(data.toJSONString());
+//                                    int regStat = data.getIntValue("User_Reg_Stat");
+//                                    Intent intent = new Intent(MainActivity.this, X5Activity.class);
+//                                    String url;
+//                                    if(regStat >= 4) {
+//                                        url = URLs.H5_DOMAIN + "index.html";
+//                                    }
+//                                    else {
+//                                        url = URLs.H5_DOMAIN + "guide.html?step=" + regStat;
+//                                    }
 //                                    url = "http://192.168.100.117:8080/guide.html?step=" + regStat;
-                                    url = "http://192.168.100.117:8080/redirect.html?data=" + data.toJSONString();
-                                    intent.putExtra("url", url);
-                                    intent.putExtra("firstWeb", true);
-                                    intent.putExtra("transparentTitle", true);
-                                    intent.putExtra("hideBackButton", true);
-                                    startActivity(intent);
-                                    MainActivity.this.finish();
+//                                    url = "http://192.168.100.117:8080/redirect.html?data=" + data.toJSONString();
+//                                    intent.putExtra("url", url);
+//                                    intent.putExtra("firstWeb", true);
+//                                    intent.putExtra("transparentTitle", true);
+//                                    intent.putExtra("hideBackButton", true);
+//                                    startActivity(intent);
+//                                    MainActivity.this.finish();
                                 }
                             });
                         }
@@ -381,7 +382,7 @@ public class MainActivity extends AppCompatActivity {
                             MainActivity.this.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    showLogin();
+                                    showRedirect();
                                 }
                             });
                         }
@@ -391,7 +392,7 @@ public class MainActivity extends AppCompatActivity {
                         MainActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                showLogin();
+                                showRedirect();
                             }
                         });
                     }
@@ -400,7 +401,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showLogin() {
+    private void showRedirect(final String data) {
         long end = new Date().getTime();
         int time;
         if(end - timeStart >= 2000) {
@@ -409,13 +410,13 @@ public class MainActivity extends AppCompatActivity {
         else {
             time = 2000 - ((int)(end - timeStart));
         }
-        LogUtil.i("showLogin: ", time + "");
+        LogUtil.i("showRedirect: ", time + ", " + data);
         new Handler().postDelayed(new Runnable() {
             public void run() {
 //                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
 //                MainActivity.this.startActivity(intent);
                 Intent intent = new Intent(MainActivity.this, X5Activity.class);
-                String url = "http://192.168.100.117:8080/redirect.html";
+                String url = "http://192.168.100.117:8080/redirect.html?data=" + android.net.Uri.encode(data);
                 intent.putExtra("url", url);
                 intent.putExtra("firstWeb", true);
                 intent.putExtra("transparentTitle", true);
@@ -424,5 +425,8 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.finish();
             }
         }, time);
+    }
+    private void showRedirect() {
+        showRedirect("");
     }
 }
