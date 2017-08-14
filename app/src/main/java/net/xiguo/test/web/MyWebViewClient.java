@@ -1,12 +1,13 @@
 package net.xiguo.test.web;
 
+import android.annotation.TargetApi;
 import android.graphics.Bitmap;
 import android.net.Uri;
-
-import com.tencent.smtt.export.external.interfaces.WebResourceRequest;
-import com.tencent.smtt.export.external.interfaces.WebResourceResponse;
-import com.tencent.smtt.sdk.WebView;
-import com.tencent.smtt.sdk.WebViewClient;
+import android.os.Build;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
+import android.webkit.WebViewClient;
+import android.webkit.WebView;
 
 import net.xiguo.test.BaseApplication;
 import net.xiguo.test.X5Activity;
@@ -35,6 +36,7 @@ public class MyWebViewClient extends WebViewClient {
     }
 
     @Override
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
         Uri uri = request.getUrl();
         return shouldInterceptRequest(uri.toString());

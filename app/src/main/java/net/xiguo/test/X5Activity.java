@@ -16,6 +16,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
+import android.webkit.WebSettings;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -30,11 +33,6 @@ import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.auth.WbAuthListener;
 import com.sina.weibo.sdk.auth.WbConnectErrorMessage;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
-import com.tencent.smtt.export.external.extension.interfaces.IX5WebViewExtension;
-import com.tencent.smtt.sdk.CookieManager;
-import com.tencent.smtt.sdk.CookieSyncManager;
-import com.tencent.smtt.sdk.WebSettings;
-//import com.tencent.smtt.sdk.WebView;
 import net.xiguo.test.login.UserInfo;
 import net.xiguo.test.login.oauth.Constants;
 import net.xiguo.test.plugin.HideOptionMenu;
@@ -210,7 +208,6 @@ public class X5Activity extends AppCompatActivity {
         webSettings.setUseWideViewPort(true);
         webSettings.setLoadWithOverviewMode(true);
 
-        IX5WebViewExtension ix5 = webView.getX5WebViewExtension();
         webView.setDrawingCacheEnabled(true);
 
         webView.setSwipeRefreshLayout(swipeRefreshLayout);
@@ -222,14 +219,6 @@ public class X5Activity extends AppCompatActivity {
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
-
-        // 关闭小窗播放和方块滚动条
-        Bundle data = new Bundle();
-        data.putBoolean("supportLiteWnd", false);
-        if(null != ix5) {
-            ix5.invokeMiscMethod("setVideoParams", data);
-            ix5.setScrollBarFadingEnabled(false);
-        }
 
         MyWebViewClient webViewClient = new MyWebViewClient(this);
         webView.setWebViewClient(webViewClient);
@@ -245,13 +234,13 @@ public class X5Activity extends AppCompatActivity {
 
         // 离线包地址添加cookie
         if(url.startsWith(URLs.H5_DOMAIN)) {
-            CookieSyncManager.createInstance(this);
             CookieManager cookieManager = CookieManager.getInstance();
 
             cookieManager.setAcceptCookie(true);
             cookieManager.removeSessionCookie();
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                 LogUtil.i("CookieSyncManager sync");
+                CookieSyncManager.createInstance(this);
                 CookieSyncManager.getInstance().sync();
             } else {
                 LogUtil.i("CookieManager flush");
