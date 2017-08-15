@@ -25,7 +25,7 @@ public class SwipeRefreshLayout extends android.support.v4.widget.SwipeRefreshLa
             super.setEnabled(enabled);
         }
     }
-    public void setFoceEnabled(boolean enabled) {
+    public void setForceEnabled(boolean enabled) {
         LogUtil.i("setFoceEnabled: ", enabled + "");
         forced = !enabled;
         super.setEnabled(enabled);
