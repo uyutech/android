@@ -12,6 +12,7 @@ import net.xiguo.test.utils.LogUtil;
 
 public class WebView extends android.webkit.WebView {
     private SwipeRefreshLayout swipeRefreshLayout;
+    private float startY;
 
     public WebView(Context context) {
         super(context);
@@ -31,6 +32,7 @@ public class WebView extends android.webkit.WebView {
     public boolean onTouchEvent(MotionEvent event) {
         switch(event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                startY = event.getY();
                 if(getScrollY() == 0) {
                     swipeRefreshLayout.setEnabled(true);
                 }
@@ -39,7 +41,7 @@ public class WebView extends android.webkit.WebView {
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
-                if(getScrollY() > 0) {
+                if(getScrollY() > 0 || event.getY() < startY) {
                     swipeRefreshLayout.setEnabled(false);
                 }
                 break;
