@@ -12,7 +12,9 @@ import net.xiguo.test.utils.LogUtil;
 
 public class WebView extends android.webkit.WebView {
     private SwipeRefreshLayout swipeRefreshLayout;
+    private boolean isStart = false;
     private float startY;
+    private float startX;
 
     public WebView(Context context) {
         super(context);
@@ -30,27 +32,38 @@ public class WebView extends android.webkit.WebView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-//        LogUtil.i("touch ", event.getY() + ", " + getScrollY());
+//        LogUtil.i("touch ", event.getAction() + ", " + event.getY() + ", " + getScrollY());
         switch(event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                startY = event.getY();
+                if(getScrollY() != 0) {
+                    swipeRefreshLayout.setEnabled(false);
+                }
+                else {
+                    isStart = true;
+                    startX = event.getX();
+                    startY = event.getY();
+                }
                 break;
             case MotionEvent.ACTION_MOVE:
-                if(getScrollY() > 0 || event.getY() < startY) {
+                if(getScrollY() > 0) {
 //                    LogUtil.i("3setEnabled(false)");
                     swipeRefreshLayout.setEnabled(false);
                 }
+                else if(isStart) {
+                    float diffY = event.getY() - startY;
+                    float diffX = event.getX() - startX;
+                    if(diffX != 0 && diffY != 0) {
+                        isStart = false;
+                        if(Math.abs(diffX) > Math.abs(diffY)) {
+                            swipeRefreshLayout.setEnabled(false);
+                        }
+                    }
+                }
                 break;
             case MotionEvent.ACTION_UP:
+                isStart = false;
 //                LogUtil.i("4setEnabled(false)");
-                if(getScrollY() == 0) {
-//                    LogUtil.i("1setEnabled(true)");
-                    swipeRefreshLayout.setEnabled(true);
-                }
-                else {
-//                    LogUtil.i("2setEnabled(false)");
-                    swipeRefreshLayout.setEnabled(false);
-                }
+                swipeRefreshLayout.setEnabled(getScrollY() == 0);
                 break;
         }
         return super.onTouchEvent(event);
