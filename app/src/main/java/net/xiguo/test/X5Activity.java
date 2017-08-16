@@ -143,6 +143,15 @@ public class X5Activity extends AppCompatActivity {
             webView.setBackgroundColor(color);
         }
 
+        // titleBgColor
+        String titleBgColor = intent.getStringExtra("titleBgColor");
+        LogUtil.i("titleBgColor ", titleBgColor);
+        if(titleBgColor != null && titleBgColor.length() > 0) {
+            int color = Color.parseColor(titleBgColor);
+            LogUtil.i("titleBgColor ", color + "");
+            titleBar.setBackgroundColor(color);
+        }
+
         // 是否隐藏back键
         boolean hideBackButton = intent.getBooleanExtra("hideBackButton", false);
         LogUtil.i("hideBackButton ", hideBackButton + "");
@@ -356,6 +365,7 @@ public class X5Activity extends AppCompatActivity {
         intent.putExtra("url", url);
         intent.putExtra("backgroundColor", params.getString("backgroundColor"));
         intent.putExtra("transparentTitle", params.getBooleanValue("transparentTitle"));
+        intent.putExtra("titleBgColor", params.getString("titleBgColor"));
         intent.putExtra("hideBackButton", params.getBooleanValue("hideBackButton"));
         intent.putExtra("readTitle", params.getBooleanValue("readTitle"));
         startActivityForResult(intent, 1);
