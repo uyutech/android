@@ -36,6 +36,7 @@ import net.xiguo.test.plugin.SetSubTitlePlugin;
 import net.xiguo.test.plugin.SetTitleBgColorPlugin;
 import net.xiguo.test.plugin.ShowOptionMenuPlugin;
 import net.xiguo.test.plugin.SwipeRefreshPlugin;
+import net.xiguo.test.web.MyCookies;
 import net.xiguo.test.web.WebView;
 
 import net.xiguo.test.event.H5EventDispatcher;
@@ -225,16 +226,18 @@ public class X5Activity extends AppCompatActivity {
             CookieManager cookieManager = CookieManager.getInstance();
 
             cookieManager.setAcceptCookie(true);
-            cookieManager.removeSessionCookie();
-            cookieManager.setCookie("http://192.168.100.156", "aaa=111");
+            // 跨域CORS的ajax设置允许cookie
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                cookieManager.setAcceptThirdPartyCookies(webView, true);
+            }
 
-//            for (String s : MyCookies.getAll()) {
-//                LogUtil.i("CookieManager: ", s);
-//                cookieManager.setCookie(URLs.H5_DOMAIN, s);
-//                cookieManager.setCookie(URLs.WEB_DOMAIN, s);
-//                cookieManager.setCookie("http://192.168.100.117", s);
-//                cookieManager.setCookie("http://192.168.100.156", s);
-//            }
+            for (String s : MyCookies.getAll()) {
+                LogUtil.i("CookieManager: ", s);
+                cookieManager.setCookie(URLs.H5_DOMAIN, s);
+                cookieManager.setCookie(URLs.WEB_DOMAIN, s);
+                cookieManager.setCookie("http://192.168.100.117", s);
+                cookieManager.setCookie("http://192.168.100.156", s);
+            }
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                 LogUtil.i("CookieSyncManager sync");

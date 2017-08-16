@@ -30,6 +30,10 @@ public class SetPreferencePlugin extends H5Plugin {
             SharedPreferences.Editor editor = BaseApplication.getContext().getSharedPreferences("global", Context.MODE_PRIVATE).edit();
             editor.putString(key, value);
             editor.apply();
+            // 特殊的sessionid
+            if(key.equals(MyCookies.COOKIE_NAME)) {
+                MyCookies.add("sessionid=" + value);
+            }
             activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "',true);");
         }
     }

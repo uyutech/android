@@ -351,30 +351,13 @@ public class MainActivity extends AppCompatActivity {
                         if(success) {
                             MyCookies.add("sessionid=" + sessionid);
                             // 记录用户信息
-                            JSONObject data = json.getJSONObject("data");
+//                            JSONObject data = json.getJSONObject("data");
 //                            UserInfo.setUserInfo(data);
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     JSONObject data = json.getJSONObject("data");
                                     showRedirect(data.toJSONString());
-//                                    int regStat = data.getIntValue("User_Reg_Stat");
-//                                    Intent intent = new Intent(MainActivity.this, X5Activity.class);
-//                                    String url;
-//                                    if(regStat >= 4) {
-//                                        url = URLs.H5_DOMAIN + "index.html";
-//                                    }
-//                                    else {
-//                                        url = URLs.H5_DOMAIN + "guide.html?step=" + regStat;
-//                                    }
-//                                    url = "http://192.168.100.117:8080/guide.html?step=" + regStat;
-//                                    url = "http://192.168.100.117:8080/redirect.html?data=" + data.toJSONString();
-//                                    intent.putExtra("url", url);
-//                                    intent.putExtra("firstWeb", true);
-//                                    intent.putExtra("transparentTitle", true);
-//                                    intent.putExtra("hideBackButton", true);
-//                                    startActivity(intent);
-//                                    MainActivity.this.finish();
                                 }
                             });
                         }
@@ -402,6 +385,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showRedirect(final String data) {
+        // 获取已登录信息
+        SharedPreferences sharedPreferences = getSharedPreferences("global", MODE_PRIVATE);
+        final String sessionid = sharedPreferences.getString(MyCookies.COOKIE_NAME, "");
+        LogUtil.i("sessionid: ", sessionid);
+        MyCookies.add("sessionid=" + sessionid);
+
         long end = new Date().getTime();
         int time;
         if(end - timeStart >= 2000) {
@@ -420,7 +409,7 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("url", url);
                 intent.putExtra("firstWeb", true);
                 intent.putExtra("transparentTitle", true);
-//                intent.putExtra("hideBackButton", true);
+                intent.putExtra("hideBackButton", true);
                 startActivity(intent);
                 MainActivity.this.finish();
             }
