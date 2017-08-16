@@ -1,16 +1,11 @@
 package net.xiguo.test;
 
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,29 +14,27 @@ import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebSettings;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sina.weibo.sdk.WbSdk;
-import com.sina.weibo.sdk.auth.AccessTokenKeeper;
 import com.sina.weibo.sdk.auth.AuthInfo;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.auth.WbAuthListener;
 import com.sina.weibo.sdk.auth.WbConnectErrorMessage;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
-import net.xiguo.test.login.UserInfo;
+
 import net.xiguo.test.login.oauth.Constants;
-import net.xiguo.test.plugin.HideOptionMenu;
+import net.xiguo.test.plugin.HideOptionMenuPlugin;
 import net.xiguo.test.plugin.LoginWeiboPlugin;
 import net.xiguo.test.plugin.GetPreferencePlugin;
-import net.xiguo.test.plugin.SetOptionMenu;
+import net.xiguo.test.plugin.SetOptionMenuPlugin;
 import net.xiguo.test.plugin.SetPreferencePlugin;
 import net.xiguo.test.plugin.SetSubTitlePlugin;
-import net.xiguo.test.plugin.ShowOptionMenu;
+import net.xiguo.test.plugin.SetTitleBgColorPlugin;
+import net.xiguo.test.plugin.ShowOptionMenuPlugin;
 import net.xiguo.test.plugin.SwipeRefreshPlugin;
 import net.xiguo.test.web.WebView;
 
@@ -60,21 +53,10 @@ import net.xiguo.test.plugin.ShowLoadingPlugin;
 import net.xiguo.test.plugin.ToastPlugin;
 import net.xiguo.test.plugin.UserInfoPlugin;
 import net.xiguo.test.utils.LogUtil;
-import net.xiguo.test.web.MyCookies;
 import net.xiguo.test.web.MyWebChromeClient;
 import net.xiguo.test.web.MyWebViewClient;
 import net.xiguo.test.web.URLs;
 import net.xiguo.test.web.SwipeRefreshLayout;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import okhttp3.Cookie;
-import okhttp3.CookieJar;
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 /**
  * Created by army on 2017/3/16.
@@ -99,10 +81,12 @@ public class X5Activity extends AppCompatActivity {
     private LoginWeiboPlugin loginWeiboPlugin;
     private GetPreferencePlugin getPreferencePlugin;
     private SetPreferencePlugin setPreferencePlugin;
-    private ShowOptionMenu showOptionMenu;
-    private HideOptionMenu hideOptionMenu;
-    private SetOptionMenu setOptionMenu;
+    private ShowOptionMenuPlugin showOptionMenuPlugin;
+    private HideOptionMenuPlugin hideOptionMenuPlugin;
+    private SetOptionMenuPlugin setOptionMenuPlugin;
+    private SetTitleBgColorPlugin setTitleBgColorPlugin;
 
+    private LinearLayout titleBar;
     private TextView title;
     private TextView subTitle;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -141,6 +125,7 @@ public class X5Activity extends AppCompatActivity {
             setContentView(R.layout.activity_x5);
         }
 
+        titleBar = (LinearLayout) findViewById(R.id.titleBar);
         title = (TextView) findViewById(R.id.title);
         subTitle = (TextView) findViewById(R.id.subTitle);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
@@ -204,6 +189,7 @@ public class X5Activity extends AppCompatActivity {
         String ua = webSettings.getUserAgentString();
         webSettings.setUserAgentString(ua + " app/ZhuanQuan");
         webSettings.setJavaScriptEnabled(true);
+        webSettings.setAllowFileAccess(true);
         // 支持缩放viewport
         webSettings.setUseWideViewPort(true);
         webSettings.setLoadWithOverviewMode(true);
@@ -224,6 +210,7 @@ public class X5Activity extends AppCompatActivity {
         webView.setWebViewClient(webViewClient);
         MyWebChromeClient webChromeClient = new MyWebChromeClient(this);
         webView.setWebChromeClient(webChromeClient);
+        webView.setWebContentsDebuggingEnabled(true);
 
         // 从上个启动活动获取需要加载的url
         url = intent.getStringExtra("url");
@@ -233,25 +220,21 @@ public class X5Activity extends AppCompatActivity {
         LogUtil.i("firstWeb: " + firstWeb);
 
         // 离线包地址添加cookie
-        if(url.startsWith(URLs.H5_DOMAIN)) {
+        if(url.startsWith(URLs.H5_DOMAIN) || true) {
+            CookieSyncManager.createInstance(this);
             CookieManager cookieManager = CookieManager.getInstance();
 
             cookieManager.setAcceptCookie(true);
             cookieManager.removeSessionCookie();
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                LogUtil.i("CookieSyncManager sync");
-                CookieSyncManager.createInstance(this);
-                CookieSyncManager.getInstance().sync();
-            } else {
-                LogUtil.i("CookieManager flush");
-                CookieManager.getInstance().flush();
-            }
+            cookieManager.setCookie("http://192.168.100.156", "aaa=111");
 
-            for (String s : MyCookies.getAll()) {
-                LogUtil.i("CookieManager: ", s);
-                cookieManager.setCookie(URLs.H5_DOMAIN, s);
-                cookieManager.setCookie(URLs.WEB_DOMAIN, s);
-            }
+//            for (String s : MyCookies.getAll()) {
+//                LogUtil.i("CookieManager: ", s);
+//                cookieManager.setCookie(URLs.H5_DOMAIN, s);
+//                cookieManager.setCookie(URLs.WEB_DOMAIN, s);
+//                cookieManager.setCookie("http://192.168.100.117", s);
+//                cookieManager.setCookie("http://192.168.100.156", s);
+//            }
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                 LogUtil.i("CookieSyncManager sync");
@@ -316,14 +299,17 @@ public class X5Activity extends AppCompatActivity {
         setPreferencePlugin = new SetPreferencePlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.SET_PRE_FERENCE, setPreferencePlugin);
 
-        showOptionMenu = new ShowOptionMenu(this);
-        H5EventDispatcher.addEventListener(H5Plugin.SHOW_OPTIONMENU, showOptionMenu);
+        showOptionMenuPlugin = new ShowOptionMenuPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.SHOW_OPTIONMENU, showOptionMenuPlugin);
 
-        hideOptionMenu = new HideOptionMenu(this);
-        H5EventDispatcher.addEventListener(H5Plugin.HIDE_OPTIONMENU, hideOptionMenu);
+        hideOptionMenuPlugin = new HideOptionMenuPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.HIDE_OPTIONMENU, hideOptionMenuPlugin);
 
-        setOptionMenu = new SetOptionMenu(this);
-        H5EventDispatcher.addEventListener(H5Plugin.SET_OPTIONMENU, setOptionMenu);
+        setOptionMenuPlugin = new SetOptionMenuPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.SET_OPTIONMENU, setOptionMenuPlugin);
+
+        setTitleBgColorPlugin = new SetTitleBgColorPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.SET_TITLE_BG_COLOR, setTitleBgColorPlugin);
     }
 
     public void setDefaultTitle(String s) {
@@ -355,6 +341,11 @@ public class X5Activity extends AppCompatActivity {
             }
             subTitle.setText(s);
         }
+    }
+    public void setTitleBgColor(String backgroundColor) {
+        int color = Color.parseColor(backgroundColor);
+        LogUtil.i("backgroundColor ", color + "");
+        titleBar.setBackgroundColor(color);
     }
     public void pushWindow(String url, JSONObject params) {
         LogUtil.i("pushWindow: " + url + "," + params.toJSONString());

@@ -30,23 +30,27 @@ public class WebView extends android.webkit.WebView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+//        LogUtil.i("touch ", event.getY() + ", " + getScrollY());
         switch(event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 startY = event.getY();
-                if(getScrollY() == 0) {
-                    swipeRefreshLayout.setEnabled(true);
-                }
-                else {
-                    swipeRefreshLayout.setEnabled(false);
-                }
                 break;
             case MotionEvent.ACTION_MOVE:
                 if(getScrollY() > 0 || event.getY() < startY) {
+//                    LogUtil.i("3setEnabled(false)");
                     swipeRefreshLayout.setEnabled(false);
                 }
                 break;
             case MotionEvent.ACTION_UP:
-                swipeRefreshLayout.setEnabled(false);
+//                LogUtil.i("4setEnabled(false)");
+                if(getScrollY() == 0) {
+//                    LogUtil.i("1setEnabled(true)");
+                    swipeRefreshLayout.setEnabled(true);
+                }
+                else {
+//                    LogUtil.i("2setEnabled(false)");
+                    swipeRefreshLayout.setEnabled(false);
+                }
                 break;
         }
         return super.onTouchEvent(event);

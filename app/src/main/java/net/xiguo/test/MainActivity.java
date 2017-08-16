@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 unZipH5Pack();
-                                checkSession();
+                                showRedirect();
                             }
                         });
                         return;
@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
                                         @Override
                                         public void run() {
                                             unZipH5Pack();
-                                            checkSession();
+                                            showRedirect();
                                         }
                                     });
                                 }
@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
                                             @Override
                                             public void run() {
                                                 unZipH5Pack();
-                                                checkSession();
+                                                showRedirect();
                                             }
                                         });
                                         return;
@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
                                         @Override
                                         public void run() {
                                             unZipH5Pack(inputStream);
-                                            checkSession();
+                                            showRedirect();
                                         }
                                     });
                                 }
@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     unZipH5Pack();
-                                    checkSession();
+                                    showRedirect();
                                 }
                             });
                         }
@@ -211,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 unZipH5Pack();
-                                checkSession();
+                                showRedirect();
                             }
                         });
                     }
@@ -222,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             unZipH5Pack();
-                            checkSession();
+                            showRedirect();
                         }
                     });
                 }
@@ -349,7 +349,7 @@ public class MainActivity extends AppCompatActivity {
                         final JSONObject json = JSON.parseObject(responseBody);
                         boolean success = json.getBoolean("success");
                         if(success) {
-                            MyCookies.add(sessionid);
+                            MyCookies.add("sessionid=" + sessionid);
                             // 记录用户信息
                             JSONObject data = json.getJSONObject("data");
 //                            UserInfo.setUserInfo(data);
@@ -420,7 +420,7 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("url", url);
                 intent.putExtra("firstWeb", true);
                 intent.putExtra("transparentTitle", true);
-                intent.putExtra("hideBackButton", true);
+//                intent.putExtra("hideBackButton", true);
                 startActivity(intent);
                 MainActivity.this.finish();
             }

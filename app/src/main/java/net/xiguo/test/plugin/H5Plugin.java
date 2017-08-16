@@ -31,6 +31,7 @@ public abstract class H5Plugin implements IH5EventHandle {
     public static final String SHOW_OPTIONMENU = "showOptionMenu";
     public static final String HIDE_OPTIONMENU = "hideOptionMenu";
     public static final String SET_OPTIONMENU = "setOptionMenu";
+    public static final String SET_TITLE_BG_COLOR = "setTitleBgColor";
 
     protected X5Activity activity;
 

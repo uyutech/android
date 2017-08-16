@@ -18,13 +18,12 @@ public class AlertPlugin extends H5Plugin {
     }
 
     @Override
-    public void handle(JSONObject param) {
-        String params = param.toJSONString();
-        LogUtil.i("AlertPlugin: " + params);
-        JSONObject p = param.getJSONObject("param");
-        if(p != null) {
-            String title = p.getString("title");
-            String message = p.getString("message");
+    public void handle(JSONObject data) {
+        LogUtil.i("AlertPlugin: " + data.toJSONString());
+        JSONObject param = data.getJSONObject("param");
+        if(param != null) {
+            String title = param.getString("title");
+            String message = param.getString("message");
             AlertDialog.Builder dialog = new AlertDialog.Builder(this.activity);
             dialog.setTitle(title);
             dialog.setMessage(message);

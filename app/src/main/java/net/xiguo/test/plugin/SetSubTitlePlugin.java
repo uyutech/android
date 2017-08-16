@@ -17,8 +17,8 @@ public class SetSubTitlePlugin extends H5Plugin {
 
     @Override
     public void handle(JSONObject data) {
+        LogUtil.i("SetSubTitlePlugin: " + data.toJSONString());
         String title = data.getString("param");
-        LogUtil.i("SetSubTitlePlugin: " + title);
         this.activity.setSubTitle(title);
     }
 }
