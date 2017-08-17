@@ -147,9 +147,7 @@ public class X5Activity extends AppCompatActivity {
         String titleBgColor = intent.getStringExtra("titleBgColor");
         LogUtil.i("titleBgColor ", titleBgColor);
         if(titleBgColor != null && titleBgColor.length() > 0) {
-            int color = Color.parseColor(titleBgColor);
-            LogUtil.i("titleBgColor ", color + "");
-            titleBar.setBackgroundColor(color);
+            setTitleBgColor(titleBgColor);
         }
 
         // 是否隐藏back键
@@ -358,6 +356,7 @@ public class X5Activity extends AppCompatActivity {
         int color = Color.parseColor(backgroundColor);
         LogUtil.i("backgroundColor ", color + "");
         titleBar.setBackgroundColor(color);
+        titleBar.setClickable(true);
     }
     public void pushWindow(String url, JSONObject params) {
         LogUtil.i("pushWindow: " + url + "," + params.toJSONString());
