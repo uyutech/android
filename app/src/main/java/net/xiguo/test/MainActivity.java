@@ -407,7 +407,6 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, X5Activity.class);
                 String url = "http://192.168.100.117:8080/redirect.html?data=" + android.net.Uri.encode(data);
                 intent.putExtra("url", url);
-                intent.putExtra("firstWeb", true);
                 intent.putExtra("transparentTitle", true);
                 intent.putExtra("hideBackButton", true);
                 startActivity(intent);

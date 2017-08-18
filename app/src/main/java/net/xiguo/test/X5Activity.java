@@ -96,8 +96,7 @@ public class X5Activity extends AppCompatActivity {
     private TextView optionMenuText;
 
     private String url;
-
-    private boolean firstWeb;
+    private String popWindowParam;
     private boolean firstRun;
     private boolean hasSetTitle = false;
     private boolean readTitle;
@@ -223,9 +222,6 @@ public class X5Activity extends AppCompatActivity {
         // 从上个启动活动获取需要加载的url
         url = intent.getStringExtra("url");
         LogUtil.i("url: " + url);
-        // 是否第一个web
-        firstWeb = intent.getBooleanExtra("firstWeb", false);
-        LogUtil.i("firstWeb: " + firstWeb);
 
         // 离线包地址添加cookie
         if(url.startsWith(URLs.H5_DOMAIN) || true) {
@@ -353,10 +349,19 @@ public class X5Activity extends AppCompatActivity {
         }
     }
     public void setTitleBgColor(String backgroundColor) {
+        if(backgroundColor.equals("transparent")) {
+            backgroundColor = "#00000000";
+        }
         int color = Color.parseColor(backgroundColor);
         LogUtil.i("backgroundColor ", color + "");
         titleBar.setBackgroundColor(color);
-        titleBar.setClickable(true);
+        // 透明则可点击
+        if(backgroundColor.length() == 9 && backgroundColor.substring(1, 3).equals("00")) {
+            titleBar.setClickable(false);
+        }
+        else {
+            titleBar.setClickable(true);
+        }
     }
     public void pushWindow(String url, JSONObject params) {
         LogUtil.i("pushWindow: " + url + "," + params.toJSONString());
@@ -367,13 +372,13 @@ public class X5Activity extends AppCompatActivity {
         intent.putExtra("titleBgColor", params.getString("titleBgColor"));
         intent.putExtra("hideBackButton", params.getBooleanValue("hideBackButton"));
         intent.putExtra("readTitle", params.getBooleanValue("readTitle"));
-        startActivityForResult(intent, 1);
-    }
-    public boolean isFirstWeb() {
-        return firstWeb;
+        startActivityForResult(intent, 8735);
     }
     public WebView getWebView() {
         return webView;
+    }
+    public String getUrl() {
+        return url;
     }
     public void hideBackButton() {
         back.setVisibility(View.GONE);
@@ -412,10 +417,10 @@ public class X5Activity extends AppCompatActivity {
         }
         else {
             switch (requestCode) {
-                case 1:
+                case 8735:
                     if (resultCode == RESULT_OK) {
-                        String params = data.getStringExtra("params");
-                        LogUtil.i("onActivityResult: " + params);
+                        popWindowParam = data.getStringExtra("param");
+                        LogUtil.i("onActivityResult: " + popWindowParam);
                     }
                     break;
             }
@@ -425,11 +430,12 @@ public class X5Activity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        LogUtil.i("onStart: ", url);
+        LogUtil.i("onStart: ", url + ", " + firstRun);
         if(!firstRun) {
             webView.onResume();
             webView.getSettings().setJavaScriptEnabled(true);
-            webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('resume');");
+            webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('resume', " + popWindowParam + ");");
+            popWindowParam = null;
         }
         else {
             firstRun = false;
@@ -446,7 +452,7 @@ public class X5Activity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        webView.loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
+//        webView.loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
         webView.clearHistory();
         ((ViewGroup) webView.getParent()).removeView(webView);
         webView.destroy();

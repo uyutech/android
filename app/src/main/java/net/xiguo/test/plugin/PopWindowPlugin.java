@@ -19,17 +19,11 @@ public class PopWindowPlugin extends H5Plugin {
     }
 
     @Override
-    public void handle(JSONObject param) {
-        String params = param.toJSONString();
-        LogUtil.i("PopWindowPlugin: " + params);
+    public void handle(JSONObject data) {
+        LogUtil.i("PopWindowPlugin: " + data.toJSONString());
         Intent intent = new Intent();
-        intent.putExtra("params", params);
+        intent.putExtra("param", data.getString("param"));
         this.activity.setResult(Activity.RESULT_OK, intent);
-        if(this.activity.isFirstWeb()) {
-            this.activity.moveTaskToBack(true);
-        }
-        else {
-            this.activity.finish();
-        }
+        this.activity.finish();
     }
 }

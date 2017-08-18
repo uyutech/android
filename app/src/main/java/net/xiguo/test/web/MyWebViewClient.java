@@ -25,14 +25,11 @@ import java.util.ArrayList;
  */
 
 public class MyWebViewClient extends WebViewClient {
-    private String h5Bridge = null;
     private X5Activity activity;
-    private ArrayList<String> arrayList;
 
     public MyWebViewClient(X5Activity activity) {
         super();
         this.activity = activity;
-        arrayList = new ArrayList<>();
     }
 
     @Override
@@ -104,11 +101,11 @@ public class MyWebViewClient extends WebViewClient {
 
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon) {
-        LogUtil.i("onPageStarted: " + url);
+        LogUtil.i("onPageStarted: " + url + ", " + activity.getUrl());
     }
     @Override
     public void onPageFinished(WebView view, String args) {
-        LogUtil.i("onPageFinished: " + args);
+        LogUtil.i("onPageFinished: " + args + ", " + activity.getUrl());
         view.loadUrl("javascript: " + LoadBridge.getBridgeJs());
     }
 }
