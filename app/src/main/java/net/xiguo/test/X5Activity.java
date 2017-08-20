@@ -37,6 +37,7 @@ import net.xiguo.test.plugin.SetSubTitlePlugin;
 import net.xiguo.test.plugin.SetTitleBgColorPlugin;
 import net.xiguo.test.plugin.ShowOptionMenuPlugin;
 import net.xiguo.test.plugin.SwipeRefreshPlugin;
+import net.xiguo.test.utils.AndroidBug5497Workaround;
 import net.xiguo.test.web.MyCookies;
 import net.xiguo.test.web.WebView;
 
@@ -110,11 +111,12 @@ public class X5Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         Window window = getWindow();
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-        window.setFormat(PixelFormat.TRANSLUCENT);
+//        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+//        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+//        window.setFormat(PixelFormat.TRANSLUCENT);
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         Intent intent = getIntent();
         // 标题栏是否为透明
@@ -126,6 +128,7 @@ public class X5Activity extends AppCompatActivity {
         else {
             setContentView(R.layout.activity_x5);
         }
+        AndroidBug5497Workaround.assistActivity(this);
 
         titleBar = (LinearLayout) findViewById(R.id.titleBar);
         title = (TextView) findViewById(R.id.title);
