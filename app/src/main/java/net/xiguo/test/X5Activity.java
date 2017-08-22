@@ -31,6 +31,7 @@ import net.xiguo.test.plugin.HideOptionMenuPlugin;
 import net.xiguo.test.plugin.LoginWeiboPlugin;
 import net.xiguo.test.plugin.GetPreferencePlugin;
 import net.xiguo.test.plugin.MoveTaskToBackPlugin;
+import net.xiguo.test.plugin.OpenUriPlugin;
 import net.xiguo.test.plugin.SetOptionMenuPlugin;
 import net.xiguo.test.plugin.SetPreferencePlugin;
 import net.xiguo.test.plugin.SetSubTitlePlugin;
@@ -89,6 +90,7 @@ public class X5Activity extends AppCompatActivity {
     private SetOptionMenuPlugin setOptionMenuPlugin;
     private SetTitleBgColorPlugin setTitleBgColorPlugin;
     private MoveTaskToBackPlugin moveTaskToBackPlugin;
+    private OpenUriPlugin openUriPlugin;
 
     private LinearLayout titleBar;
     private TextView title;
@@ -324,6 +326,9 @@ public class X5Activity extends AppCompatActivity {
 
         moveTaskToBackPlugin = new MoveTaskToBackPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.MOVE_TASK_TO_BACK, moveTaskToBackPlugin);
+
+        openUriPlugin = new OpenUriPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.OPEN_URI, openUriPlugin);
     }
 
     public void setDefaultTitle(String s) {
