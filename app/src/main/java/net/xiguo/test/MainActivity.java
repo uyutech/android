@@ -45,9 +45,11 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Cookie;
 import okhttp3.CookieJar;
+import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
@@ -105,8 +107,10 @@ public class MainActivity extends AppCompatActivity {
                     OkHttpClient client = new OkHttpClient
                             .Builder()
                             .build();
+                    RequestBody requestBody = new FormBody.Builder().build();
                     Request request = new Request.Builder()
                             .url(URLs.CHECK_H5_PACKAGE)
+                            .post(requestBody)
                             .build();
                     Response response = client.newCall(request).execute();
                     String responseBody = response.body().string();
@@ -405,7 +409,8 @@ public class MainActivity extends AppCompatActivity {
 //                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
 //                MainActivity.this.startActivity(intent);
                 Intent intent = new Intent(MainActivity.this, X5Activity.class);
-                String url = "http://192.168.100.117:8080/redirect.html?data=" + android.net.Uri.encode(data);
+                String url = URLs.H5_DOMAIN + "redirect.html";
+//                String url = "http://192.168.100.117:8080/redirect.html?data=" + android.net.Uri.encode(data);
                 intent.putExtra("url", url);
                 intent.putExtra("transparentTitle", true);
                 intent.putExtra("hideBackButton", true);
