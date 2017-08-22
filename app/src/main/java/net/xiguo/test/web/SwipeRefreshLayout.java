@@ -10,7 +10,7 @@ import net.xiguo.test.utils.LogUtil;
  */
 
 public class SwipeRefreshLayout extends android.support.v4.widget.SwipeRefreshLayout {
-    private boolean forced = false;
+    private boolean canEnabled = true;
 
     public SwipeRefreshLayout(Context context) {
         super(context);
@@ -21,13 +21,16 @@ public class SwipeRefreshLayout extends android.support.v4.widget.SwipeRefreshLa
 
     @Override
     public void setEnabled(boolean enabled) {
-//        if(!forced) {
+//        LogUtil.i("setEnabled: ", enabled + ", " + canEnabled);
+        if(canEnabled) {
             super.setEnabled(enabled);
-//        }
+        }
     }
-    public void setForceEnabled(boolean enabled) {
-        LogUtil.i("setFoceEnabled: ", enabled + "");
-//        forced = true;
-        super.setEnabled(enabled);
+    public void setCanEnabled(boolean enabled) {
+        LogUtil.i("setCanEnabled: ", enabled + "");
+        canEnabled = enabled;
+        if(!enabled) {
+            super.setEnabled(false);
+        }
     }
 }

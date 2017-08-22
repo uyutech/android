@@ -13,7 +13,7 @@ public class URLs {
     public static final String LOGIN_BY_WEIBO = "http://192.168.100.156/api/Users/WeiboLogin";
     public static final String SESSON_CHECK = "http://192.168.100.156/api/Users/ChkCookie";
 
-    public static final String WEB_DOMAIN = "http://circling.cc/";
+    public static final String WEB_DOMAIN = "http://139.224.235.70/";
     public static final String H5_DOMAIN = "http://h5.circling.cc/";
 //    public static final String H5_DOMAIN = "http://116.62.244.93:8089/";
 }

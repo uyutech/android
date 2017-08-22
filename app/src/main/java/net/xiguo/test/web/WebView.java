@@ -54,7 +54,7 @@ public class WebView extends android.webkit.WebView {
                     float diffX = event.getX() - startX;
                     if(diffX != 0 && diffY != 0) {
                         isStart = false;
-                        if(Math.abs(diffX) > Math.abs(diffY)) {
+                        if(Math.abs(diffX) > Math.abs(diffY) || diffY < 0) {
                             swipeRefreshLayout.setEnabled(false);
                         }
                     }
@@ -62,7 +62,7 @@ public class WebView extends android.webkit.WebView {
                 break;
             case MotionEvent.ACTION_UP:
                 isStart = false;
-//                LogUtil.i("4setEnabled(false)");
+//                LogUtil.i("4setEnabled(" + getScrollY() + ")");
                 swipeRefreshLayout.setEnabled(getScrollY() == 0);
                 break;
         }

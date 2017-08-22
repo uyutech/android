@@ -206,8 +206,7 @@ public class X5Activity extends AppCompatActivity {
         webSettings.setAllowFileAccess(true);
         // 支持缩放viewport
         webSettings.setUseWideViewPort(true);
-        webSettings.setLoadWithOverviewMode(true);
-
+//        webSettings.setLoadWithOverviewMode(true);
         webView.setDrawingCacheEnabled(true);
 
         webView.setSwipeRefreshLayout(swipeRefreshLayout);
@@ -245,8 +244,8 @@ public class X5Activity extends AppCompatActivity {
                 LogUtil.i("CookieManager: ", s);
                 cookieManager.setCookie(URLs.H5_DOMAIN, s);
                 cookieManager.setCookie(URLs.WEB_DOMAIN, s);
-                cookieManager.setCookie("http://192.168.100.117", s);
-                cookieManager.setCookie("http://192.168.100.156", s);
+//                cookieManager.setCookie("http://192.168.100.117", s);
+//                cookieManager.setCookie("http://192.168.100.156", s);
             }
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
