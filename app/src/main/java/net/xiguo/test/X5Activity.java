@@ -136,7 +136,7 @@ public class X5Activity extends AppCompatActivity implements ViewTreeObserver.On
             setContentView(R.layout.activity_x5);
         }
         //软键盘全屏bug
-        androidBug5497Workaround();
+//        androidBug5497Workaround();
 
         titleBar = (LinearLayout) findViewById(R.id.titleBar);
         title = (TextView) findViewById(R.id.title);
@@ -508,7 +508,6 @@ public class X5Activity extends AppCompatActivity implements ViewTreeObserver.On
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mChildOfContent.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 //        webView.loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
         webView.clearHistory();
         ((ViewGroup) webView.getParent()).removeView(webView);
