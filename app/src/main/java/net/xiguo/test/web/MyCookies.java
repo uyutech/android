@@ -9,8 +9,10 @@ import java.util.HashMap;
 
 public class MyCookies {
     public static final String COOKIE_NAME = "sessionid";
+    public static final String[] COOKIE_NAME_LIST = { "sessionid" };
 
     private static ArrayList<String> cookies = new ArrayList();
+    private static HashMap<String, String> cookieMap = new HashMap<>();
 
     public MyCookies() {
     }
@@ -18,7 +20,17 @@ public class MyCookies {
     public static void add(String cookie) {
         cookies.add(cookie);
     }
+    public static void add(String key, String value) {
+        cookieMap.put(key, value);
+    }
+    public static String get(String key) {
+        return cookieMap.get(key);
+    }
     public static ArrayList<String> getAll() {
-        return cookies;
+        ArrayList<String> list = new ArrayList<>();
+        for(String key : cookieMap.keySet()) {
+            list.add(key + "=" + cookieMap.get(key));
+        }
+        return list;
     }
 }

@@ -28,12 +28,18 @@ public class SetPreferencePlugin extends H5Plugin {
             String key = param.getString("key");
             String value = param.getString("value");
             SharedPreferences.Editor editor = BaseApplication.getContext().getSharedPreferences("global", Context.MODE_PRIVATE).edit();
-            editor.putString(key, value);
-            editor.apply();
-            // 特殊的sessionid
-            if(key.equals(MyCookies.COOKIE_NAME)) {
-                MyCookies.add("sessionid=" + value);
+            LogUtil.i("SetPreferencePlugin: " + (value == null));
+            if(value == null) {
+                editor.remove(key);
             }
+            else {
+                editor.putString(key, value);
+                // 特殊的sessionid
+                if(key.equals(MyCookies.COOKIE_NAME)) {
+                    MyCookies.add("sessionid=" + value);
+                }
+            }
+            editor.apply();
             activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "',true);");
         }
     }

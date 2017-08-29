@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
 
         bgi = (ImageView) findViewById(R.id.bgi);
@@ -310,83 +309,83 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void checkSession() {
-        // 获取已登录信息
-        SharedPreferences sharedPreferences = getSharedPreferences("global", MODE_PRIVATE);
-        final String sessionid = sharedPreferences.getString(MyCookies.COOKIE_NAME, "");
-        LogUtil.i("sessionid: ", sessionid);
-
-        // 检测登录
-        boolean focusLogin = false;
-        if(sessionid.isEmpty() || focusLogin) {
-            // 暂停3s后跳转
-            showRedirect();
-        }
-        else {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    LogUtil.i("checkSession run");
-                    try {
-                        OkHttpClient client = new OkHttpClient
-                                .Builder()
-                                .build();
-                        String url = URLs.SESSON_CHECK;
-                        LogUtil.i(url);
-                        Request request = new Request.Builder()
-                                .url(url)
-                                .header("cookie", "sessionid=" + sessionid)
-                                .build();
-                        Response response = client.newCall(request).execute();
-                        String responseBody = response.body().string();
-                        LogUtil.i("checkSession: " + responseBody);
-                        if(responseBody.isEmpty()) {
-                            LogUtil.i("checkSession isEmpty");
-                            MainActivity.this.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    showRedirect();
-                                }
-                            });
-                            return;
-                        }
-                        final JSONObject json = JSON.parseObject(responseBody);
-                        boolean success = json.getBoolean("success");
-                        if(success) {
-                            MyCookies.add("sessionid=" + sessionid);
-                            // 记录用户信息
-//                            JSONObject data = json.getJSONObject("data");
-//                            UserInfo.setUserInfo(data);
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    JSONObject data = json.getJSONObject("data");
-                                    showRedirect(data.toJSONString());
-                                }
-                            });
-                        }
-                        else {
-                            MainActivity.this.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    showRedirect();
-                                }
-                            });
-                        }
-                    } catch (Exception e) {
-                        LogUtil.i("checkSession Exception: " + e.toString());
-                        e.printStackTrace();
-                        MainActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                showRedirect();
-                            }
-                        });
-                    }
-                }
-            }).start();
-        }
-    }
+//    private void checkSession() {
+//        // 获取已登录信息
+//        SharedPreferences sharedPreferences = getSharedPreferences("global", MODE_PRIVATE);
+//        final String sessionid = sharedPreferences.getString(MyCookies.COOKIE_NAME, "");
+//        LogUtil.i("sessionid: ", sessionid);
+//
+//        // 检测登录
+//        boolean focusLogin = false;
+//        if(sessionid.isEmpty() || focusLogin) {
+//            // 暂停3s后跳转
+//            showRedirect();
+//        }
+//        else {
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    LogUtil.i("checkSession run");
+//                    try {
+//                        OkHttpClient client = new OkHttpClient
+//                                .Builder()
+//                                .build();
+//                        String url = URLs.SESSON_CHECK;
+//                        LogUtil.i(url);
+//                        Request request = new Request.Builder()
+//                                .url(url)
+//                                .header("cookie", "sessionid=" + sessionid)
+//                                .build();
+//                        Response response = client.newCall(request).execute();
+//                        String responseBody = response.body().string();
+//                        LogUtil.i("checkSession: " + responseBody);
+//                        if(responseBody.isEmpty()) {
+//                            LogUtil.i("checkSession isEmpty");
+//                            MainActivity.this.runOnUiThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    showRedirect();
+//                                }
+//                            });
+//                            return;
+//                        }
+//                        final JSONObject json = JSON.parseObject(responseBody);
+//                        boolean success = json.getBoolean("success");
+//                        if(success) {
+//                            MyCookies.add("sessionid=" + sessionid);
+//                            // 记录用户信息
+////                            JSONObject data = json.getJSONObject("data");
+////                            UserInfo.setUserInfo(data);
+//                            runOnUiThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    JSONObject data = json.getJSONObject("data");
+//                                    showRedirect(data.toJSONString());
+//                                }
+//                            });
+//                        }
+//                        else {
+//                            MainActivity.this.runOnUiThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    showRedirect();
+//                                }
+//                            });
+//                        }
+//                    } catch (Exception e) {
+//                        LogUtil.i("checkSession Exception: " + e.toString());
+//                        e.printStackTrace();
+//                        MainActivity.this.runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                showRedirect();
+//                            }
+//                        });
+//                    }
+//                }
+//            }).start();
+//        }
+//    }
 
     private void showRedirect(final String data) {
         // 获取已登录信息
@@ -410,8 +409,8 @@ public class MainActivity extends AppCompatActivity {
 //                MainActivity.this.startActivity(intent);
                 Intent intent = new Intent(MainActivity.this, X5Activity.class);
                 String url = URLs.H5_DOMAIN + "redirect.html";
-//                String url = "http://192.168.100.117:8080/redirect.html?data=" + android.net.Uri.encode(data);
-//                String url = "http://192.168.100.117:8080/works.html?id=1";
+//                String url = "http://192.168.0.7:8080/redirect.html";
+//                String url = "http://192.168.0.7:8080/works.html?id=1";
                 intent.putExtra("url", url);
                 intent.putExtra("transparentTitle", true);
                 intent.putExtra("hideBackButton", true);

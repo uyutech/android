@@ -3,17 +3,20 @@ package net.xiguo.test;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebSettings;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -38,7 +41,6 @@ import net.xiguo.test.plugin.SetSubTitlePlugin;
 import net.xiguo.test.plugin.SetTitleBgColorPlugin;
 import net.xiguo.test.plugin.ShowOptionMenuPlugin;
 import net.xiguo.test.plugin.SwipeRefreshPlugin;
-import net.xiguo.test.utils.AndroidBug5497Workaround;
 import net.xiguo.test.web.MyCookies;
 import net.xiguo.test.web.WebView;
 
@@ -66,7 +68,7 @@ import net.xiguo.test.web.SwipeRefreshLayout;
  * Created by army on 2017/3/16.
  */
 
-public class X5Activity extends AppCompatActivity {
+public class X5Activity extends AppCompatActivity implements ViewTreeObserver.OnGlobalLayoutListener {
 
     private SetTitlePlugin setTitlePlugin;
     private SetSubTitlePlugin setSubTitlePlugin;
@@ -108,17 +110,19 @@ public class X5Activity extends AppCompatActivity {
 
     private SsoHandler mSsoHandler;
 
+    private View mChildOfContent;
+    private int usableHeightPrevious;
+    private FrameLayout.LayoutParams frameLayoutParams;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         Window window = getWindow();
+        window.setFormat(PixelFormat.TRANSLUCENT);
 //        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 //        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
 //        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 //        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-//        window.setFormat(PixelFormat.TRANSLUCENT);
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         Intent intent = getIntent();
         // 标题栏是否为透明
@@ -130,7 +134,8 @@ public class X5Activity extends AppCompatActivity {
         else {
             setContentView(R.layout.activity_x5);
         }
-        AndroidBug5497Workaround.assistActivity(this);
+        //软键盘全屏bug
+        androidBug5497Workaround();
 
         titleBar = (LinearLayout) findViewById(R.id.titleBar);
         title = (TextView) findViewById(R.id.title);
@@ -257,6 +262,41 @@ public class X5Activity extends AppCompatActivity {
             }
         }
         webView.loadUrl(url);
+    }
+
+    private void androidBug5497Workaround() {
+        FrameLayout content = (FrameLayout) findViewById(android.R.id.content);
+        mChildOfContent = content.getChildAt(0);
+        mChildOfContent.getViewTreeObserver().addOnGlobalLayoutListener(this);
+        frameLayoutParams = (FrameLayout.LayoutParams) mChildOfContent.getLayoutParams();
+    }
+    public void onGlobalLayout() {
+        possiblyResizeChildOfContent();
+    }
+    private void possiblyResizeChildOfContent() {
+        int usableHeightNow = computeUsableHeight();
+        if (usableHeightNow != usableHeightPrevious) {
+            LogUtil.i("possiblyResizeChildOfContent ", usableHeightNow + ", " + usableHeightPrevious);
+            int usableHeightSansKeyboard = mChildOfContent.getRootView().getHeight();
+            int heightDifference = usableHeightSansKeyboard - usableHeightNow;
+            if (heightDifference > (usableHeightSansKeyboard / 4)) {
+                // keyboard probably just became visible
+                frameLayoutParams.height = usableHeightSansKeyboard - heightDifference;
+            } else {
+                // keyboard probably just became hidden
+                frameLayoutParams.height = usableHeightSansKeyboard;
+            }
+            mChildOfContent.requestLayout();
+            usableHeightPrevious = usableHeightNow;
+        }
+    }
+    private int computeUsableHeight() {
+        Rect r = new Rect();
+        mChildOfContent.getWindowVisibleDisplayFrame(r);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            return r.bottom;
+        }
+        return (r.bottom - r.top);
     }
 
     private void initPlugins() {
@@ -464,6 +504,7 @@ public class X5Activity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mChildOfContent.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 //        webView.loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
         webView.clearHistory();
         ((ViewGroup) webView.getParent()).removeView(webView);
