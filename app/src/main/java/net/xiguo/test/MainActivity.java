@@ -38,6 +38,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -389,10 +390,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void showRedirect(final String data) {
         // 获取已登录信息
-        SharedPreferences sharedPreferences = getSharedPreferences("global", MODE_PRIVATE);
-        final String sessionid = sharedPreferences.getString(MyCookies.COOKIE_NAME, "");
-        LogUtil.i("sessionid: ", sessionid);
-        MyCookies.add("sessionid=" + sessionid);
+        SharedPreferences sharedPreferences = getSharedPreferences("cookie", MODE_PRIVATE);
+        Map<String, ?> sessionMap = sharedPreferences.getAll();
+        for(String key : sessionMap.keySet()) {
+            String value = sessionMap.get(key).toString();
+            LogUtil.i("cookie: ", key + ", " + value);
+            MyCookies.add(key, value);
+        }
+//        final String sessionid = sharedPreferences.getString(MyCookies.COOKIE_NAME, "");
+//        LogUtil.i("sessionid: ", sessionid);
+//        MyCookies.add("sessionid=" + sessionid);
 
         long end = new Date().getTime();
         int time;

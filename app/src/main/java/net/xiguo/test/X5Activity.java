@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.Window;
-import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebSettings;
@@ -37,6 +36,7 @@ import net.xiguo.test.plugin.MoveTaskToBackPlugin;
 import net.xiguo.test.plugin.OpenUriPlugin;
 import net.xiguo.test.plugin.SetOptionMenuPlugin;
 import net.xiguo.test.plugin.SetPreferencePlugin;
+import net.xiguo.test.plugin.SetCookiePlugin;
 import net.xiguo.test.plugin.SetSubTitlePlugin;
 import net.xiguo.test.plugin.SetTitleBgColorPlugin;
 import net.xiguo.test.plugin.ShowOptionMenuPlugin;
@@ -93,6 +93,7 @@ public class X5Activity extends AppCompatActivity implements ViewTreeObserver.On
     private SetTitleBgColorPlugin setTitleBgColorPlugin;
     private MoveTaskToBackPlugin moveTaskToBackPlugin;
     private OpenUriPlugin openUriPlugin;
+    private SetCookiePlugin setCookiePlugin;
 
     private LinearLayout titleBar;
     private TextView title;
@@ -368,6 +369,9 @@ public class X5Activity extends AppCompatActivity implements ViewTreeObserver.On
 
         openUriPlugin = new OpenUriPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.OPEN_URI, openUriPlugin);
+
+        setCookiePlugin = new SetCookiePlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.SET_COOKIE, setCookiePlugin);
     }
 
     public void setDefaultTitle(String s) {

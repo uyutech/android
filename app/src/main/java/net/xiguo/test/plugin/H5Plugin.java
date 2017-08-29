@@ -34,6 +34,7 @@ public abstract class H5Plugin implements IH5EventHandle {
     public static final String SET_TITLE_BG_COLOR = "setTitleBgColor";
     public static final String MOVE_TASK_TO_BACK = "moveTaskToBack";
     public static final String OPEN_URI = "openUri";
+    public static final String SET_COOKIE = "setCookie";
 
     protected X5Activity activity;
 
