@@ -12,21 +12,24 @@ import net.xiguo.test.X5Activity;
 import net.xiguo.test.event.H5EventDispatcher;
 import net.xiguo.test.utils.LogUtil;
 
+import org.xwalk.core.XWalkUIClient;
+import org.xwalk.core.XWalkView;
+
 /**
  * Created by army on 2017/3/22.
  */
 
-public class MyWebChromeClient extends WebChromeClient {
+public class MyWebChromeClient extends org.xwalk.core.XWalkUIClient {
     private static final String PREFIX = "h5container.message: ";
 
     private X5Activity activity;
 
-    public MyWebChromeClient(X5Activity activity) {
-        super();
+    public MyWebChromeClient(X5Activity activity, XWalkView webView) {
+        super(webView);
         this.activity = activity;
     }
     @Override
-    public void onReceivedTitle(WebView view, String args) {
+    public void onReceivedTitle(XWalkView view, String args) {
         super.onReceivedTitle(view, args);
         LogUtil.i("onReceivedTitle: " + args);
         if(args != null && args.length() > 0) {
@@ -35,19 +38,17 @@ public class MyWebChromeClient extends WebChromeClient {
         view.loadUrl("javascript: " + LoadBridge.getBridgeJs());
     }
     @Override
-    public boolean onConsoleMessage(ConsoleMessage cm) {
-        String msg = cm.message();
-        LogUtil.i("onConsoleMessage: " + msg);
-        if(msg.startsWith(PREFIX)) {
-            JSONObject json = JSON.parseObject(msg.substring(PREFIX.length() - 1));
+    public boolean onConsoleMessage(XWalkView view,
+                                    java.lang.String message,
+                                    int lineNumber,
+                                    java.lang.String sourceId,
+                                    XWalkUIClient.ConsoleMessageType messageType) {
+//        String message = cm.message();
+        LogUtil.i("onConsoleMessage: " + message);
+        if(message.startsWith(PREFIX)) {
+            JSONObject json = JSON.parseObject(message.substring(PREFIX.length() - 1));
             H5EventDispatcher.dispatch(this.activity, json);
         }
-        return false;
-    }
-    @Override
-    public boolean onJsAlert(WebView view, String url, String message,
-                             JsResult result) {
-        LogUtil.i("onJsAlert");
         return false;
     }
 }

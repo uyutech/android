@@ -14,7 +14,7 @@ import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
-import android.webkit.WebSettings;
+//import android.webkit.WebSettings;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -64,11 +64,15 @@ import net.xiguo.test.web.MyWebViewClient;
 import net.xiguo.test.web.URLs;
 import net.xiguo.test.web.SwipeRefreshLayout;
 
+import org.xwalk.core.XWalkCookieManager;
+import org.xwalk.core.XWalkPreferences;
+import org.xwalk.core.XWalkSettings;
+
 /**
  * Created by army on 2017/3/16.
  */
 
-public class X5Activity extends AppCompatActivity implements ViewTreeObserver.OnGlobalLayoutListener {
+public class X5Activity extends AppCompatActivity {
 
     private SetTitlePlugin setTitlePlugin;
     private SetSubTitlePlugin setSubTitlePlugin;
@@ -111,19 +115,11 @@ public class X5Activity extends AppCompatActivity implements ViewTreeObserver.On
 
     private SsoHandler mSsoHandler;
 
-    private View mChildOfContent;
-    private int usableHeightPrevious;
-    private FrameLayout.LayoutParams frameLayoutParams;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Window window = getWindow();
         window.setFormat(PixelFormat.TRANSLUCENT);
-//        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-//        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-//        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-//        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
 
         Intent intent = getIntent();
         // 标题栏是否为透明
@@ -135,8 +131,6 @@ public class X5Activity extends AppCompatActivity implements ViewTreeObserver.On
         else {
             setContentView(R.layout.activity_x5);
         }
-        //软键盘全屏bug
-//        androidBug5497Workaround();
 
         titleBar = (LinearLayout) findViewById(R.id.titleBar);
         title = (TextView) findViewById(R.id.title);
@@ -205,7 +199,7 @@ public class X5Activity extends AppCompatActivity implements ViewTreeObserver.On
         initPlugins();
         firstRun = true;
 
-        WebSettings webSettings = webView.getSettings();
+        XWalkSettings webSettings = webView.getSettings();
         String ua = webSettings.getUserAgentString();
         webSettings.setUserAgentString(ua + " app/ZhuanQuan");
         webSettings.setJavaScriptEnabled(true);
@@ -225,11 +219,12 @@ public class X5Activity extends AppCompatActivity implements ViewTreeObserver.On
             }
         });
 
-        MyWebViewClient webViewClient = new MyWebViewClient(this);
-        webView.setWebViewClient(webViewClient);
-        MyWebChromeClient webChromeClient = new MyWebChromeClient(this);
-        webView.setWebChromeClient(webChromeClient);
-        webView.setWebContentsDebuggingEnabled(true);
+        MyWebViewClient webViewClient = new MyWebViewClient(this, webView);
+        webView.setResourceClient(webViewClient);
+        MyWebChromeClient webChromeClient = new MyWebChromeClient(this, webView);
+        webView.setUIClient(webChromeClient);
+        XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
+//        webView.setWebContentsDebuggingEnabled(true);
 
         // 从上个启动活动获取需要加载的url
         url = intent.getStringExtra("url");
@@ -237,67 +232,42 @@ public class X5Activity extends AppCompatActivity implements ViewTreeObserver.On
 
         // 离线包地址添加cookie
         if(url.startsWith(URLs.H5_DOMAIN) || true) {
-            CookieSyncManager.createInstance(this);
-            CookieManager cookieManager = CookieManager.getInstance();
-
+//            CookieSyncManager.createInstance(this);
+//            CookieManager cookieManager = CookieManager.getInstance();
+//
+//            cookieManager.setAcceptCookie(true);
+//            // 跨域CORS的ajax设置允许cookie
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//                cookieManager.setAcceptThirdPartyCookies(webView, true);
+//            }
+//
+//            for (String s : MyCookies.getAll()) {
+//                LogUtil.i("CookieManager: ", s);
+//                cookieManager.setCookie(URLs.H5_DOMAIN, s);
+//                cookieManager.setCookie(URLs.WEB_DOMAIN, s);
+////                cookieManager.setCookie("http://192.168.100.117", s);
+////                cookieManager.setCookie("http://192.168.100.156", s);
+//            }
+//
+//            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+//                LogUtil.i("CookieSyncManager sync");
+//                CookieSyncManager.getInstance().sync();
+//            } else {
+//                LogUtil.i("CookieManager flush");
+//                CookieManager.getInstance().flush();
+//            }
+            XWalkCookieManager cookieManager = new XWalkCookieManager();
             cookieManager.setAcceptCookie(true);
-            // 跨域CORS的ajax设置允许cookie
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                cookieManager.setAcceptThirdPartyCookies(webView, true);
-            }
-
             for (String s : MyCookies.getAll()) {
                 LogUtil.i("CookieManager: ", s);
                 cookieManager.setCookie(URLs.H5_DOMAIN, s);
                 cookieManager.setCookie(URLs.WEB_DOMAIN, s);
-//                cookieManager.setCookie("http://192.168.100.117", s);
-//                cookieManager.setCookie("http://192.168.100.156", s);
+                cookieManager.setCookie("http://192.168.0.7", s);
+                cookieManager.setCookie("http://192.168.0.66", s);
             }
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                LogUtil.i("CookieSyncManager sync");
-                CookieSyncManager.getInstance().sync();
-            } else {
-                LogUtil.i("CookieManager flush");
-                CookieManager.getInstance().flush();
-            }
+            cookieManager.flushCookieStore();
         }
         webView.loadUrl(url);
-    }
-
-    private void androidBug5497Workaround() {
-        FrameLayout content = (FrameLayout) findViewById(android.R.id.content);
-        mChildOfContent = content.getChildAt(0);
-        mChildOfContent.getViewTreeObserver().addOnGlobalLayoutListener(this);
-        frameLayoutParams = (FrameLayout.LayoutParams) mChildOfContent.getLayoutParams();
-    }
-    public void onGlobalLayout() {
-        possiblyResizeChildOfContent();
-    }
-    private void possiblyResizeChildOfContent() {
-        int usableHeightNow = computeUsableHeight();
-        if (usableHeightNow != usableHeightPrevious) {
-            LogUtil.i("possiblyResizeChildOfContent ", usableHeightNow + ", " + usableHeightPrevious);
-            int usableHeightSansKeyboard = mChildOfContent.getRootView().getHeight();
-            int heightDifference = usableHeightSansKeyboard - usableHeightNow;
-            if (heightDifference > (usableHeightSansKeyboard / 4)) {
-                // keyboard probably just became visible
-                frameLayoutParams.height = usableHeightSansKeyboard - heightDifference;
-            } else {
-                // keyboard probably just became hidden
-                frameLayoutParams.height = usableHeightSansKeyboard;
-            }
-            mChildOfContent.requestLayout();
-            usableHeightPrevious = usableHeightNow;
-        }
-    }
-    private int computeUsableHeight() {
-        Rect r = new Rect();
-        mChildOfContent.getWindowVisibleDisplayFrame(r);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            return r.bottom;
-        }
-        return (r.bottom - r.top);
     }
 
     private void initPlugins() {
@@ -488,7 +458,8 @@ public class X5Activity extends AppCompatActivity implements ViewTreeObserver.On
         super.onStart();
         LogUtil.i("onStart: ", url + ", " + firstRun);
         if(!firstRun) {
-            webView.onResume();
+            webView.resumeTimers();
+            webView.onShow();
             webView.getSettings().setJavaScriptEnabled(true);
             webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('resume', " + popWindowParam + ");");
             popWindowParam = null;
@@ -500,7 +471,8 @@ public class X5Activity extends AppCompatActivity implements ViewTreeObserver.On
     @Override
     protected void onStop() {
         super.onStop();
-        webView.onPause();
+        webView.pauseTimers();
+        webView.onHide();
         webView.getSettings().setJavaScriptEnabled(false);
         LogUtil.i("onStop: ", url);
         webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('pause');");
@@ -509,9 +481,9 @@ public class X5Activity extends AppCompatActivity implements ViewTreeObserver.On
     protected void onDestroy() {
         super.onDestroy();
 //        webView.loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
-        webView.clearHistory();
-        ((ViewGroup) webView.getParent()).removeView(webView);
-        webView.destroy();
+//        webView.clearHistory();
+//        ((ViewGroup) webView.getParent()).removeView(webView);
+        webView.onDestroy();
         webView = null;
     }
 
