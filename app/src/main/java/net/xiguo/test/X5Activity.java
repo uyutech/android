@@ -41,6 +41,7 @@ import net.xiguo.test.plugin.SetSubTitlePlugin;
 import net.xiguo.test.plugin.SetTitleBgColorPlugin;
 import net.xiguo.test.plugin.ShowOptionMenuPlugin;
 import net.xiguo.test.plugin.SwipeRefreshPlugin;
+import net.xiguo.test.utils.AndroidBug5497Workaround;
 import net.xiguo.test.web.MyCookies;
 import net.xiguo.test.web.WebView;
 
@@ -131,6 +132,7 @@ public class X5Activity extends AppCompatActivity {
         else {
             setContentView(R.layout.activity_x5);
         }
+        AndroidBug5497Workaround.assistActivity(this);
 
         titleBar = (LinearLayout) findViewById(R.id.titleBar);
         title = (TextView) findViewById(R.id.title);
