@@ -22,12 +22,6 @@ android {
     }
 }
 
-repositories {
-    flatDir {
-        dirs 'libs'
-    }
-}
-
 dependencies {
 //    compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
@@ -40,6 +34,5 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.8.0'
     compile 'com.sina.weibo.sdk:core:2.0.6:openDefaultRelease@aar'
 //    compile files('libs/tbs_sdk_thirdapp_v3.2.0.1104_43200_sharewithdownload_withfilereader_withoutGame_obfs_20170609_115346.jar')
-    compile 'org.xwalk:xwalk_core_library:23.53.589.4-arm@aar'
     testCompile 'junit:junit:4.12'
 }

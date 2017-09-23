@@ -14,7 +14,7 @@ import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
-//import android.webkit.WebSettings;
+import android.webkit.WebSettings;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -64,10 +64,6 @@ import net.xiguo.test.web.MyWebChromeClient;
 import net.xiguo.test.web.MyWebViewClient;
 import net.xiguo.test.web.URLs;
 import net.xiguo.test.web.SwipeRefreshLayout;
-
-import org.xwalk.core.XWalkCookieManager;
-import org.xwalk.core.XWalkPreferences;
-import org.xwalk.core.XWalkSettings;
 
 /**
  * Created by army on 2017/3/16.
@@ -201,7 +197,7 @@ public class X5Activity extends AppCompatActivity {
         initPlugins();
         firstRun = true;
 
-        XWalkSettings webSettings = webView.getSettings();
+        WebSettings webSettings = webView.getSettings();
         String ua = webSettings.getUserAgentString();
         webSettings.setUserAgentString(ua + " app/ZhuanQuan");
         webSettings.setJavaScriptEnabled(true);
@@ -221,12 +217,11 @@ public class X5Activity extends AppCompatActivity {
             }
         });
 
-        MyWebViewClient webViewClient = new MyWebViewClient(this, webView);
-        webView.setResourceClient(webViewClient);
-        MyWebChromeClient webChromeClient = new MyWebChromeClient(this, webView);
-        webView.setUIClient(webChromeClient);
-        XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
-//        webView.setWebContentsDebuggingEnabled(true);
+        MyWebViewClient webViewClient = new MyWebViewClient(this);
+        webView.setWebViewClient(webViewClient);
+        MyWebChromeClient webChromeClient = new MyWebChromeClient(this);
+        webView.setWebChromeClient(webChromeClient);
+        webView.setWebContentsDebuggingEnabled(true);
 
         // 从上个启动活动获取需要加载的url
         url = intent.getStringExtra("url");
@@ -234,40 +229,30 @@ public class X5Activity extends AppCompatActivity {
 
         // 离线包地址添加cookie
         if(url.startsWith(URLs.H5_DOMAIN) || true) {
-//            CookieSyncManager.createInstance(this);
-//            CookieManager cookieManager = CookieManager.getInstance();
-//
-//            cookieManager.setAcceptCookie(true);
-//            // 跨域CORS的ajax设置允许cookie
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//                cookieManager.setAcceptThirdPartyCookies(webView, true);
-//            }
-//
-//            for (String s : MyCookies.getAll()) {
-//                LogUtil.i("CookieManager: ", s);
-//                cookieManager.setCookie(URLs.H5_DOMAIN, s);
-//                cookieManager.setCookie(URLs.WEB_DOMAIN, s);
-////                cookieManager.setCookie("http://192.168.100.117", s);
-////                cookieManager.setCookie("http://192.168.100.156", s);
-//            }
-//
-//            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-//                LogUtil.i("CookieSyncManager sync");
-//                CookieSyncManager.getInstance().sync();
-//            } else {
-//                LogUtil.i("CookieManager flush");
-//                CookieManager.getInstance().flush();
-//            }
-            XWalkCookieManager cookieManager = new XWalkCookieManager();
+            CookieSyncManager.createInstance(this);
+            CookieManager cookieManager = CookieManager.getInstance();
+
             cookieManager.setAcceptCookie(true);
+            // 跨域CORS的ajax设置允许cookie
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                cookieManager.setAcceptThirdPartyCookies(webView, true);
+            }
+
             for (String s : MyCookies.getAll()) {
                 LogUtil.i("CookieManager: ", s);
                 cookieManager.setCookie(URLs.H5_DOMAIN, s);
                 cookieManager.setCookie(URLs.WEB_DOMAIN, s);
-                cookieManager.setCookie("http://192.168.0.7", s);
-                cookieManager.setCookie("http://192.168.0.66", s);
+//                cookieManager.setCookie("http://192.168.100.117", s);
+//                cookieManager.setCookie("http://192.168.100.156", s);
             }
-            cookieManager.flushCookieStore();
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                LogUtil.i("CookieSyncManager sync");
+                CookieSyncManager.getInstance().sync();
+            } else {
+                LogUtil.i("CookieManager flush");
+                CookieManager.getInstance().flush();
+            }
         }
         webView.loadUrl(url);
     }
@@ -460,8 +445,7 @@ public class X5Activity extends AppCompatActivity {
         super.onStart();
         LogUtil.i("onStart: ", url + ", " + firstRun);
         if(!firstRun) {
-            webView.resumeTimers();
-            webView.onShow();
+            webView.onResume();
 //            webView.getSettings().setJavaScriptEnabled(true);
             webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('resume', " + popWindowParam + ");");
             popWindowParam = null;
@@ -473,8 +457,7 @@ public class X5Activity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        webView.pauseTimers();
-        webView.onHide();
+        webView.onPause();
 //        webView.getSettings().setJavaScriptEnabled(false);
         LogUtil.i("onStop: ", url);
         webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('pause');");
@@ -483,9 +466,9 @@ public class X5Activity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 //        webView.loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
-//        webView.clearHistory();
-//        ((ViewGroup) webView.getParent()).removeView(webView);
-        webView.onDestroy();
+        webView.clearHistory();
+        ((ViewGroup) webView.getParent()).removeView(webView);
+        webView.destroy();
         webView = null;
     }
 

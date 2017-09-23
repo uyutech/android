@@ -6,13 +6,11 @@ import android.view.MotionEvent;
 
 import net.xiguo.test.utils.LogUtil;
 
-import org.xwalk.core.XWalkView;
-
 /**
  * Created by army on 2017/6/12.
  */
 
-public class WebView extends org.xwalk.core.XWalkView {
+public class WebView extends android.webkit.WebView {
     private SwipeRefreshLayout swipeRefreshLayout;
     private boolean isStart = false;
     private float startY;
@@ -24,9 +22,9 @@ public class WebView extends org.xwalk.core.XWalkView {
     public WebView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
-//    public WebView(Context context, AttributeSet attrs, int defStyleAttr) {
-//        super(context, attrs, defStyleAttr);
-//    }
+    public WebView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
 
     public void setSwipeRefreshLayout(SwipeRefreshLayout swipeRefreshLayout) {
         this.swipeRefreshLayout = swipeRefreshLayout;
@@ -69,9 +67,6 @@ public class WebView extends org.xwalk.core.XWalkView {
                 break;
         }
         return super.onTouchEvent(event);
-    }
-    public void reload() {
-        super.reload(XWalkView.RELOAD_NORMAL);
     }
 //    @Override
 //    protected void onScrollChanged(final int l, final int t, final int oldl, final int oldt) {
