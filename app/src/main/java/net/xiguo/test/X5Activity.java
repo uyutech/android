@@ -462,7 +462,7 @@ public class X5Activity extends AppCompatActivity {
         if(!firstRun) {
             webView.resumeTimers();
             webView.onShow();
-            webView.getSettings().setJavaScriptEnabled(true);
+//            webView.getSettings().setJavaScriptEnabled(true);
             webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('resume', " + popWindowParam + ");");
             popWindowParam = null;
         }
@@ -475,7 +475,7 @@ public class X5Activity extends AppCompatActivity {
         super.onStop();
         webView.pauseTimers();
         webView.onHide();
-        webView.getSettings().setJavaScriptEnabled(false);
+//        webView.getSettings().setJavaScriptEnabled(false);
         LogUtil.i("onStop: ", url);
         webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('pause');");
     }

@@ -415,9 +415,8 @@ public class MainActivity extends AppCompatActivity {
 //                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
 //                MainActivity.this.startActivity(intent);
                 Intent intent = new Intent(MainActivity.this, X5Activity.class);
-                String url = URLs.H5_DOMAIN + "redirect.html";
-//                String url = "http://192.168.0.7:8080/redirect.html";
-//                String url = "http://192.168.0.7:8081/index.html";
+//                String url = URLs.H5_DOMAIN + "index.html";
+                String url = "http://army8735.h5.circling.cc/index.html";
                 intent.putExtra("url", url);
                 intent.putExtra("transparentTitle", true);
                 intent.putExtra("hideBackButton", true);
