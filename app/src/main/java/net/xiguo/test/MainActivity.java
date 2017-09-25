@@ -93,8 +93,9 @@ public class MainActivity extends AppCompatActivity {
             LogUtil.i("query: " + uri.getQuery());
             LogUtil.i("param: " + uri.getQueryParameter("key"));
         }
-
-        checkUpdate();
+        unZipH5Pack();
+        showRedirect();
+//        checkUpdate();
     }
 
     private void checkUpdate() {
@@ -415,8 +416,8 @@ public class MainActivity extends AppCompatActivity {
 //                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
 //                MainActivity.this.startActivity(intent);
                 Intent intent = new Intent(MainActivity.this, X5Activity.class);
-//                String url = URLs.H5_DOMAIN + "index.html";
-                String url = "http://army8735.h5.circling.cc/index.html";
+                String url = URLs.H5_DOMAIN + "index.html";
+//                String url = "http://army8735.h5.circling.cc/index.html";
                 intent.putExtra("url", url);
                 intent.putExtra("transparentTitle", true);
                 intent.putExtra("hideBackButton", true);
