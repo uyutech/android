@@ -4,15 +4,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <net.xiguo.test.web.SwipeRefreshLayout
+    <cc.circling.web.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <net.xiguo.test.web.WebView
+        <cc.circling.web.WebView
             android:id="@+id/x5"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
-    </net.xiguo.test.web.SwipeRefreshLayout>
+    </cc.circling.web.SwipeRefreshLayout>
 
     <LinearLayout
         android:orientation="horizontal"

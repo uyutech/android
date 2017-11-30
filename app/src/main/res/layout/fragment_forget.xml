@@ -19,7 +19,7 @@
             android:layout_height="24dp"
             android:src="@drawable/login_phone"
             android:layout_gravity="center"/>
-        <net.xiguo.test.widget.EditTextWithClear
+        <cc.circling.widget.EditTextWithClear
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -37,7 +37,7 @@
             android:maxLength="11"
             android:inputType="phone"
             android:digits="@string/phoneNum">
-        </net.xiguo.test.widget.EditTextWithClear>
+        </cc.circling.widget.EditTextWithClear>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -52,7 +52,7 @@
             android:layout_height="24dp"
             android:src="@drawable/login_pass"
             android:layout_gravity="center"/>
-        <net.xiguo.test.widget.EditTextWithClear
+        <cc.circling.widget.EditTextWithClear
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -94,7 +94,7 @@
                 android:layout_height="24dp"
                 android:src="@drawable/phone_valid"
                 android:layout_gravity="center"/>
-            <net.xiguo.test.widget.EditTextWithClear
+            <cc.circling.widget.EditTextWithClear
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

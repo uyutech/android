@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="net.xiguo.test">
+    package="cc.circling">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -29,7 +29,9 @@
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="zhuanquan"/>
+                <data android:scheme="circling"
+                      android:host="h5.circling.cc"
+                      android:path="/main"/>
             </intent-filter>
         </activity>
         <!--<activity android:name=".LoginActivity" android:screenOrientation="portrait"></activity>-->
