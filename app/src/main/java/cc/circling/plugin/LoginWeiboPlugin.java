@@ -17,17 +17,16 @@ public class LoginWeiboPlugin extends H5Plugin {
     }
 
     @Override
-    public void handle(JSONObject param) {
-        String params = param.toJSONString();
-        LogUtil.i("LoginWeiboPlugin: " + params);
-        clientId = param.getString("clientId");
+    public void handle(JSONObject json) {
+        LogUtil.i("LoginWeiboPlugin: " + json.toJSONString());
+        clientId = json.getString("clientId");
         this.activity.loginWeibo();
     }
 
-    public void success(String openId, String token) {
+    public void success(String openID, String token) {
         JSONObject json = new JSONObject();
         json.put("success", true);
-        json.put("openId", openId);
+        json.put("openID", openID);
         json.put("token", token);
         activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');");
     }

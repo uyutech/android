@@ -34,6 +34,8 @@ public abstract class H5Plugin implements IH5EventHandle {
     public static final String MOVE_TASK_TO_BACK = "moveTaskToBack";
     public static final String OPEN_URI = "openUri";
     public static final String SET_COOKIE = "setCookie";
+    public static final String WEIBO_LOGIN = "weiboLogin";
+    public static final String LOGIN_OUT = "loginOut";
 
     protected X5Activity activity;
 

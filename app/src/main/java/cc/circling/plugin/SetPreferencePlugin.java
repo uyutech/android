@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 import cc.circling.BaseApplication;
 import cc.circling.X5Activity;
 import cc.circling.utils.LogUtil;
+import cc.circling.web.PreferenceEnum;
 
 /**
  * Created by army8735 on 2017/8/6.
@@ -26,7 +27,9 @@ public class SetPreferencePlugin extends H5Plugin {
         if(param != null) {
             String key = param.getString("key");
             String value = param.getString("value");
-            SharedPreferences.Editor editor = BaseApplication.getContext().getSharedPreferences("h5", Context.MODE_PRIVATE).edit();
+            SharedPreferences.Editor editor = BaseApplication
+                    .getContext()
+                    .getSharedPreferences(PreferenceEnum.H5OFF.name(), Context.MODE_PRIVATE).edit();
             LogUtil.i("SetPreferencePlugin: " + (value == null));
             if(value == null) {
                 editor.remove(key);
@@ -35,7 +38,7 @@ public class SetPreferencePlugin extends H5Plugin {
                 editor.putString(key, value);
             }
             editor.apply();
-            activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "',true);");
+            activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "');");
         }
     }
 }

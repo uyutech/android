@@ -19,6 +19,7 @@ import com.alibaba.fastjson.JSONObject;
 import cc.circling.utils.LogUtil;
 import cc.circling.web.MyCookies;
 import cc.circling.web.MyWebViewClient;
+import cc.circling.web.PreferenceEnum;
 import cc.circling.web.URLs;
 
 import java.io.ByteArrayInputStream;
@@ -81,13 +82,13 @@ public class MainActivity extends AppCompatActivity {
             String env = uri.getQueryParameter("env");
             if(env != null) {
                 if(env.equals("dev-online")) {
-                    URLs.H5_DOMAIN = "http://army8735.circling.cc:8080";
-                    URLs.WEB_DOMAIN = "http://dev.circling.cc2";
+                    URLs.H5_DOMAIN = "http://h5.dev.circling.cc2";
+                    URLs.WEB_DOMAIN = "http://army8735.circling.cc:8080";
                     MyWebViewClient.online = true;
                 }
                 else if(env.equals("dev-focus-unzip")) {
                     URLs.H5_DOMAIN = "http://h5.dev.circling.cc2";
-                    URLs.WEB_DOMAIN = "http://dev.circling.cc2";
+                    URLs.WEB_DOMAIN = "http://h5.dev.circling.cc2";
                     hasUnZipPack = false;
                     SharedPreferences.Editor editor = this.getSharedPreferences("h5_package", Context.MODE_PRIVATE).edit();
                     editor.putBoolean("hasUnZip", false);
@@ -95,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else if(env.equals("dev")) {
                     URLs.H5_DOMAIN = "http://h5.dev.circling.cc2";
-                    URLs.WEB_DOMAIN = "http://dev.circling.cc2";
+                    URLs.WEB_DOMAIN = "http://h5.dev.circling.cc2";
                 }
                 else if(env.equals("prod-online")) {
                     MyWebViewClient.online = true;
@@ -122,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
                             .build();
                     RequestBody requestBody = new FormBody.Builder().build();
                     Request request = new Request.Builder()
-                            .url(URLs.CHECK_H5_PACKAGE)
+                            .url(URLs.H5_DOMAIN + "/h5/version")
                             .post(requestBody)
                             .build();
                     Response response = client.newCall(request).execute();
@@ -172,7 +173,6 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                     });
                                 }
-
                                 @Override
                                 public void onResponse(Call call, Response response) throws IOException {
                                     if(response.code() != 200 && response.code() != 304) {
@@ -198,7 +198,6 @@ public class MainActivity extends AppCompatActivity {
                                         sum += len;
                                         int progress = (int) (sum * 1.0f / total * 100);
                                         progressBar.setProgress(progress);
-//                                        LogUtil.i("Download h5zip progress: ", sum + ", " + total + ", " + progress + "");
                                         outStream.write(buffer, 0, len);
                                     }
                                     final ByteArrayInputStream inputStream = new ByteArrayInputStream(outStream.toByteArray());
@@ -259,14 +258,14 @@ public class MainActivity extends AppCompatActivity {
         hasUnZipPack = true;
 
         // 是否已经解压过
-        SharedPreferences sharedPreferences = getSharedPreferences("h5_package", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), MODE_PRIVATE);
         boolean hasUnZip = sharedPreferences.getBoolean("hasUnZip", false);
         LogUtil.i("unZipH5Pack hasUnZip: " + hasUnZip);
         if(hasUnZip) {
             return;
         }
         // 标识已经解压
-        SharedPreferences.Editor editor = this.getSharedPreferences("h5_package", Context.MODE_PRIVATE).edit();
+        SharedPreferences.Editor editor = this.getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), Context.MODE_PRIVATE).edit();
         editor.putBoolean("hasUnZip", true);
         editor.apply();
 
@@ -324,31 +323,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showRedirect(final String data) {
+        progressBar.setProgress(100);
         // 获取已登录信息
-        SharedPreferences sharedPreferences = getSharedPreferences("cookie", MODE_PRIVATE);
-        Map<String, ?> sessionMap = sharedPreferences.getAll();
-        for(String key : sessionMap.keySet()) {
-            String value = sessionMap.get(key).toString();
-            LogUtil.i("cookie: ", key + ", " + value);
-            MyCookies.add(key, value);
-        }
-//        final String sessionid = sharedPreferences.getString(MyCookies.COOKIE_NAME, "");
-//        LogUtil.i("sessionid: ", sessionid);
-//        MyCookies.add("sessionid=" + sessionid);
+        SharedPreferences sharedPreferences = getSharedPreferences(PreferenceEnum.SESSION.name(), MODE_PRIVATE);
+        String session = sharedPreferences.getString(MyCookies.SESSION_NAME, "");
+        MyCookies.add(MyCookies.SESSION_NAME, session);
+        LogUtil.i("sessionid: ", session);
 
         long end = new Date().getTime();
         int time;
-        if(end - timeStart >= 2000) {
+        if(end - timeStart >= 1000) {
             time = 0;
         }
         else {
-            time = 2000 - ((int)(end - timeStart));
+            time = 1000 - ((int)(end - timeStart));
         }
         LogUtil.i("showRedirect: ", time + ", " + data);
         new Handler().postDelayed(new Runnable() {
             public void run() {
                 Intent intent = new Intent(MainActivity.this, X5Activity.class);
-                String url = URLs.H5_DOMAIN + "/index.html";
+                String url = URLs.WEB_DOMAIN + "/index.html";
                 intent.putExtra("url", url);
                 intent.putExtra("transparentTitle", true);
                 intent.putExtra("hideBackButton", true);

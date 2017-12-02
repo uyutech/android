@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -25,8 +26,12 @@ import com.sina.weibo.sdk.auth.WbAuthListener;
 import com.sina.weibo.sdk.auth.WbConnectErrorMessage;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import cc.circling.login.oauth.Constants;
 import cc.circling.plugin.HideOptionMenuPlugin;
+import cc.circling.plugin.LoginOutPlugin;
 import cc.circling.plugin.LoginWeiboPlugin;
 import cc.circling.plugin.GetPreferencePlugin;
 import cc.circling.plugin.MoveTaskToBackPlugin;
@@ -38,6 +43,7 @@ import cc.circling.plugin.SetSubTitlePlugin;
 import cc.circling.plugin.SetTitleBgColorPlugin;
 import cc.circling.plugin.ShowOptionMenuPlugin;
 import cc.circling.plugin.SwipeRefreshPlugin;
+import cc.circling.plugin.WeiboLoginPlugin;
 import cc.circling.utils.AndroidBug5497Workaround;
 import cc.circling.web.MyCookies;
 import cc.circling.web.WebView;
@@ -55,7 +61,6 @@ import cc.circling.plugin.SetTitlePlugin;
 import cc.circling.plugin.ShowBackButtonPlugin;
 import cc.circling.plugin.ShowLoadingPlugin;
 import cc.circling.plugin.ToastPlugin;
-import cc.circling.plugin.UserInfoPlugin;
 import cc.circling.utils.LogUtil;
 import cc.circling.web.MyWebChromeClient;
 import cc.circling.web.MyWebViewClient;
@@ -80,7 +85,6 @@ public class X5Activity extends AppCompatActivity {
     private ConfirmPlugin confirmPlugin;
     private HideBackButtonPlugin hideBackButtonPlugin;
     private ShowBackButtonPlugin showBackButtonPlugin;
-    private UserInfoPlugin userInfoPlugin;
     private SwipeRefreshPlugin swipeRefreshPlugin;
     private LoginWeiboPlugin loginWeiboPlugin;
     private GetPreferencePlugin getPreferencePlugin;
@@ -92,6 +96,8 @@ public class X5Activity extends AppCompatActivity {
     private MoveTaskToBackPlugin moveTaskToBackPlugin;
     private OpenUriPlugin openUriPlugin;
     private SetCookiePlugin setCookiePlugin;
+    private WeiboLoginPlugin weiboLoginPlugin;
+    private LoginOutPlugin loginOutPlugin;
 
     private LinearLayout titleBar;
     private TextView title;
@@ -225,22 +231,29 @@ public class X5Activity extends AppCompatActivity {
         LogUtil.i("url: " + url);
 
         // 离线包地址添加cookie
-        if(url.startsWith(URLs.H5_DOMAIN) || true) {
+        if(url.startsWith(URLs.WEB_DOMAIN) || url.startsWith(URLs.H5_DOMAIN)) {
             CookieSyncManager.createInstance(this);
             CookieManager cookieManager = CookieManager.getInstance();
 
             cookieManager.setAcceptCookie(true);
+            cookieManager.removeExpiredCookie();
+            cookieManager.removeAllCookie();
             // 跨域CORS的ajax设置允许cookie
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 cookieManager.setAcceptThirdPartyCookies(webView, true);
+                cookieManager.removeAllCookies(new ValueCallback<Boolean>() {
+                    @Override
+                    public void onReceiveValue(Boolean value) {
+                    }
+                });
             }
 
-            for (String s : MyCookies.getAll()) {
-                LogUtil.i("CookieManager: ", s);
-                cookieManager.setCookie(URLs.H5_DOMAIN, s);
-                cookieManager.setCookie(URLs.WEB_DOMAIN, s);
-//                cookieManager.setCookie("http://192.168.100.117", s);
-//                cookieManager.setCookie("http://192.168.100.156", s);
+            HashMap<String, String> hashMap = MyCookies.getAll();
+            for(String key : hashMap.keySet()) {
+                String value = hashMap.get(key);
+                LogUtil.i("CookieManager: ", key + ", " + value);
+                cookieManager.setCookie(URLs.WEB_DOMAIN, value);
+                cookieManager.setCookie(URLs.H5_DOMAIN, value);
             }
 
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -291,9 +304,6 @@ public class X5Activity extends AppCompatActivity {
         showBackButtonPlugin = new ShowBackButtonPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.SHOW_BACKBUTTON, showBackButtonPlugin);
 
-        userInfoPlugin = new UserInfoPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.USER_INFO, userInfoPlugin);
-
         swipeRefreshPlugin = new SwipeRefreshPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.SWIPE_REFRESH, swipeRefreshPlugin);
 
@@ -326,6 +336,12 @@ public class X5Activity extends AppCompatActivity {
 
         setCookiePlugin = new SetCookiePlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.SET_COOKIE, setCookiePlugin);
+
+        weiboLoginPlugin = new WeiboLoginPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.WEIBO_LOGIN, weiboLoginPlugin);
+
+        loginOutPlugin = new LoginOutPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.LOGIN_OUT, loginOutPlugin);
     }
 
     public void setDefaultTitle(String s) {
@@ -443,7 +459,6 @@ public class X5Activity extends AppCompatActivity {
         LogUtil.i("onStart: ", url + ", " + firstRun);
         if(!firstRun) {
             webView.onResume();
-//            webView.getSettings().setJavaScriptEnabled(true);
             webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('resume', " + popWindowParam + ");");
             popWindowParam = null;
         }
@@ -455,14 +470,12 @@ public class X5Activity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         webView.onPause();
-//        webView.getSettings().setJavaScriptEnabled(false);
         LogUtil.i("onStop: ", url);
         webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('pause');");
     }
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        webView.loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
         webView.clearHistory();
         ((ViewGroup) webView.getParent()).removeView(webView);
         webView.destroy();
@@ -484,9 +497,11 @@ public class X5Activity extends AppCompatActivity {
         @Override
         public void onSuccess(final Oauth2AccessToken mAccessToken) {
             LogUtil.i("SelfWbAuthListener onSuccess");
-            final String openId = mAccessToken.getUid();
-            final String token = mAccessToken.getToken();
-            loginWeiboPlugin.success(openId, token);
+            if(mAccessToken.isSessionValid()) {
+                final String openId = mAccessToken.getUid();
+                final String token = mAccessToken.getToken();
+                loginWeiboPlugin.success(openId, token);
+            }
         }
 
         @Override

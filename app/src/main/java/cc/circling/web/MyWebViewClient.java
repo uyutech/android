@@ -42,8 +42,8 @@ public class MyWebViewClient extends WebViewClient {
     }
     private WebResourceResponse shouldInterceptRequest(String url) {
         // 离线包地址拦截本地资源
-        if(!online && url.startsWith(URLs.H5_DOMAIN)) {
-            String path = url.substring(URLs.H5_DOMAIN.length());
+        if(!online && url.startsWith(URLs.WEB_DOMAIN)) {
+            String path = url.substring(URLs.WEB_DOMAIN.length());
             // 忽略掉search
             int i = path.indexOf('?');
             if(i > 0) {

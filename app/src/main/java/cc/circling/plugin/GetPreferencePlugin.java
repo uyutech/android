@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 import cc.circling.BaseApplication;
 import cc.circling.X5Activity;
 import cc.circling.utils.LogUtil;
+import cc.circling.web.PreferenceEnum;
 
 /**
  * Created by army8735 on 2017/8/6.
@@ -25,7 +26,7 @@ public class GetPreferencePlugin extends H5Plugin {
         JSONObject param = data.getJSONObject("param");
         if(param != null) {
             String key = param.getString("key");
-            SharedPreferences sharedPreferences = BaseApplication.getContext().getSharedPreferences("h5", Context.MODE_PRIVATE);
+            SharedPreferences sharedPreferences = BaseApplication.getContext().getSharedPreferences(PreferenceEnum.H5OFF.name(), Context.MODE_PRIVATE);
             String value = sharedPreferences.getString(key, "");
             activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + value + "');");
         }
