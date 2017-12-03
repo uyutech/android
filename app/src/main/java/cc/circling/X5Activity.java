@@ -115,6 +115,8 @@ public class X5Activity extends AppCompatActivity {
 
     private SsoHandler mSsoHandler;
 
+    private static CookieManager cookieManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -231,40 +233,45 @@ public class X5Activity extends AppCompatActivity {
         LogUtil.i("url: " + url);
 
         // 离线包地址添加cookie
-        if(url.startsWith(URLs.WEB_DOMAIN) || url.startsWith(URLs.H5_DOMAIN)) {
-            CookieSyncManager.createInstance(this);
-            CookieManager cookieManager = CookieManager.getInstance();
-
-            cookieManager.setAcceptCookie(true);
-            cookieManager.removeExpiredCookie();
-            cookieManager.removeAllCookie();
-            // 跨域CORS的ajax设置允许cookie
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                cookieManager.setAcceptThirdPartyCookies(webView, true);
-                cookieManager.removeAllCookies(new ValueCallback<Boolean>() {
-                    @Override
-                    public void onReceiveValue(Boolean value) {
-                    }
-                });
-            }
-
-            HashMap<String, String> hashMap = MyCookies.getAll();
-            for(String key : hashMap.keySet()) {
-                String value = hashMap.get(key);
-                LogUtil.i("CookieManager: ", key + ", " + value);
-                cookieManager.setCookie(URLs.WEB_DOMAIN, value);
-                cookieManager.setCookie(URLs.H5_DOMAIN, value);
-            }
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                LogUtil.i("CookieSyncManager sync");
-                CookieSyncManager.getInstance().sync();
-            } else {
-                LogUtil.i("CookieManager flush");
-                CookieManager.getInstance().flush();
-            }
-        }
+        syncCookie();
         webView.loadUrl(url);
+    }
+
+    public void syncCookie() {
+        LogUtil.i("syncCookie");
+        CookieSyncManager.createInstance(this);
+        if(cookieManager == null) {
+            cookieManager = CookieManager.getInstance();
+        }
+
+        cookieManager.setAcceptCookie(true);
+        cookieManager.removeExpiredCookie();
+        cookieManager.removeAllCookie();
+        // 跨域CORS的ajax设置允许cookie
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            cookieManager.setAcceptThirdPartyCookies(webView, true);
+            cookieManager.removeAllCookies(new ValueCallback<Boolean>() {
+                @Override
+                public void onReceiveValue(Boolean value) {
+                }
+            });
+        }
+
+        HashMap<String, String> hashMap = MyCookies.getAll();
+        for(String key : hashMap.keySet()) {
+            String value = hashMap.get(key);
+            LogUtil.i("CookieManager: ", key + ", " + value);
+            cookieManager.setCookie(URLs.WEB_DOMAIN, value);
+            cookieManager.setCookie(URLs.H5_DOMAIN, value);
+        }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            LogUtil.i("CookieSyncManager sync");
+            CookieSyncManager.getInstance().sync();
+        } else {
+            LogUtil.i("CookieManager flush");
+            CookieManager.getInstance().flush();
+        }
     }
 
     private void initPlugins() {

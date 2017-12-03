@@ -50,15 +50,13 @@ public class WeiboLoginPlugin extends H5Plugin {
                             .cookieJar(new CookieJar() {
                                 @Override
                                 public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
+                                    SharedPreferences.Editor editor = activity.getSharedPreferences(PreferenceEnum.SESSION.name(), Context.MODE_PRIVATE).edit();
                                     for (Cookie cookie : cookies) {
-                                        LogUtil.i("cookie: " + cookie.toString());
-                                        MyCookies.add(cookie.name(), cookie.value());
-                                        if(cookie.name().equals(MyCookies.SESSION_NAME)) {
-                                            SharedPreferences.Editor editor = activity.getSharedPreferences(PreferenceEnum.SESSION.name(), Context.MODE_PRIVATE).edit();
-                                            editor.putString(MyCookies.SESSION_NAME, cookie.toString());
-                                            editor.apply();
-                                        }
+                                        LogUtil.i("cookie string: " + cookie.toString());
+                                        MyCookies.add(cookie.name(), cookie.toString());
+                                        editor.putString(cookie.name(), cookie.toString());
                                     }
+                                    editor.apply();
                                 }
                                 @Override
                                 public List<Cookie> loadForRequest(HttpUrl url) {
@@ -96,6 +94,7 @@ public class WeiboLoginPlugin extends H5Plugin {
                         activity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                activity.syncCookie();
                                 activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + responseBody + "');");
                             }
                         });

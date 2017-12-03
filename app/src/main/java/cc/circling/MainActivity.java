@@ -326,9 +326,12 @@ public class MainActivity extends AppCompatActivity {
         progressBar.setProgress(100);
         // 获取已登录信息
         SharedPreferences sharedPreferences = getSharedPreferences(PreferenceEnum.SESSION.name(), MODE_PRIVATE);
-        String session = sharedPreferences.getString(MyCookies.SESSION_NAME, "");
-        MyCookies.add(MyCookies.SESSION_NAME, session);
-        LogUtil.i("sessionid: ", session);
+        Map<String, ?> map = sharedPreferences.getAll();
+        for(String key : map.keySet()) {
+            String cookie = map.get(key).toString();
+            MyCookies.add(key, cookie);
+            LogUtil.i(key, cookie);
+        }
 
         long end = new Date().getTime();
         int time;

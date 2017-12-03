@@ -8,7 +8,6 @@ import java.util.HashMap;
  */
 
 public class MyCookies {
-    public static final String SESSION_NAME = "sessionid";
 
     private static HashMap<String, String> cookieMap = new HashMap<>();
 
@@ -20,6 +19,9 @@ public class MyCookies {
     }
     public static String get(String key) {
         return cookieMap.get(key);
+    }
+    public static String remove(String key) {
+        return cookieMap.remove(key);
     }
     public static HashMap<String, String> getAll() {
         return cookieMap;
