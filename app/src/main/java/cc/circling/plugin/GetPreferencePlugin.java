@@ -23,11 +23,12 @@ public class GetPreferencePlugin extends H5Plugin {
     public void handle(JSONObject data) {
         LogUtil.i("GetPreferencePlugin: " + data.toJSONString());
         String clientId = data.getString("clientId");
-        JSONObject param = data.getJSONObject("param");
-        if(param != null) {
-            String key = param.getString("key");
+        String param = data.getString("param");
+        if(param != null && !param.equals("")) {
+            LogUtil.i("GetPreferencePlugin k: " + param);
             SharedPreferences sharedPreferences = BaseApplication.getContext().getSharedPreferences(PreferenceEnum.H5OFF.name(), Context.MODE_PRIVATE);
-            String value = sharedPreferences.getString(key, "");
+            String value = sharedPreferences.getString(param, "");
+            LogUtil.i("GetPreferencePlugin v: " + value);
             activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + value + "');");
         }
     }

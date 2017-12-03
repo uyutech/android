@@ -31,10 +31,8 @@ public class SetPreferencePlugin extends H5Plugin {
                     .getContext()
                     .getSharedPreferences(PreferenceEnum.H5OFF.name(), Context.MODE_PRIVATE).edit();
             LogUtil.i("SetPreferencePlugin: " + (value == null));
-            if(value == null) {
-                editor.remove(key);
-            }
-            else {
+            editor.remove(key);
+            if(value != null) {
                 editor.putString(key, value);
             }
             editor.apply();

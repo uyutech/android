@@ -54,6 +54,7 @@
             var func = callbackHash[clientId];
             setTimeout(function() {
                 func(resp);
+                delete callbackHash[clientId];
             }, 1);
         }
     };
