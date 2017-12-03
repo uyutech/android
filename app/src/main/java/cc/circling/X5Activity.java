@@ -399,7 +399,7 @@ public class X5Activity extends AppCompatActivity {
         int color = Color.parseColor(backgroundColor);
         LogUtil.i("backgroundColor ", color + "");
         titleBar.setBackgroundColor(color);
-        // 透明则可点击
+        // 透明则可点穿
         if(backgroundColor.length() == 9 && backgroundColor.substring(1, 3).equals("00")) {
             titleBar.setClickable(false);
         }

@@ -3,6 +3,13 @@
         return;
     }
 
+    var toString = {}.toString;
+    function isType(type) {
+      return function(obj) {
+        return toString.call(obj) == '[object ' + type + ']';
+      }
+    }
+
     var console = window.console;
     var log = console.log;
     var postMessage = function(msg) {
@@ -48,7 +55,7 @@
         },
         _invokeJS: function(clientId, resp) {
             console.log("_invokeJS: " + clientId + ", " + resp);
-            if(resp !== undefined) {
+            if(resp !== undefined && !isType('string')) {
                 resp = JSON.parse(resp);
             }
             var func = callbackHash[clientId];

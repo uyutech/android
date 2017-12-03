@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                     URLs.H5_DOMAIN = "http://h5.dev.circling.cc2";
                     URLs.WEB_DOMAIN = "http://h5.dev.circling.cc2";
                     hasUnZipPack = false;
-                    SharedPreferences.Editor editor = this.getSharedPreferences("h5_package", Context.MODE_PRIVATE).edit();
+                    SharedPreferences.Editor editor = this.getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), Context.MODE_PRIVATE).edit();
                     editor.putBoolean("hasUnZip", false);
                     editor.apply();
                 }
@@ -145,11 +145,11 @@ public class MainActivity extends AppCompatActivity {
                     if(success) {
                         int version = json.getIntValue("version");
                         // 获取本地版本信息
-                        SharedPreferences sharedPreferences = getSharedPreferences("h5_package", MODE_PRIVATE);
+                        SharedPreferences sharedPreferences = getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), MODE_PRIVATE);
                         final int curVersion = sharedPreferences.getInt("version", 0);
                         LogUtil.i("checkUpdate version: ", version + ", " + curVersion);
                         if(curVersion < version) {
-                            SharedPreferences.Editor editor = MainActivity.this.getSharedPreferences("h5_package", Context.MODE_PRIVATE).edit();
+                            SharedPreferences.Editor editor = MainActivity.this.getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), Context.MODE_PRIVATE).edit();
                             editor.putInt("version", version);
                             editor.putBoolean("hasUnZip", false);
                             editor.apply();
