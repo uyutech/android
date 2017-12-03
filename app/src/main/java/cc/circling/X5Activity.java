@@ -148,8 +148,19 @@ public class X5Activity extends AppCompatActivity {
         LogUtil.i("backgroundColor ", backgroundColor);
         if(backgroundColor != null && backgroundColor.length() > 0) {
             int color = Color.parseColor(backgroundColor);
-            LogUtil.i("backgroundColor ", color + "");
             webView.setBackgroundColor(color);
+        }
+
+        // title
+        String sTitle = intent.getStringExtra("title");
+        String sSubTitle = intent.getStringExtra("subTitle");
+        LogUtil.i("title", sTitle);
+        LogUtil.i("subTitle", sSubTitle);
+        if(sTitle != null && sTitle.length() > 0) {
+            title.setText(sTitle);
+        }
+        if(sSubTitle != null && sSubTitle.length() > 0) {
+            subTitle.setText(sSubTitle);
         }
 
         // titleBgColor
@@ -402,6 +413,8 @@ public class X5Activity extends AppCompatActivity {
         intent.putExtra("url", url);
         intent.putExtra("backgroundColor", params.getString("backgroundColor"));
         intent.putExtra("transparentTitle", params.getBooleanValue("transparentTitle"));
+        intent.putExtra("title", params.getString("title"));
+        intent.putExtra("subTitle", params.getString("subTitle"));
         intent.putExtra("titleBgColor", params.getString("titleBgColor"));
         intent.putExtra("hideBackButton", params.getBooleanValue("hideBackButton"));
         intent.putExtra("readTitle", params.getBooleanValue("readTitle"));
