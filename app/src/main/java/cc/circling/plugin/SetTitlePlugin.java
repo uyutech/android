@@ -16,8 +16,9 @@ public class SetTitlePlugin extends H5Plugin {
     }
 
     @Override
-    public void handle(JSONObject data) {
-        String title = data.getString("param");
+    public void handle(JSONObject json) {
+        LogUtil.i("SetTitlePlugin: " + json.toJSONString());
+        String title = json.getString("param");
         LogUtil.i("SetTitlePlugin: " + title);
         this.activity.setTitle(title);
     }

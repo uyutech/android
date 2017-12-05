@@ -16,9 +16,9 @@ public class SetTitleBgColorPlugin extends H5Plugin {
     }
 
     @Override
-    public void handle(JSONObject data) {
-        LogUtil.i("SetTitleBgColorPlugin: " + data.toJSONString());
-        String param = data.getString("param");
+    public void handle(JSONObject json) {
+        LogUtil.i("SetTitleBgColorPlugin: " + json.toJSONString());
+        String param = json.getString("param");
         activity.setTitleBgColor(param);
     }
 }

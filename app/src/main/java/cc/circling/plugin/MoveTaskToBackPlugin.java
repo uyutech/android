@@ -16,8 +16,8 @@ public class MoveTaskToBackPlugin extends H5Plugin {
     }
 
     @Override
-    public void handle(JSONObject data) {
-        LogUtil.i("MoveTaskToBackPlugin: " + data.toJSONString());
+    public void handle(JSONObject json) {
+        LogUtil.i("MoveTaskToBackPlugin: " + json.toJSONString());
         activity.moveTaskToBack(true);
     }
 }

@@ -15,9 +15,8 @@ public class ShowBackButtonPlugin extends H5Plugin {
     }
 
     @Override
-    public void handle(JSONObject param) {
-        String params = param.toJSONString();
-        LogUtil.i("ShowBackButtonPlugin: " + params);
+    public void handle(JSONObject json) {
+        LogUtil.i("ShowBackButtonPlugin: " + json.toJSONString());
         this.activity.showBackButton();
     }
 }

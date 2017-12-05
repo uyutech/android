@@ -18,10 +18,9 @@ public class ToastPlugin extends H5Plugin {
         super(activity);
     }
     @Override
-    public void handle(JSONObject param) {
-        String params = param.toJSONString();
-        LogUtil.i("ToastPlugin: " + params);
-        String s = param.getString("param");
+    public void handle(JSONObject json) {
+        LogUtil.i("ToastPlugin: " + json.toJSONString());
+        String s = json.getString("param");
         Toast toast = Toast.makeText(this.activity, s, Toast.LENGTH_SHORT);
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();

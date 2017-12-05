@@ -15,9 +15,8 @@ public class ShowOptionMenuPlugin extends H5Plugin {
         super(activity);
     }
     @Override
-    public void handle(JSONObject param) {
-        String params = param.toJSONString();
-        LogUtil.i("ShowOptionMenuPlugin: " + params);
+    public void handle(JSONObject json) {
+        LogUtil.i("ShowOptionMenuPlugin: " + json.toJSONString());
         activity.showOptionMenu();
     }
 }

@@ -15,9 +15,9 @@ public class SetOptionMenuPlugin extends H5Plugin {
         super(activity);
     }
     @Override
-    public void handle(JSONObject data) {
-        LogUtil.i("SetOptionMenuPlugin: " + data.toJSONString());
-        JSONObject param = data.getJSONObject("param");
+    public void handle(JSONObject json) {
+        LogUtil.i("SetOptionMenuPlugin: " + json.toJSONString());
+        JSONObject param = json.getJSONObject("param");
         if(param != null) {
             String text = param.getString("text");
             if(text != null && text.length() > 0) {

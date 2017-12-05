@@ -16,10 +16,9 @@ public class BackPlugin extends H5Plugin {
     }
 
     @Override
-    public void handle(JSONObject param) {
-        String params = param.toJSONString();
-        LogUtil.i("BackPlugin: " + params);
-        JSONObject p = param.getJSONObject("param");
+    public void handle(JSONObject json) {
+        LogUtil.i("BackPlugin: " + json.toJSONString());
+        JSONObject p = json.getJSONObject("param");
         if(p != null) {
             boolean prevent = p.getBoolean("prevent");
             if(!prevent) {

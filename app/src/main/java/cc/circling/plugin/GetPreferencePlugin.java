@@ -20,10 +20,10 @@ public class GetPreferencePlugin extends H5Plugin {
         super(activity);
     }
     @Override
-    public void handle(JSONObject data) {
-        LogUtil.i("GetPreferencePlugin: " + data.toJSONString());
-        String clientId = data.getString("clientId");
-        String param = data.getString("param");
+    public void handle(JSONObject json) {
+        LogUtil.i("GetPreferencePlugin: " + json.toJSONString());
+        String clientId = json.getString("clientId");
+        String param = json.getString("param");
         if(param != null && !param.equals("")) {
             LogUtil.i("GetPreferencePlugin k: " + param);
             SharedPreferences sharedPreferences = BaseApplication.getContext().getSharedPreferences(PreferenceEnum.H5OFF.name(), Context.MODE_PRIVATE);

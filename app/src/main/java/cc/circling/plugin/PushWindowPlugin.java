@@ -17,10 +17,10 @@ public class PushWindowPlugin extends H5Plugin {
 
     @Override
     public void handle(JSONObject json) {
+        LogUtil.i("PopWindowPlugin: " + json.toJSONString());
         JSONObject param = json.getJSONObject("param");
         String url = param.getString("url");
         JSONObject params = param.getJSONObject("params");
-        LogUtil.i("PushWindowPlugin: " + url + "," + params.toJSONString());
         this.activity.pushWindow(url, params);
     }
 }

@@ -15,9 +15,8 @@ public class HideBackButtonPlugin extends H5Plugin {
     }
 
     @Override
-    public void handle(JSONObject param) {
-        String params = param.toJSONString();
-        LogUtil.i("HideBackButtonPlugin: " + params);
+    public void handle(JSONObject json) {
+        LogUtil.i("HideBackButtonPlugin: " + json.toJSONString());
         this.activity.hideBackButton();
     }
 }

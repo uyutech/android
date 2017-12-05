@@ -20,10 +20,10 @@ public class SetPreferencePlugin extends H5Plugin {
         super(activity);
     }
     @Override
-    public void handle(JSONObject data) {
-        LogUtil.i("SetPreferencePlugin: " + data.toJSONString());
-        String clientId = data.getString("clientId");
-        JSONObject param = data.getJSONObject("param");
+    public void handle(JSONObject json) {
+        LogUtil.i("SetPreferencePlugin: " + json.toJSONString());
+        String clientId = json.getString("clientId");
+        JSONObject param = json.getJSONObject("param");
         if(param != null) {
             String key = param.getString("key");
             String value = param.getString("value");

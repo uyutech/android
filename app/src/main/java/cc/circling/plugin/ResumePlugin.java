@@ -15,8 +15,7 @@ public class ResumePlugin extends H5Plugin {
     }
 
     @Override
-    public void handle(JSONObject param) {
-        String params = param.toJSONString();
-        LogUtil.i("ResumePlugin: " + params);
+    public void handle(JSONObject json) {
+        LogUtil.i("ResumePlugin: " + json.toJSONString());
     }
 }

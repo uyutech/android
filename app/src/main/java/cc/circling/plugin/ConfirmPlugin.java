@@ -25,7 +25,7 @@ public class ConfirmPlugin extends H5Plugin {
         if(p != null) {
             String title = p.getString("title");
             String message = p.getString("message");
-            AlertDialog.Builder dialog = new AlertDialog.Builder(this.activity);
+            AlertDialog.Builder dialog = new AlertDialog.Builder(activity);
             dialog.setTitle(title);
             dialog.setMessage(message);
             dialog.setCancelable(false);

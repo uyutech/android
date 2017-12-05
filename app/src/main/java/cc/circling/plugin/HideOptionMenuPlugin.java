@@ -15,9 +15,8 @@ public class HideOptionMenuPlugin extends H5Plugin {
         super(activity);
     }
     @Override
-    public void handle(JSONObject param) {
-        String params = param.toJSONString();
-        LogUtil.i("HideOptionMenuPlugin: " + params);
+    public void handle(JSONObject json) {
+        LogUtil.i("HideOptionMenuPlugin: " + json.toJSONString());
         activity.hideOptionMenu();
     }
 }
