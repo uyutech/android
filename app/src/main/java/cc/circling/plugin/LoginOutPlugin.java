@@ -27,7 +27,7 @@ public class LoginOutPlugin extends H5Plugin {
 
     @Override
     public void handle(JSONObject json) {
-        LogUtil.i("WeiboLoginPlugin: " + json.toJSONString());
+        LogUtil.i("LoginOutPlugin: " + json.toJSONString());
         clientId = json.getString("clientId");
         SharedPreferences sharedPreferences = activity.getSharedPreferences(PreferenceEnum.SESSION.name(), MODE_PRIVATE);
         SharedPreferences.Editor editor = activity

@@ -35,6 +35,7 @@ import cc.circling.plugin.LoginOutPlugin;
 import cc.circling.plugin.LoginWeiboPlugin;
 import cc.circling.plugin.GetPreferencePlugin;
 import cc.circling.plugin.MoveTaskToBackPlugin;
+import cc.circling.plugin.NotificationPlugin;
 import cc.circling.plugin.OpenUriPlugin;
 import cc.circling.plugin.SetOptionMenuPlugin;
 import cc.circling.plugin.SetPreferencePlugin;
@@ -98,6 +99,7 @@ public class X5Activity extends AppCompatActivity {
     private SetCookiePlugin setCookiePlugin;
     private WeiboLoginPlugin weiboLoginPlugin;
     private LoginOutPlugin loginOutPlugin;
+    private NotificationPlugin notificationPlugin;
 
     private LinearLayout titleBar;
     private TextView title;
@@ -125,9 +127,9 @@ public class X5Activity extends AppCompatActivity {
 
         Intent intent = getIntent();
         // 标题栏是否为透明
-        boolean transparentTitle = intent.getBooleanExtra("transparentTitle", false);
+        String transparentTitle = intent.getStringExtra("transparentTitle");
         LogUtil.i("transparentTitle ", transparentTitle + "");
-        if(transparentTitle) {
+        if(transparentTitle != null && transparentTitle.equals("true")) {
             setContentView(R.layout.activity_x5_transparent);
         }
         else {
@@ -171,9 +173,9 @@ public class X5Activity extends AppCompatActivity {
         }
 
         // 是否隐藏back键
-        boolean hideBackButton = intent.getBooleanExtra("hideBackButton", false);
+        String hideBackButton = intent.getStringExtra("hideBackButton");
         LogUtil.i("hideBackButton ", hideBackButton + "");
-        if(hideBackButton) {
+        if(hideBackButton != null && hideBackButton.equals("true")) {
             back.setVisibility(View.GONE);
         }
         else {
@@ -189,9 +191,9 @@ public class X5Activity extends AppCompatActivity {
         });
 
         // 是否显示optionMenu
-        boolean showOptionMenu = intent.getBooleanExtra("showOptionMenu", false);
+        String showOptionMenu = intent.getStringExtra("showOptionMenu");
         LogUtil.i("showOptionMenu ", showOptionMenu + "");
-        if(showOptionMenu) {
+        if(showOptionMenu != null && showOptionMenu.equals("")) {
             optionMenuText.setVisibility(View.VISIBLE);
         }
         else {
@@ -206,9 +208,9 @@ public class X5Activity extends AppCompatActivity {
         });
 
         // 是否读取网页标题
-        boolean readTitle = intent.getBooleanExtra("readTitle", false);
+        String readTitle = intent.getStringExtra("readTitle");
         LogUtil.i("readTitle ", readTitle + "");
-        this.readTitle = readTitle;
+        this.readTitle = readTitle != null && readTitle.equals("true");
 
         initPlugins();
         firstRun = true;
@@ -218,6 +220,7 @@ public class X5Activity extends AppCompatActivity {
         webSettings.setUserAgentString(ua + " app/ZhuanQuan");
         webSettings.setJavaScriptEnabled(true);
         webSettings.setAllowFileAccess(true);
+        webSettings.setDomStorageEnabled(true);
         // 支持缩放viewport
         webSettings.setUseWideViewPort(true);
 //        webSettings.setLoadWithOverviewMode(true);
@@ -240,12 +243,17 @@ public class X5Activity extends AppCompatActivity {
         webView.setWebContentsDebuggingEnabled(true);
 
         // 从上个启动活动获取需要加载的url
-        url = intent.getStringExtra("url");
-        LogUtil.i("url: " + url);
+        url = intent.getStringExtra("__url__");
+        LogUtil.i("__url__: " + url);
 
         // 离线包地址添加cookie
         syncCookie();
-        webView.loadUrl(url);
+        if(url != null && !url.equals("")) {
+            webView.loadUrl(url);
+        }
+        else {
+            webView.loadUrl("about:blank");
+        }
     }
 
     public void syncCookie() {
@@ -360,6 +368,9 @@ public class X5Activity extends AppCompatActivity {
 
         loginOutPlugin = new LoginOutPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.LOGIN_OUT, loginOutPlugin);
+
+        notificationPlugin = new NotificationPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.NOTIFY, notificationPlugin);
     }
 
     public void setDefaultTitle(String s) {
@@ -410,14 +421,11 @@ public class X5Activity extends AppCompatActivity {
     public void pushWindow(String url, JSONObject params) {
         LogUtil.i("pushWindow: " + url + "," + params.toJSONString());
         Intent intent = new Intent(X5Activity.this, X5Activity.class);
-        intent.putExtra("url", url);
-        intent.putExtra("backgroundColor", params.getString("backgroundColor"));
-        intent.putExtra("transparentTitle", params.getBooleanValue("transparentTitle"));
-        intent.putExtra("title", params.getString("title"));
-        intent.putExtra("subTitle", params.getString("subTitle"));
-        intent.putExtra("titleBgColor", params.getString("titleBgColor"));
-        intent.putExtra("hideBackButton", params.getBooleanValue("hideBackButton"));
-        intent.putExtra("readTitle", params.getBooleanValue("readTitle"));
+        intent.putExtra("__url__", url);
+        for(String key : params.keySet()) {
+            String value = params.getString(key);
+            intent.putExtra(key, value);
+        }
         startActivityForResult(intent, 8735);
     }
     public WebView getWebView() {
@@ -516,7 +524,7 @@ public class X5Activity extends AppCompatActivity {
     private class SelfWbAuthListener implements WbAuthListener {
         @Override
         public void onSuccess(final Oauth2AccessToken mAccessToken) {
-            LogUtil.i("SelfWbAuthListener onSuccess");
+            LogUtil.i("SelfWbAuthListener onSuccess", mAccessToken.isSessionValid() + "");
             if(mAccessToken.isSessionValid()) {
                 final String openId = mAccessToken.getUid();
                 final String token = mAccessToken.getToken();

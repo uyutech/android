@@ -36,6 +36,7 @@ public abstract class H5Plugin implements IH5EventHandle {
     public static final String SET_COOKIE = "setCookie";
     public static final String WEIBO_LOGIN = "weiboLogin";
     public static final String LOGIN_OUT = "loginOut";
+    public static final String NOTIFY = "notify";
 
     protected X5Activity activity;
 

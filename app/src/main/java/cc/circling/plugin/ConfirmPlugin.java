@@ -18,11 +18,10 @@ public class ConfirmPlugin extends H5Plugin {
     }
 
     @Override
-    public void handle(JSONObject param) {
-        String params = param.toJSONString();
-        LogUtil.i("ConfirmPlugin: " + params);
-        final String clientId = param.getString("clientId");
-        JSONObject p = param.getJSONObject("param");
+    public void handle(JSONObject json) {
+        LogUtil.i("ConfirmPlugin: " + json.toJSONString());
+        final String clientId = json.getString("clientId");
+        JSONObject p = json.getJSONObject("param");
         if(p != null) {
             String title = p.getString("title");
             String message = p.getString("message");

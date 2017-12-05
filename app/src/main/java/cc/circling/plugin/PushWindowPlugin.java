@@ -16,8 +16,8 @@ public class PushWindowPlugin extends H5Plugin {
     }
 
     @Override
-    public void handle(JSONObject data) {
-        JSONObject param = data.getJSONObject("param");
+    public void handle(JSONObject json) {
+        JSONObject param = json.getJSONObject("param");
         String url = param.getString("url");
         JSONObject params = param.getJSONObject("params");
         LogUtil.i("PushWindowPlugin: " + url + "," + params.toJSONString());

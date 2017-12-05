@@ -346,9 +346,9 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 Intent intent = new Intent(MainActivity.this, X5Activity.class);
                 String url = URLs.WEB_DOMAIN + "/index.html";
-                intent.putExtra("url", url);
-                intent.putExtra("transparentTitle", true);
-                intent.putExtra("hideBackButton", true);
+                intent.putExtra("__url__", url);
+                intent.putExtra("transparentTitle", "true");
+                intent.putExtra("hideBackButton", "true");
                 startActivity(intent);
                 MainActivity.this.finish();
             }
