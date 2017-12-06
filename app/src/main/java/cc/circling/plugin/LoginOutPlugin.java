@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.alibaba.fastjson.JSONObject;
+import com.umeng.analytics.MobclickAgent;
 
 import java.util.Map;
 
@@ -42,5 +43,11 @@ public class LoginOutPlugin extends H5Plugin {
         editor.apply();
         activity.syncCookie();
         activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "');");
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                MobclickAgent.onProfileSignOff();
+            }
+        });
     }
 }

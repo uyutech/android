@@ -3,7 +3,9 @@ package cc.circling.plugin;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.umeng.analytics.MobclickAgent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,13 +40,12 @@ public class WeiboLoginPlugin extends H5Plugin {
         LogUtil.i("WeiboLoginPlugin: " + json.toJSONString());
         final String clientId = json.getString("clientId");
         final JSONObject param = json.getJSONObject("param");
-        if(param != null) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    LogUtil.i("weiboLogin run");
-                    try {
-                        OkHttpClient client = new OkHttpClient
+        if(param != null) new Thread(new Runnable() {
+            @Override
+            public void run() {
+                LogUtil.i("weiboLogin run");
+                try {
+                    OkHttpClient client = new OkHttpClient
                             .Builder()
                             .cookieJar(new CookieJar() {
                                 @Override
@@ -57,49 +58,31 @@ public class WeiboLoginPlugin extends H5Plugin {
                                     }
                                     editor.apply();
                                 }
+
                                 @Override
                                 public List<Cookie> loadForRequest(HttpUrl url) {
                                     return new ArrayList<>();
                                 }
                             })
                             .build();
-                        FormBody.Builder bodyBuilder = new FormBody.Builder();
-                        Set<String> keys = param.keySet();
-                        for(String key : keys) {
-                            String value = param.getString(key);
-                            bodyBuilder.add(key, value);
-                            LogUtil.i("param: " + key + ", " + value);
-                        }
-                        RequestBody requestBody = bodyBuilder.build();
-                        Request request = new Request.Builder()
-                                .addHeader("origin", URLs.WEB_DOMAIN)
-                                .url(URLs.H5_DOMAIN + "/h5/oauth/weibo")
-                                .post(requestBody)
-                                .build();
-                        LogUtil.i("weiboLogin: " + URLs.H5_DOMAIN + "/h5/oauth/weibo");
-                        Response response = client.newCall(request).execute();
-                        final String responseBody = response.body().string();
-                        LogUtil.i("weiboLogin: " + responseBody);
-                        if(responseBody.isEmpty()) {
-                            activity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    JSONObject json = new JSONObject();
-                                    json.put("success", false);
-                                    activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');");
-                                }
-                            });
-                        }
-                        activity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                activity.syncCookie();
-                                activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + responseBody + "');");
-                            }
-                        });
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        LogUtil.i("weiboLogin exception", e.toString());
+                    FormBody.Builder bodyBuilder = new FormBody.Builder();
+                    Set<String> keys = param.keySet();
+                    for (String key : keys) {
+                        String value = param.getString(key);
+                        bodyBuilder.add(key, value);
+                        LogUtil.i("param: " + key + ", " + value);
+                    }
+                    RequestBody requestBody = bodyBuilder.build();
+                    Request request = new Request.Builder()
+                            .addHeader("origin", URLs.WEB_DOMAIN)
+                            .url(URLs.H5_DOMAIN + "/h5/oauth/weibo")
+                            .post(requestBody)
+                            .build();
+                    LogUtil.i("weiboLogin: " + URLs.H5_DOMAIN + "/h5/oauth/weibo");
+                    Response response = client.newCall(request).execute();
+                    final String responseBody = response.body().string();
+                    LogUtil.i("weiboLogin: " + responseBody);
+                    if (responseBody.isEmpty()) {
                         activity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -109,8 +92,34 @@ public class WeiboLoginPlugin extends H5Plugin {
                             }
                         });
                     }
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            activity.syncCookie();
+                            JSONObject json = JSONObject.parseObject(responseBody);
+                            if (json.getBoolean("success")) {
+                                JSONObject userInfo = json.getJSONObject("userInfo");
+                                if (userInfo != null) {
+                                    String id = userInfo.getString("ID");
+                                    MobclickAgent.onProfileSignIn(id);
+                                }
+                            }
+                            activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + responseBody + "');");
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    LogUtil.i("weiboLogin exception", e.toString());
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            JSONObject json = new JSONObject();
+                            json.put("success", false);
+                            activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');");
+                        }
+                    });
                 }
-            }).start();
-        }
+            }
+        }).start();
     }
 }

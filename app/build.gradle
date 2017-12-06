@@ -24,7 +24,7 @@ android {
 }
 
 dependencies {
-//    compile fileTree(dir: 'libs', include: ['*.jar'])
+    //    compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
@@ -34,6 +34,7 @@ dependencies {
     compile 'com.alibaba:fastjson:1.1.56.android'
     compile 'com.squareup.okhttp3:okhttp:3.8.0'
     compile 'com.sina.weibo.sdk:core:4.1.4:openDefaultRelease@aar'
-//    compile files('libs/tbs_sdk_thirdapp_v3.2.0.1104_43200_sharewithdownload_withfilereader_withoutGame_obfs_20170609_115346.jar')
+    compile 'com.umeng.analytics:analytics:latest.integration'
+    //    compile files('libs/tbs_sdk_thirdapp_v3.2.0.1104_43200_sharewithdownload_withfilereader_withoutGame_obfs_20170609_115346.jar')
     testCompile 'junit:junit:4.12'
 }

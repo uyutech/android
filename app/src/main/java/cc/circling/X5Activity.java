@@ -31,6 +31,7 @@ import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.auth.WbAuthListener;
 import com.sina.weibo.sdk.auth.WbConnectErrorMessage;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
+import com.umeng.analytics.MobclickAgent;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -579,6 +580,18 @@ public class X5Activity extends AppCompatActivity {
         else {
             firstRun = false;
         }
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart(url);
+        MobclickAgent.onResume(this);
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd(url);
+        MobclickAgent.onPause(this);
     }
     @Override
     protected void onStop() {
