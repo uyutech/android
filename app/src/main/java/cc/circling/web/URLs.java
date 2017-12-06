@@ -6,5 +6,5 @@ package cc.circling.web;
 
 public class URLs {
     public static String WEB_DOMAIN = "http://h5.circling.cc";
-    public static String H5_DOMAIN = "http://h5.circling.cc";
+    public static String H5_DOMAIN = "http://circling.cc";
 }

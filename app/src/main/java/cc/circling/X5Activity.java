@@ -46,6 +46,7 @@ import cc.circling.plugin.GetPreferencePlugin;
 import cc.circling.plugin.MoveTaskToBackPlugin;
 import cc.circling.plugin.NotificationPlugin;
 import cc.circling.plugin.OpenUriPlugin;
+import cc.circling.plugin.PromptPlugin;
 import cc.circling.plugin.SetOptionMenuPlugin;
 import cc.circling.plugin.SetPreferencePlugin;
 import cc.circling.plugin.SetCookiePlugin;
@@ -112,6 +113,7 @@ public class X5Activity extends AppCompatActivity {
     private LoginOutPlugin loginOutPlugin;
     private NotificationPlugin notificationPlugin;
     private AlbumPlugin albumPlugin;
+    private PromptPlugin promptPlugin;
 
     private LinearLayout titleBar;
     private TextView title;
@@ -233,6 +235,7 @@ public class X5Activity extends AppCompatActivity {
         webSettings.setJavaScriptEnabled(true);
         webSettings.setAllowFileAccess(true);
         webSettings.setDomStorageEnabled(true);
+        webSettings.setTextZoom(100);
         // 支持缩放viewport
         webSettings.setUseWideViewPort(true);
 //        webSettings.setLoadWithOverviewMode(true);
@@ -386,6 +389,9 @@ public class X5Activity extends AppCompatActivity {
 
         albumPlugin = new AlbumPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.ALBUM, albumPlugin);
+
+        promptPlugin = new PromptPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.PROMPT, promptPlugin);
     }
 
     public void setDefaultTitle(String s) {
@@ -543,6 +549,7 @@ public class X5Activity extends AppCompatActivity {
                         } catch(IOException e) {
                             e.printStackTrace();
                         } finally {
+                            bitmap.recycle();
                             try {
                                 if(baos != null) {
                                     baos.close();

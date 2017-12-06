@@ -82,12 +82,12 @@ public class MainActivity extends AppCompatActivity {
             String env = uri.getQueryParameter("env");
             if(env != null) {
                 if(env.equals("dev-online")) {
-                    URLs.H5_DOMAIN = "http://h5.dev.circling.cc2";
+                    URLs.H5_DOMAIN = "http://dev.circling.cc2";
                     URLs.WEB_DOMAIN = "http://army8735.circling.cc:8080";
                     MyWebViewClient.online = true;
                 }
                 else if(env.equals("dev-focus-unzip")) {
-                    URLs.H5_DOMAIN = "http://h5.dev.circling.cc2";
+                    URLs.H5_DOMAIN = "http://dev.circling.cc2";
                     URLs.WEB_DOMAIN = "http://h5.dev.circling.cc2";
                     hasUnZipPack = false;
                     SharedPreferences.Editor editor = this.getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), Context.MODE_PRIVATE).edit();
@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
                     editor.apply();
                 }
                 else if(env.equals("dev")) {
-                    URLs.H5_DOMAIN = "http://h5.dev.circling.cc2";
+                    URLs.H5_DOMAIN = "http://dev.circling.cc2";
                     URLs.WEB_DOMAIN = "http://h5.dev.circling.cc2";
                 }
                 else if(env.equals("prod-online")) {
@@ -108,6 +108,9 @@ public class MainActivity extends AppCompatActivity {
             else {
                 checkUpdate();
             }
+        }
+        else {
+            checkUpdate();
         }
     }
 
