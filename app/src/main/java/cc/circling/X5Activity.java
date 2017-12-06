@@ -1,11 +1,17 @@
 package cc.circling;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,10 +32,13 @@ import com.sina.weibo.sdk.auth.WbAuthListener;
 import com.sina.weibo.sdk.auth.WbConnectErrorMessage;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 
 import cc.circling.login.oauth.Constants;
+import cc.circling.plugin.AlbumPlugin;
 import cc.circling.plugin.HideOptionMenuPlugin;
 import cc.circling.plugin.LoginOutPlugin;
 import cc.circling.plugin.LoginWeiboPlugin;
@@ -73,6 +82,8 @@ import cc.circling.web.SwipeRefreshLayout;
  */
 
 public class X5Activity extends AppCompatActivity {
+    public static final int PUSH_WINDOW_OK = 8735;
+    public static final int REQUEST_ALBUM_OK = 8736;
 
     private SetTitlePlugin setTitlePlugin;
     private SetSubTitlePlugin setSubTitlePlugin;
@@ -100,6 +111,7 @@ public class X5Activity extends AppCompatActivity {
     private WeiboLoginPlugin weiboLoginPlugin;
     private LoginOutPlugin loginOutPlugin;
     private NotificationPlugin notificationPlugin;
+    private AlbumPlugin albumPlugin;
 
     private LinearLayout titleBar;
     private TextView title;
@@ -371,6 +383,9 @@ public class X5Activity extends AppCompatActivity {
 
         notificationPlugin = new NotificationPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.NOTIFY, notificationPlugin);
+
+        albumPlugin = new AlbumPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.ALBUM, albumPlugin);
     }
 
     public void setDefaultTitle(String s) {
@@ -426,7 +441,7 @@ public class X5Activity extends AppCompatActivity {
             String value = params.getString(key);
             intent.putExtra(key, value);
         }
-        startActivityForResult(intent, 8735);
+        startActivityForResult(intent, PUSH_WINDOW_OK);
     }
     public WebView getWebView() {
         return webView;
@@ -471,10 +486,74 @@ public class X5Activity extends AppCompatActivity {
         }
         else {
             switch (requestCode) {
-                case 8735:
+                case PUSH_WINDOW_OK:
                     if (resultCode == RESULT_OK) {
                         popWindowParam = data.getStringExtra("param");
-                        LogUtil.i("onActivityResult: " + popWindowParam);
+                        LogUtil.i("PUSH_WINDOW_OK: " + popWindowParam);
+                    }
+                    break;
+                case REQUEST_ALBUM_OK:
+                    if (resultCode == RESULT_OK) {
+                        Uri uri = data.getData();
+                        LogUtil.i("REQUEST_ALBUM_OK: " + uri.toString());
+                        // 获取路径
+                        String[] filePathColumns = { MediaStore.Images.Media.DATA };
+                        Cursor c = getContentResolver().query(uri, filePathColumns, null, null, null);
+                        c.moveToFirst();
+                        int columnIndex = c.getColumnIndex(filePathColumns[0]);
+                        String file = c.getString(columnIndex);
+                        LogUtil.i("aaa", file);
+                        c.close();
+                        // 获取图片高宽并进行压缩
+                        BitmapFactory.Options options = new BitmapFactory.Options();
+                        options.inJustDecodeBounds = true;
+                        BitmapFactory.decodeFile(file, options);
+                        int width = options.outWidth;
+                        int height = options.outHeight;
+                        String type = options.outMimeType;
+                        LogUtil.i("REQUEST_ALBUM_OK: ", width + " " + height + " " + type);
+                        int inSampleSize = 1;
+                        int maxWidth = 1000;
+                        int maxHeight = 1000;
+                        int widthRatio = Math.max(1, width / maxWidth);
+                        int heightRatio = Math.max(1, height / maxHeight);
+                        if(widthRatio < heightRatio) {
+                            inSampleSize = widthRatio;
+                        }
+                        else if(widthRatio > heightRatio) {
+                            inSampleSize = heightRatio;
+                        }
+
+                        //读取图片
+                        options.inJustDecodeBounds = false;
+                        options.inSampleSize = inSampleSize;
+                        Bitmap bitmap = BitmapFactory.decodeFile(file, options);
+                        LogUtil.i("REQUEST_ALBUM_OK", bitmap.getByteCount() + " " + bitmap.getWidth() + " " + bitmap.getHeight());
+
+                        ByteArrayOutputStream baos = null;
+                        try {
+                            baos = new ByteArrayOutputStream();
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
+                            baos.flush();
+                            String base64 = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+                            albumPlugin.success(base64);
+                        } catch(FileNotFoundException e) {
+                            e.printStackTrace();
+                            albumPlugin.error();
+                        } catch(IOException e) {
+                            e.printStackTrace();
+                        } finally {
+                            try {
+                                if(baos != null) {
+                                    baos.close();
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    else if(resultCode == RESULT_CANCELED) {
+                        albumPlugin.cancel();
                     }
                     break;
             }

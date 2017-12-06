@@ -22,7 +22,6 @@ public abstract class H5Plugin implements IH5EventHandle {
     public static final String CONFIRM = "confirm";
     public static final String HIDE_BACKBUTTON = "hideBackButton";
     public static final String SHOW_BACKBUTTON = "showBackButton";
-    public static final String USER_INFO = "userInfo";
     public static final String SWIPE_REFRESH = "swipeRefresh";
     public static final String LOGIN_WEIBO = "loginWeibo";
     public static final String GET_PRE_FERENCE = "getPreference";
@@ -37,6 +36,7 @@ public abstract class H5Plugin implements IH5EventHandle {
     public static final String WEIBO_LOGIN = "weiboLogin";
     public static final String LOGIN_OUT = "loginOut";
     public static final String NOTIFY = "notify";
+    public static final String ALBUM = "album";
 
     protected X5Activity activity;
 

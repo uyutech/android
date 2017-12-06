@@ -28,7 +28,6 @@ import okhttp3.Response;
  */
 
 public class WeiboLoginPlugin extends H5Plugin {
-    private String clientId;
 
     public WeiboLoginPlugin(X5Activity activity) {
         super(activity);
@@ -37,7 +36,7 @@ public class WeiboLoginPlugin extends H5Plugin {
     @Override
     public void handle(JSONObject json) {
         LogUtil.i("WeiboLoginPlugin: " + json.toJSONString());
-        clientId = json.getString("clientId");
+        final String clientId = json.getString("clientId");
         final JSONObject param = json.getJSONObject("param");
         if(param != null) {
             new Thread(new Runnable() {
