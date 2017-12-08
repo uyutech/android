@@ -40,6 +40,7 @@ public abstract class H5Plugin implements IH5EventHandle {
     public static final String ALBUM = "album";
     public static final String PROMPT = "prompt";
     public static final String DOWNLOAD = "download";
+    public static final String NETWORK_INFO = "networkInfo";
 
     protected X5Activity activity;
 

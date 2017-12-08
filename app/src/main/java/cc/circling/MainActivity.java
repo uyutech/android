@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
+import cc.circling.login.oauth.Constants;
 import cc.circling.utils.LogUtil;
 import cc.circling.web.MyCookies;
 import cc.circling.web.MyWebViewClient;
@@ -101,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
                 else if(env.equals("prod-online")) {
                     MyWebViewClient.online = true;
                 }
+                Constants.APP_KEY = "890459019";
             }
             if(MyWebViewClient.online) {
                 showRedirect();

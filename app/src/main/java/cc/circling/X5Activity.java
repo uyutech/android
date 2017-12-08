@@ -46,6 +46,7 @@ import cc.circling.plugin.LoginOutPlugin;
 import cc.circling.plugin.LoginWeiboPlugin;
 import cc.circling.plugin.GetPreferencePlugin;
 import cc.circling.plugin.MoveTaskToBackPlugin;
+import cc.circling.plugin.NetworkInfoPlugin;
 import cc.circling.plugin.NotificationPlugin;
 import cc.circling.plugin.OpenUriPlugin;
 import cc.circling.plugin.PromptPlugin;
@@ -119,6 +120,7 @@ public class X5Activity extends AppCompatActivity {
     private AlbumPlugin albumPlugin;
     private PromptPlugin promptPlugin;
     private DownloadPlugin downloadPlugin;
+    private NetworkInfoPlugin networkInfoPlugin;
 
     private LinearLayout titleBar;
     private TextView title;
@@ -252,8 +254,6 @@ public class X5Activity extends AppCompatActivity {
             public void onRefresh() {
                 LogUtil.i("swipeRefreshLayout onRefresh");
                 webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('refresh');");
-//                webView.reload();
-//                swipeRefreshLayout.setRefreshing(false);
             }
         });
 
@@ -286,15 +286,15 @@ public class X5Activity extends AppCompatActivity {
 
         cookieManager.setAcceptCookie(true);
         cookieManager.removeExpiredCookie();
-        cookieManager.removeAllCookie();
+//        cookieManager.removeAllCookie();
         // 跨域CORS的ajax设置允许cookie
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             cookieManager.setAcceptThirdPartyCookies(webView, true);
-            cookieManager.removeAllCookies(new ValueCallback<Boolean>() {
-                @Override
-                public void onReceiveValue(Boolean value) {
-                }
-            });
+//            cookieManager.removeAllCookies(new ValueCallback<Boolean>() {
+//                @Override
+//                public void onReceiveValue(Boolean value) {
+//                }
+//            });
         }
 
         HashMap<String, String> hashMap = MyCookies.getAll();
@@ -404,6 +404,9 @@ public class X5Activity extends AppCompatActivity {
 
         downloadPlugin = new DownloadPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.DOWNLOAD, downloadPlugin);
+
+        networkInfoPlugin = new NetworkInfoPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.NETWORK_INFO, networkInfoPlugin);
     }
 
     public void setDefaultTitle(String s) {
