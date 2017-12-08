@@ -54,7 +54,8 @@ import cc.circling.plugin.SetCookiePlugin;
 import cc.circling.plugin.SetSubTitlePlugin;
 import cc.circling.plugin.SetTitleBgColorPlugin;
 import cc.circling.plugin.ShowOptionMenuPlugin;
-import cc.circling.plugin.SwipeRefreshPlugin;
+import cc.circling.plugin.RefreshPlugin;
+import cc.circling.plugin.RefreshStatePlugin;
 import cc.circling.plugin.WeiboLoginPlugin;
 import cc.circling.utils.AndroidBug5497Workaround;
 import cc.circling.web.MyCookies;
@@ -99,7 +100,8 @@ public class X5Activity extends AppCompatActivity {
     private ConfirmPlugin confirmPlugin;
     private HideBackButtonPlugin hideBackButtonPlugin;
     private ShowBackButtonPlugin showBackButtonPlugin;
-    private SwipeRefreshPlugin swipeRefreshPlugin;
+    private RefreshPlugin refreshPlugin;
+    private RefreshStatePlugin refreshStatePlugin;
     private LoginWeiboPlugin loginWeiboPlugin;
     private GetPreferencePlugin getPreferencePlugin;
     private SetPreferencePlugin setPreferencePlugin;
@@ -247,8 +249,9 @@ public class X5Activity extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 LogUtil.i("swipeRefreshLayout onRefresh");
-                webView.reload();
-                swipeRefreshLayout.setRefreshing(false);
+                webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('refresh');");
+//                webView.reload();
+//                swipeRefreshLayout.setRefreshing(false);
             }
         });
 
@@ -346,8 +349,11 @@ public class X5Activity extends AppCompatActivity {
         showBackButtonPlugin = new ShowBackButtonPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.SHOW_BACKBUTTON, showBackButtonPlugin);
 
-        swipeRefreshPlugin = new SwipeRefreshPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.SWIPE_REFRESH, swipeRefreshPlugin);
+        refreshPlugin = new RefreshPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.REFRESH, refreshPlugin);
+
+        refreshStatePlugin = new RefreshStatePlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.REFRESH_STATE, refreshStatePlugin);
 
         loginWeiboPlugin = new LoginWeiboPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.LOGIN_WEIBO, loginWeiboPlugin);
@@ -509,7 +515,6 @@ public class X5Activity extends AppCompatActivity {
                         c.moveToFirst();
                         int columnIndex = c.getColumnIndex(filePathColumns[0]);
                         String file = c.getString(columnIndex);
-                        LogUtil.i("aaa", file);
                         c.close();
                         // 获取图片高宽并进行压缩
                         BitmapFactory.Options options = new BitmapFactory.Options();

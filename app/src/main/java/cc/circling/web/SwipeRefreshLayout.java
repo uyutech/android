@@ -21,7 +21,6 @@ public class SwipeRefreshLayout extends android.support.v4.widget.SwipeRefreshLa
 
     @Override
     public void setEnabled(boolean enabled) {
-//        LogUtil.i("setEnabled: ", enabled + ", " + canEnabled);
         if(canEnabled) {
             super.setEnabled(enabled);
         }

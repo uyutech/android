@@ -22,7 +22,8 @@ public abstract class H5Plugin implements IH5EventHandle {
     public static final String CONFIRM = "confirm";
     public static final String HIDE_BACKBUTTON = "hideBackButton";
     public static final String SHOW_BACKBUTTON = "showBackButton";
-    public static final String SWIPE_REFRESH = "swipeRefresh";
+    public static final String REFRESH = "refresh";
+    public static final String REFRESH_STATE = "refreshState";
     public static final String LOGIN_WEIBO = "loginWeibo";
     public static final String GET_PRE_FERENCE = "getPreference";
     public static final String SET_PRE_FERENCE = "setPreference";
