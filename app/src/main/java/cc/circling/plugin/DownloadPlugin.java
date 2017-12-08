@@ -34,8 +34,10 @@ public class DownloadPlugin extends H5Plugin {
                 DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
                 request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
                 request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                request.setVisibleInDownloadsUi(true);
                 request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, name);
                 request.setTitle(name);
+                request.setDescription("点击取消下载");
                 DownloadManager downloadManager = (DownloadManager) activity.getSystemService(Context.DOWNLOAD_SERVICE);
                 downloadManager.enqueue(request);
             }
