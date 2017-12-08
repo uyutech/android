@@ -40,6 +40,7 @@ import java.util.HashMap;
 
 import cc.circling.login.oauth.Constants;
 import cc.circling.plugin.AlbumPlugin;
+import cc.circling.plugin.DownloadPlugin;
 import cc.circling.plugin.HideOptionMenuPlugin;
 import cc.circling.plugin.LoginOutPlugin;
 import cc.circling.plugin.LoginWeiboPlugin;
@@ -117,6 +118,7 @@ public class X5Activity extends AppCompatActivity {
     private NotificationPlugin notificationPlugin;
     private AlbumPlugin albumPlugin;
     private PromptPlugin promptPlugin;
+    private DownloadPlugin downloadPlugin;
 
     private LinearLayout titleBar;
     private TextView title;
@@ -399,6 +401,9 @@ public class X5Activity extends AppCompatActivity {
 
         promptPlugin = new PromptPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.PROMPT, promptPlugin);
+
+        downloadPlugin = new DownloadPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.DOWNLOAD, downloadPlugin);
     }
 
     public void setDefaultTitle(String s) {
