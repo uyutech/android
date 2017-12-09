@@ -1,5 +1,6 @@
 package cc.circling.web;
 
+import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
@@ -49,5 +50,17 @@ public class MyWebChromeClient extends WebChromeClient {
                              JsResult result) {
         LogUtil.i("onJsAlert");
         return false;
+    }
+    @Override
+    public void onShowCustomView(View view, CustomViewCallback callback) {
+        LogUtil.i("onShowCustomView", view.getClass().getName());
+        super.onShowCustomView(view, callback);
+        activity.fullScreen(view);
+    }
+    @Override
+    public void onHideCustomView() {
+        LogUtil.i("onHideCustomView");
+        super.onHideCustomView();
+        activity.unFullScreen();
     }
 }

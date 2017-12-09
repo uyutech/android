@@ -1,78 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:paddingTop="0dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <cc.circling.web.SwipeRefreshLayout
-        android:id="@+id/swipeRefreshLayout"
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/web"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <cc.circling.web.WebView
-            android:id="@+id/x5"
+
+        <cc.circling.web.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-    </cc.circling.web.SwipeRefreshLayout>
+            android:layout_height="match_parent">
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:paddingTop="23dp"
-        android:id="@+id/titleBar">
+            <cc.circling.web.WebView
+                android:id="@+id/x5"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </cc.circling.web.SwipeRefreshLayout>
 
-        <ImageView
-            android:id="@+id/back"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_gravity="center"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
-            android:padding="4dp"
-            android:paddingStart="9dp"
-            android:paddingEnd="9dp"
-            android:src="@drawable/left_arrow"/>
         <LinearLayout
-            android:orientation="vertical"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:layout_gravity="center"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/title"
-                android:textSize="16dp"
-                android:textColor="@color/titleText"
-                android:textAlignment="center"
-                android:layout_gravity="center"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/subTitle"
-                android:textSize="10dp"
-                android:textColor="@color/titleText"
-                android:textAlignment="center"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:paddingTop="23dp"
+            android:id="@+id/titleBar">
+
+            <ImageView
+                android:id="@+id/back"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
                 android:layout_gravity="center"
-                android:visibility="gone"/>
-        </LinearLayout>
-        <FrameLayout
-            android:id="@+id/optionMenu"
-            android:layout_width="24dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp">
-            <TextView
-                android:id="@+id/optionMenuText"
-                android:layout_width="match_parent"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:padding="4dp"
+                android:paddingStart="9dp"
+                android:paddingEnd="9dp"
+                android:src="@drawable/left_arrow"/>
+            <LinearLayout
+                android:orientation="vertical"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_gravity="center"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/title"
+                    android:textSize="16dp"
+                    android:textColor="@color/titleText"
+                    android:textAlignment="center"
+                    android:layout_gravity="center"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/subTitle"
+                    android:textSize="10dp"
+                    android:textColor="@color/titleText"
+                    android:textAlignment="center"
+                    android:layout_gravity="center"
+                    android:visibility="gone"/>
+            </LinearLayout>
+            <FrameLayout
+                android:id="@+id/optionMenu"
+                android:layout_width="24dp"
                 android:layout_height="wrap_content"
-                android:textColor="@color/titleText"
-                android:textSize="12dp"
-                android:textAlignment="center"/>
-        </FrameLayout>
-    </LinearLayout>
+                android:layout_gravity="center"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp">
+                <TextView
+                    android:id="@+id/optionMenuText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/titleText"
+                    android:textSize="12dp"
+                    android:textAlignment="center"/>
+            </FrameLayout>
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/fullScreen"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
 </FrameLayout>

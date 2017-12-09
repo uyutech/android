@@ -1,6 +1,8 @@
 package cc.circling;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,8 +20,8 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
-import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -129,6 +131,8 @@ public class X5Activity extends AppCompatActivity {
     private ImageView back;
     private WebView webView;
     private TextView optionMenuText;
+    private LinearLayout web;
+    private FrameLayout fullScreenView;
 
     private String url;
     private String popWindowParam;
@@ -165,6 +169,8 @@ public class X5Activity extends AppCompatActivity {
         webView = (WebView) findViewById(R.id.x5);
         back = (ImageView) findViewById(R.id.back);
         optionMenuText = (TextView) findViewById(R.id.optionMenuText);
+        web = (LinearLayout) findViewById(R.id.web);
+        fullScreenView = (FrameLayout) findViewById(R.id.fullScreen);
 
         // webview背景色
         String backgroundColor = intent.getStringExtra("backgroundColor");
@@ -485,6 +491,25 @@ public class X5Activity extends AppCompatActivity {
     public void setOptionMenuText(String text) {
         optionMenuText.setText(text);
     }
+    public void fullScreen(View view) {
+        altFullScreen();
+        web.setVisibility(View.GONE);
+        fullScreenView.setVisibility(View.VISIBLE);
+        fullScreenView.addView(view);
+    }
+    public void unFullScreen() {
+        altFullScreen();
+        fullScreenView.removeAllViews();
+        fullScreenView.setVisibility(View.GONE);
+        web.setVisibility(View.VISIBLE);
+    }
+    private void altFullScreen() {
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+    }
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
@@ -616,6 +641,9 @@ public class X5Activity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        webView.setWebChromeClient(null);
+        webView.setWebViewClient(null);
+        webView.setSwipeRefreshLayout(null);
         webView.clearHistory();
         ((ViewGroup) webView.getParent()).removeView(webView);
         webView.destroy();
