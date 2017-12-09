@@ -131,7 +131,7 @@ public class X5Activity extends AppCompatActivity {
     private ImageView back;
     private WebView webView;
     private TextView optionMenuText;
-    private LinearLayout web;
+    private ViewGroup web;
     private FrameLayout fullScreenView;
 
     private String url;
@@ -169,7 +169,7 @@ public class X5Activity extends AppCompatActivity {
         webView = (WebView) findViewById(R.id.x5);
         back = (ImageView) findViewById(R.id.back);
         optionMenuText = (TextView) findViewById(R.id.optionMenuText);
-        web = (LinearLayout) findViewById(R.id.web);
+        web = (ViewGroup) findViewById(R.id.web);
         fullScreenView = (FrameLayout) findViewById(R.id.fullScreen);
 
         // webview背景色
