@@ -612,7 +612,8 @@ public class X5Activity extends AppCompatActivity {
         LogUtil.i("onStart: ", url + ", " + firstRun);
         if(!firstRun) {
             webView.onResume();
-            webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('resume', " + popWindowParam + ");");
+            LogUtil.i("resume: ", popWindowParam);
+            webView.loadUrl("javascript: ZhuanQuanJSBridge.emit('resume', " + popWindowParam + ");");
             popWindowParam = null;
         }
         else {
