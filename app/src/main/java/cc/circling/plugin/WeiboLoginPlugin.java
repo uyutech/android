@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.tencent.bugly.crashreport.CrashReport;
 import com.umeng.analytics.MobclickAgent;
 
 import java.util.ArrayList;
@@ -102,6 +103,7 @@ public class WeiboLoginPlugin extends H5Plugin {
                                 if (userInfo != null) {
                                     String id = userInfo.getString("ID");
                                     MobclickAgent.onProfileSignIn(id);
+                                    CrashReport.setUserId(id);
                                 }
                             }
                             activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + responseBody + "');");

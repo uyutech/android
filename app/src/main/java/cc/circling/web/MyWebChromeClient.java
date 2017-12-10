@@ -8,6 +8,7 @@ import android.webkit.WebView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.tencent.bugly.crashreport.CrashReport;
 
 import cc.circling.X5Activity;
 import cc.circling.event.H5EventDispatcher;
@@ -62,5 +63,11 @@ public class MyWebChromeClient extends WebChromeClient {
         LogUtil.i("onHideCustomView");
         super.onHideCustomView();
         activity.unFullScreen();
+    }
+    @Override
+    public void onProgressChanged(WebView webView, int progress) {
+        // 增加Javascript异常监控
+        CrashReport.setJavascriptMonitor(webView, true);
+        super.onProgressChanged(webView, progress);
     }
 }
