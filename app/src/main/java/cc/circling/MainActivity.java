@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.ImageView;
@@ -57,6 +58,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
         bgi = (ImageView) findViewById(R.id.bgi);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -151,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
                         int version = json.getIntValue("version");
                         // 获取本地版本信息
                         SharedPreferences sharedPreferences = getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), MODE_PRIVATE);
-                        final int curVersion = sharedPreferences.getInt("version", 0);
+                        final int curVersion = sharedPreferences.getInt("version", 3);
                         LogUtil.i("checkUpdate version: ", version + ", " + curVersion);
                         if(curVersion < version) {
                             SharedPreferences.Editor editor = MainActivity.this.getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), Context.MODE_PRIVATE).edit();

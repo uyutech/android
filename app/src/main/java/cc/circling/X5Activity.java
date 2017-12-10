@@ -162,6 +162,10 @@ public class X5Activity extends AppCompatActivity {
         }
         AndroidBug5497Workaround.assistActivity(this);
 
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+
         titleBar = (LinearLayout) findViewById(R.id.titleBar);
         title = (TextView) findViewById(R.id.title);
         subTitle = (TextView) findViewById(R.id.subTitle);
