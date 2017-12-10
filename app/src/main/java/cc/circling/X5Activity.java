@@ -1,7 +1,9 @@
 package cc.circling;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -12,6 +14,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.view.KeyEvent;
@@ -574,10 +577,22 @@ public class X5Activity extends AppCompatActivity {
                             inSampleSize = heightRatio;
                         }
 
+                        int permissionWrite = ActivityCompat.checkSelfPermission(this,
+                                Manifest.permission.READ_EXTERNAL_STORAGE);
+                        LogUtil.i("REQUEST_ALBUM_OK permissionWrite", permissionWrite + "");
+                        if(permissionWrite != PackageManager.PERMISSION_GRANTED) {
+                            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+                        }
+
                         //读取图片
                         options.inJustDecodeBounds = false;
                         options.inSampleSize = inSampleSize;
                         Bitmap bitmap = BitmapFactory.decodeFile(file, options);
+                        if(bitmap == null) {
+                            LogUtil.i("REQUEST_ALBUM_OK", (bitmap == null) + ",");
+                            albumPlugin.error();
+                            return;
+                        }
                         LogUtil.i("REQUEST_ALBUM_OK", bitmap.getByteCount() + " " + bitmap.getWidth() + " " + bitmap.getHeight());
 
                         ByteArrayOutputStream baos = null;
