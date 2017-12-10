@@ -194,6 +194,7 @@ public class X5Activity extends AppCompatActivity {
         }
         if(sSubTitle != null && sSubTitle.length() > 0) {
             subTitle.setText(sSubTitle);
+            subTitle.setVisibility(View.VISIBLE);
         }
 
         // titleBgColor
