@@ -228,7 +228,7 @@ public class X5Activity extends AppCompatActivity {
         // 是否显示optionMenu
         String showOptionMenu = intent.getStringExtra("showOptionMenu");
         LogUtil.i("showOptionMenu ", showOptionMenu + "");
-        if(showOptionMenu != null && showOptionMenu.equals("")) {
+        if(showOptionMenu != null && showOptionMenu.equals("true")) {
             optionMenuText.setVisibility(View.VISIBLE);
         }
         else {
@@ -238,9 +238,16 @@ public class X5Activity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 LogUtil.i("click optionMenuText");
-                webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('optionMenu');");
+                webView.loadUrl("javascript: ZhuanQuanJSBridge.emit('optionMenu');");
             }
         });
+
+        // optionMenu文字
+        String optionMenu = intent.getStringExtra("optionMenu");
+        LogUtil.i("optionMenu ", showOptionMenu + "");
+        if(optionMenu != null && !optionMenu.equals("")) {
+            optionMenuText.setText(optionMenu);
+        }
 
         // 是否读取网页标题
         String readTitle = intent.getStringExtra("readTitle");
