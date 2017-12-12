@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.tencent.bugly.Bugly;
 
 import cc.circling.login.oauth.Constants;
 import cc.circling.utils.LogUtil;
@@ -104,15 +105,14 @@ public class MainActivity extends AppCompatActivity {
                     URLs.H5_DOMAIN = "http://dev.circling.cc2";
                     URLs.WEB_DOMAIN = "http://h5.dev.circling.cc2";
                 }
-                else if(env.equals("prod-online")) {
-                    MyWebViewClient.online = true;
-                }
+                Bugly.init(BaseApplication.getContext(), "e8be097834", true);
                 Constants.APP_KEY = "890459019";
             }
             if(MyWebViewClient.online) {
                 showRedirect();
             }
             else {
+                Bugly.init(BaseApplication.getContext(), "e8be097834", false);
                 checkUpdate();
             }
         }
@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
                         int version = json.getIntValue("version");
                         // 获取本地版本信息
                         SharedPreferences sharedPreferences = getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), MODE_PRIVATE);
-                        final int curVersion = sharedPreferences.getInt("version", 7);
+                        final int curVersion = sharedPreferences.getInt("version", 9);
                         LogUtil.i("checkUpdate version: ", version + ", " + curVersion);
                         if(curVersion < version) {
                             SharedPreferences.Editor editor = MainActivity.this.getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), Context.MODE_PRIVATE).edit();

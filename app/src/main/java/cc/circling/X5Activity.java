@@ -37,11 +37,14 @@ import com.sina.weibo.sdk.auth.WbAuthListener;
 import com.sina.weibo.sdk.auth.WbConnectErrorMessage;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
 import com.umeng.analytics.MobclickAgent;
+import com.zhihu.matisse.Matisse;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import cc.circling.login.oauth.Constants;
 import cc.circling.plugin.AlbumPlugin;
@@ -525,6 +528,19 @@ public class X5Activity extends AppCompatActivity {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
     }
+    private String getRealPathFromUri(Uri contentUri) {
+        String filePath = contentUri.toString();
+        String[] filePathColumn = { MediaStore.Images.Media.DATA };
+        Cursor cursor = this.getContentResolver().query(contentUri, filePathColumn, null, null, null);
+        if(cursor != null) {
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            filePath = cursor.getString(columnIndex);
+            cursor.close();
+        }
+        return filePath;
+    }
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
@@ -555,74 +571,82 @@ public class X5Activity extends AppCompatActivity {
                     break;
                 case REQUEST_ALBUM_OK:
                     if (resultCode == RESULT_OK) {
-                        Uri uri = data.getData();
-                        LogUtil.i("REQUEST_ALBUM_OK: " + uri.toString());
-                        // 获取路径
-                        String[] filePathColumns = { MediaStore.Images.Media.DATA };
-                        Cursor c = getContentResolver().query(uri, filePathColumns, null, null, null);
-                        c.moveToFirst();
-                        int columnIndex = c.getColumnIndex(filePathColumns[0]);
-                        String file = c.getString(columnIndex);
-                        c.close();
-                        // 获取图片高宽并进行压缩
-                        BitmapFactory.Options options = new BitmapFactory.Options();
-                        options.inJustDecodeBounds = true;
-                        BitmapFactory.decodeFile(file, options);
-                        int width = options.outWidth;
-                        int height = options.outHeight;
-                        String type = options.outMimeType;
-                        LogUtil.i("REQUEST_ALBUM_OK: ", width + " " + height + " " + type);
-                        int inSampleSize = 1;
-                        int maxWidth = 1000;
-                        int maxHeight = 1000;
-                        int widthRatio = Math.max(1, width / maxWidth);
-                        int heightRatio = Math.max(1, height / maxHeight);
-                        if(widthRatio < heightRatio) {
-                            inSampleSize = widthRatio;
+                        List<Uri> list = Matisse.obtainResult(data);
+                        LogUtil.i("Matisse", "mSelected: " + list);
+                        if(list.size() == 0) {
+                            albumPlugin.cancel();
+                            return;
                         }
-                        else if(widthRatio > heightRatio) {
-                            inSampleSize = heightRatio;
-                        }
-
                         int permissionWrite = ActivityCompat.checkSelfPermission(this,
                                 Manifest.permission.READ_EXTERNAL_STORAGE);
                         LogUtil.i("REQUEST_ALBUM_OK permissionWrite", permissionWrite + "");
                         if(permissionWrite != PackageManager.PERMISSION_GRANTED) {
-                            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+                            ActivityCompat.requestPermissions(this, new String[] {
+                                    Manifest.permission.READ_EXTERNAL_STORAGE
+                            }, 1);
                         }
-
-                        //读取图片
-                        options.inJustDecodeBounds = false;
-                        options.inSampleSize = inSampleSize;
-                        Bitmap bitmap = BitmapFactory.decodeFile(file, options);
-                        if(bitmap == null) {
-                            LogUtil.i("REQUEST_ALBUM_OK", (bitmap == null) + ",");
-                            albumPlugin.error();
-                            return;
-                        }
-                        LogUtil.i("REQUEST_ALBUM_OK", bitmap.getByteCount() + " " + bitmap.getWidth() + " " + bitmap.getHeight());
-
-                        ByteArrayOutputStream baos = null;
-                        try {
-                            baos = new ByteArrayOutputStream();
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
-                            baos.flush();
-                            String base64 = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-                            albumPlugin.success(base64);
-                        } catch(FileNotFoundException e) {
-                            e.printStackTrace();
-                            albumPlugin.error();
-                        } catch(IOException e) {
-                            e.printStackTrace();
-                        } finally {
-                            bitmap.recycle();
-                            try {
-                                if(baos != null) {
-                                    baos.close();
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                        ArrayList<String> res = new ArrayList<String>();
+                        for(Uri uri : list) {
+                            // 获取图片高宽并进行压缩
+                            String file = getRealPathFromUri(uri);
+                            BitmapFactory.Options options = new BitmapFactory.Options();
+                            options.inJustDecodeBounds = true;
+                            BitmapFactory.decodeFile(file, options);
+                            int width = options.outWidth;
+                            int height = options.outHeight;
+                            String type = options.outMimeType;
+                            LogUtil.i("REQUEST_ALBUM_OK: ", width + " " + height + " " + type);
+                            int inSampleSize = 1;
+                            int maxWidth = 1000;
+                            int maxHeight = 1000;
+                            int widthRatio = Math.max(1, width / maxWidth);
+                            int heightRatio = Math.max(1, height / maxHeight);
+                            if(widthRatio < heightRatio) {
+                                inSampleSize = widthRatio;
                             }
+                            else if(widthRatio > heightRatio) {
+                                inSampleSize = heightRatio;
+                            }
+                            //读取图片
+                            options.inJustDecodeBounds = false;
+                            options.inSampleSize = inSampleSize;
+                            Bitmap bitmap = BitmapFactory.decodeFile(file, options);
+                            if(bitmap == null) {
+                                LogUtil.i("REQUEST_ALBUM_OK", (bitmap == null) + ",");
+                                break;
+                            }
+                            LogUtil.i("REQUEST_ALBUM_OK", bitmap.getByteCount() + " " + bitmap.getWidth() + " " + bitmap.getHeight());
+
+                            ByteArrayOutputStream baos = null;
+                            try {
+                                baos = new ByteArrayOutputStream();
+                                bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
+                                baos.flush();
+                                String base64 = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+                                base64 = base64.replaceAll("\n", "");
+                                res.add(base64);
+                            } catch(FileNotFoundException e) {
+                                e.printStackTrace();
+                            } catch(IOException e) {
+                                e.printStackTrace();
+                            } finally {
+                                bitmap.recycle();
+                                try {
+                                    if(baos != null) {
+                                        baos.close();
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                        if(res.size() > 0) {
+                            String[] l = new String[res.size()];
+                            res.toArray(l);
+                            albumPlugin.success(l);
+                        }
+                        else {
+                            albumPlugin.error();
                         }
                     }
                     else if(resultCode == RESULT_CANCELED) {

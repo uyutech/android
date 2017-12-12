@@ -14,7 +14,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 25
         versionCode 3
-        versionName "0.2.2"
+        versionName "0.2.4"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters "armeabi", "armeabi-v7a", "x86", "mips"
@@ -34,14 +34,16 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:25.4.0'
+    compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.android.support:support-v4:25.4.0'
+    compile 'com.android.support:support-v4:25.3.1'
     compile 'com.alibaba:fastjson:1.1.56.android'
     compile 'com.squareup.okhttp3:okhttp:3.8.0'
     compile 'com.sina.weibo.sdk:core:4.1.4:openDefaultRelease@aar'
     compile 'com.umeng.analytics:analytics:latest.integration'
     compile 'com.tencent.bugly:crashreport_upgrade:latest.release'
+    compile 'com.zhihu.android:matisse:0.4.3'
+    compile 'com.github.bumptech.glide:glide:3.5.2'
     //    compile files('libs/tbs_sdk_thirdapp_v3.2.0.1104_43200_sharewithdownload_withfilereader_withoutGame_obfs_20170609_115346.jar')
     testCompile 'junit:junit:4.12'
 }
