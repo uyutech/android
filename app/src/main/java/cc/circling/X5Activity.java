@@ -262,7 +262,7 @@ public class X5Activity extends AppCompatActivity {
 
         WebSettings webSettings = webView.getSettings();
         String ua = webSettings.getUserAgentString();
-        webSettings.setUserAgentString(ua + " app/ZhuanQuan");
+        webSettings.setUserAgentString(ua + " app/ZhuanQuan/" + BuildConfig.VERSION_NAME);
         webSettings.setJavaScriptEnabled(true);
         webSettings.setAllowFileAccess(true);
         webSettings.setDomStorageEnabled(true);
