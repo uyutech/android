@@ -13,8 +13,8 @@ android {
         applicationId "cc.circling"
         minSdkVersion 19
         targetSdkVersion 25
-        versionCode 3
-        versionName "0.2.4"
+        versionCode 4
+        versionName "0.2.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters "armeabi", "armeabi-v7a", "x86", "mips"
@@ -44,6 +44,7 @@ dependencies {
     compile 'com.tencent.bugly:crashreport_upgrade:latest.release'
     compile 'com.zhihu.android:matisse:0.4.3'
     compile 'com.github.bumptech.glide:glide:3.5.2'
+    compile 'com.liulishuo.filedownloader:library:1.6.8'
     //    compile files('libs/tbs_sdk_thirdapp_v3.2.0.1104_43200_sharewithdownload_withfilereader_withoutGame_obfs_20170609_115346.jar')
     testCompile 'junit:junit:4.12'
 }

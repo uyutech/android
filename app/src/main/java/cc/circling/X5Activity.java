@@ -578,11 +578,11 @@ public class X5Activity extends AppCompatActivity {
                             return;
                         }
                         int permissionWrite = ActivityCompat.checkSelfPermission(this,
-                                Manifest.permission.READ_EXTERNAL_STORAGE);
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE);
                         LogUtil.i("REQUEST_ALBUM_OK permissionWrite", permissionWrite + "");
                         if(permissionWrite != PackageManager.PERMISSION_GRANTED) {
                             ActivityCompat.requestPermissions(this, new String[] {
-                                    Manifest.permission.READ_EXTERNAL_STORAGE
+                                    Manifest.permission.WRITE_EXTERNAL_STORAGE
                             }, 1);
                         }
                         ArrayList<String> res = new ArrayList<String>();
