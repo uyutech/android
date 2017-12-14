@@ -117,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         else {
+            Bugly.init(BaseApplication.getContext(), "e8be097834", false);
             checkUpdate();
         }
     }

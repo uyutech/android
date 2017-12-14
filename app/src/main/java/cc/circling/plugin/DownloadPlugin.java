@@ -13,7 +13,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
-import android.support.v7.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat;
 
 import com.alibaba.fastjson.JSONObject;
 import com.liulishuo.filedownloader.BaseDownloadTask;
@@ -36,7 +36,7 @@ import static android.os.Environment.MEDIA_MOUNTED;
  */
 
 public class DownloadPlugin extends H5Plugin {
-    private int downloadID = 0;
+    public static int downloadID = 0;
 
     public DownloadPlugin(X5Activity activity) {
         super(activity);
@@ -83,7 +83,7 @@ public class DownloadPlugin extends H5Plugin {
                 File file2 = new File(path);
 
                 final int currentID = downloadID++;
-                final NotificationCompat.Builder builder = new NotificationCompat.Builder(activity);
+                final NotificationCompat.Builder builder = new NotificationCompat.Builder(activity, "donwload");
                 builder.setWhen(System.currentTimeMillis());
                 builder.setTicker("准备下载 " + fileName);
                 builder.setContentTitle("准备下载 " + fileName);

@@ -2,8 +2,13 @@ package cc.circling;
 
 import android.app.Application;
 import android.content.Context;
+import com.alibaba.sdk.android.push.CloudPushService;
+import com.alibaba.sdk.android.push.CommonCallback;
+import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
 
 import com.umeng.analytics.MobclickAgent;
+
+import cc.circling.utils.LogUtil;
 
 /**
  * Created by army on 2017/3/16.
@@ -18,11 +23,28 @@ public class BaseApplication extends Application {
         super.onCreate();
         context = getApplicationContext();
 
+        initCloudChannel(this);
+
         MobclickAgent.startWithConfigure(new MobclickAgent.UMAnalyticsConfig(context, "5a27df1fb27b0a06f2000050", ""));
         MobclickAgent.enableEncrypt(true);
     }
 
     public static Context getContext() {
         return context;
+    }
+
+    private void initCloudChannel(Context applicationContext) {
+        PushServiceFactory.init(applicationContext);
+        CloudPushService pushService = PushServiceFactory.getCloudPushService();
+        pushService.register(applicationContext, new CommonCallback() {
+            @Override
+            public void onSuccess(String response) {
+                LogUtil.i("init cloudchannel success");
+            }
+            @Override
+            public void onFailed(String errorCode, String errorMessage) {
+                LogUtil.i("init cloudchannel failed -- errorcode:" + errorCode + " -- errorMessage:" + errorMessage);
+            }
+        });
     }
 }
