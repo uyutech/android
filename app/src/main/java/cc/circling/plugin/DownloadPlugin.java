@@ -83,7 +83,7 @@ public class DownloadPlugin extends H5Plugin {
                 File file2 = new File(path);
 
                 final int currentID = downloadID++;
-                final NotificationCompat.Builder builder = new NotificationCompat.Builder(activity, "donwload");
+                final NotificationCompat.Builder builder = new NotificationCompat.Builder(activity, "download");
                 builder.setWhen(System.currentTimeMillis());
                 builder.setTicker("准备下载 " + fileName);
                 builder.setContentTitle("准备下载 " + fileName);
