@@ -64,10 +64,10 @@ public class MainActivity extends AppCompatActivity {
         decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
-        bgi = (ImageView) findViewById(R.id.bgi);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        domain = (TextView) findViewById(R.id.domain);
-        copyright = (TextView) findViewById(R.id.copyright);
+        bgi = findViewById(R.id.bgi);
+        progressBar = findViewById(R.id.progressBar);
+        domain = findViewById(R.id.domain);
+        copyright = findViewById(R.id.copyright);
 
         // 背景渐显
         Animation alphaAnimation = new AlphaAnimation(0.1f, 1.0f);

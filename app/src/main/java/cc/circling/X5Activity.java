@@ -172,15 +172,15 @@ public class X5Activity extends AppCompatActivity {
         decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
-        titleBar = (LinearLayout) findViewById(R.id.titleBar);
-        title = (TextView) findViewById(R.id.title);
-        subTitle = (TextView) findViewById(R.id.subTitle);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
-        webView = (WebView) findViewById(R.id.x5);
-        back = (ImageView) findViewById(R.id.back);
-        optionMenuText = (TextView) findViewById(R.id.optionMenuText);
-        web = (ViewGroup) findViewById(R.id.web);
-        fullScreenView = (FrameLayout) findViewById(R.id.fullScreen);
+        titleBar = findViewById(R.id.titleBar);
+        title = findViewById(R.id.title);
+        subTitle = findViewById(R.id.subTitle);
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        webView = findViewById(R.id.x5);
+        back = findViewById(R.id.back);
+        optionMenuText = findViewById(R.id.optionMenuText);
+        web = findViewById(R.id.web);
+        fullScreenView =  findViewById(R.id.fullScreen);
 
         // webview背景色
         String backgroundColor = intent.getStringExtra("backgroundColor");

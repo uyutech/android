@@ -62,7 +62,7 @@ public class AndroidBug5497Workaround {
                     //frameLayoutParams.height = usableHeightSansKeyboard - heightDifference;
                     frameLayoutParams.height = usableHeightSansKeyboard - heightDifference + statusBarHeight;
                 } else {
-                    frameLayoutParams.height = usableHeightSansKeyboard -heightDifference;
+                    frameLayoutParams.height = usableHeightSansKeyboard - heightDifference;
                 }
             } else {
                 frameLayoutParams.height = contentHeight;
