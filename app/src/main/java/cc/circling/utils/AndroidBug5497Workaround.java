@@ -6,6 +6,7 @@ import android.os.Build;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 /**
  * Created by army8735 on 2017/8/19.
@@ -15,41 +16,57 @@ public class AndroidBug5497Workaround {
     public static void assistActivity(Activity activity) {
         new AndroidBug5497Workaround(activity);
     }
+
+    private FrameLayout content;
     private View mChildOfContent;
     private int usableHeightPrevious;
+    private int usableHeightPrevious2;
     private FrameLayout.LayoutParams frameLayoutParams;
+    private LinearLayout.LayoutParams linearLayoutParams;
     private int contentHeight;
     private boolean isfirst = true;
     private Activity activity;
-    private int statusBarHeight;
+    private int statusBarHeight = 0;
 
     private AndroidBug5497Workaround(Activity activity) {
         //获取状态栏的高度
         int resourceId = activity.getResources().getIdentifier("status_bar_height", "dimen", "android");
-        statusBarHeight = activity.getResources().getDimensionPixelSize(resourceId);
+        LogUtil.i("AndroidBug5497Workaround", resourceId + "");
+        if(resourceId > 0) {
+            statusBarHeight = activity.getResources().getDimensionPixelSize(resourceId);
+        }
         this.activity = activity;
-        FrameLayout content = (FrameLayout)activity.findViewById(android.R.id.content);
+        content = activity.findViewById(android.R.id.content);
         mChildOfContent = content.getChildAt(0);
 
-        //界面出现变动都会调用这个监听事件
-        mChildOfContent.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        content.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             public void onGlobalLayout() {
-                if (isfirst) {
-                    contentHeight = mChildOfContent.getHeight();//兼容华为等机型
-                    isfirst = false;
-                }
-                possiblyResizeChildOfContent();
+                resetLayoutByUsableHeight();
             }
         });
 
-        frameLayoutParams = (FrameLayout.LayoutParams)
-                mChildOfContent.getLayoutParams();
+        //输入法界面出现变动都会调用这个监听事件
+//        mChildOfContent.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+//            public void onGlobalLayout() {
+//                if (isfirst) {
+//                    contentHeight = mChildOfContent.getHeight();//兼容华为等机型
+//                    isfirst = false;
+//                }
+//                possiblyResizeChildOfContent();
+//            }
+//        });
+
+        linearLayoutParams = (LinearLayout.LayoutParams)
+                content.getLayoutParams();
+
+//        frameLayoutParams = (FrameLayout.LayoutParams)
+//                mChildOfContent.getLayoutParams();
     }
 
-    //重新调整跟布局的高度
+    //重新调整根布局的高度
     private void possiblyResizeChildOfContent() {
-
         int usableHeightNow = computeUsableHeight();
+        LogUtil.i("possiblyResizeChildOfContent", usableHeightNow + ", " + usableHeightPrevious2);
 
         //当前可见高度和上一次可见高度不一致 布局变动
         if (usableHeightNow != usableHeightPrevious) {
@@ -76,6 +93,23 @@ public class AndroidBug5497Workaround {
     private int computeUsableHeight() {
         Rect r = new Rect();
         mChildOfContent.getWindowVisibleDisplayFrame(r);
+        return (r.bottom - r.top);
+    }
+    private void resetLayoutByUsableHeight() {
+        int usableHeightNow = computeUsableHeight2();
+        LogUtil.i("resetLayoutByUsableHeight", usableHeightNow + ", " + usableHeightPrevious2);
+        //比较布局变化前后的View的可用高度
+        if (usableHeightNow != usableHeightPrevious2) {
+            //如果两次高度不一致
+            //将当前的View的可用高度设置成View的实际高度
+            linearLayoutParams.height = usableHeightNow + statusBarHeight;
+            content.requestLayout();//请求重新布局
+            usableHeightPrevious2 = usableHeightNow;
+        }
+    }
+    private int computeUsableHeight2() {
+        Rect r = new Rect();
+        content.getWindowVisibleDisplayFrame(r);
         return (r.bottom - r.top);
     }
 }
