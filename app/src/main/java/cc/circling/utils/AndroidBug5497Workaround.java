@@ -4,9 +4,9 @@ import android.app.Activity;
 import android.graphics.Rect;
 import android.os.Build;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
 /**
  * Created by army8735 on 2017/8/19.
@@ -22,7 +22,7 @@ public class AndroidBug5497Workaround {
     private int usableHeightPrevious;
     private int usableHeightPrevious2;
     private FrameLayout.LayoutParams frameLayoutParams;
-    private LinearLayout.LayoutParams linearLayoutParams;
+    private ViewGroup.LayoutParams layoutParams;
     private int contentHeight;
     private boolean isfirst = true;
     private Activity activity;
@@ -41,6 +41,7 @@ public class AndroidBug5497Workaround {
 
         content.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             public void onGlobalLayout() {
+                LogUtil.i("onGlobalLayout");
                 resetLayoutByUsableHeight();
             }
         });
@@ -56,8 +57,7 @@ public class AndroidBug5497Workaround {
 //            }
 //        });
 
-        linearLayoutParams = (LinearLayout.LayoutParams)
-                content.getLayoutParams();
+        layoutParams = content.getLayoutParams();
 
 //        frameLayoutParams = (FrameLayout.LayoutParams)
 //                mChildOfContent.getLayoutParams();
@@ -102,12 +102,18 @@ public class AndroidBug5497Workaround {
         if (usableHeightNow != usableHeightPrevious2) {
             //如果两次高度不一致
             //将当前的View的可用高度设置成View的实际高度
-            linearLayoutParams.height = usableHeightNow + statusBarHeight;
-            content.requestLayout();//请求重新布局
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                layoutParams.height = usableHeightNow + statusBarHeight;
+            }
+            else {
+                layoutParams.height = usableHeightNow;
+            }//请求重新布局
+            content.requestLayout();
             usableHeightPrevious2 = usableHeightNow;
         }
     }
     private int computeUsableHeight2() {
+        LogUtil.i("computeUsableHeight2");
         Rect r = new Rect();
         content.getWindowVisibleDisplayFrame(r);
         return (r.bottom - r.top);
