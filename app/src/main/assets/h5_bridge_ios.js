@@ -21,7 +21,7 @@
         img.setAttribute('src', 'h5container.message: ' + msg);
         img.setAttribute('style', 'position:absolute;left:-9999px;top:-9999px;width:0;height:0;visibility:hidden');
         document.documentElement.appendChild(img);
-        iframe.parentNode.removeChild(img);
+        img.parentNode.removeChild(img);
         img = null;
         log.call(console, 'h5container.message: ' + msg);
     };
