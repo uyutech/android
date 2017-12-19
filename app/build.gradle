@@ -7,6 +7,20 @@ bugly {
 }
 
 android {
+    signingConfigs {
+        dev {
+            keyAlias 'key0'
+            keyPassword '87351984'
+            storeFile file('/Users/army8735/Documents/circling-dev')
+            storePassword '87351984'
+        }
+        release {
+            keyAlias 'key0'
+            keyPassword '87351984'
+            storeFile file('/Users/army8735/Documents/circling')
+            storePassword '87351984'
+        }
+    }
     compileSdkVersion 26
     buildToolsVersion '26.0.3'
     defaultConfig {
@@ -19,12 +33,71 @@ android {
         ndk {
             abiFilters "armeabi", "armeabi-v7a", "x86", "mips"
         }
+        resValue "string", "appName", "转圈"
     }
     buildTypes {
         release {
             minifyEnabled true
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField 'String', 'ENV', '"prod"'
+            buildConfigField 'String', 'WEB_DOMAIN', '"http://h5.circling.cc"'
+            buildConfigField 'String', 'H5_DOMAIN', '"http://circling.cc"'
+            buildConfigField 'String', 'WEIBO_APP_KEY', '"2920764466"'
+            buildConfigField 'boolean', 'ONLINE', 'false'
+            buildConfigField 'boolean', 'FOCUS_UNZIP', 'false'
+            signingConfig signingConfigs.release
+        }
+        debug {
+            minifyEnabled false
+            shrinkResources false
+            buildConfigField 'String', 'ENV', '"prod"'
+            buildConfigField 'String', 'WEB_DOMAIN', '"http://h5.circling.cc"'
+            buildConfigField 'String', 'H5_DOMAIN', '"http://circling.cc"'
+            buildConfigField 'String', 'WEIBO_APP_KEY', '"2920764466"'
+            buildConfigField 'boolean', 'ONLINE', 'false'
+            buildConfigField 'boolean', 'FOCUS_UNZIP', 'false'
+            signingConfig signingConfigs.release
+            resValue "string", "appName", "转圈debug"
+        }
+        dev {
+            minifyEnabled false
+            shrinkResources false
+            buildConfigField 'String', 'ENV', '"dev"'
+            buildConfigField 'String', 'WEB_DOMAIN', '"http://h5.dev.circling.cc2"'
+            buildConfigField 'String', 'H5_DOMAIN', '"http://dev.circling.cc2"'
+            buildConfigField 'String', 'WEIBO_APP_KEY', '"890459019"'
+            buildConfigField 'boolean', 'ONLINE', 'false'
+            buildConfigField 'boolean', 'FOCUS_UNZIP', 'false'
+            debuggable true
+            signingConfig signingConfigs.dev
+            resValue "string", "appName", "转圈dev"
+        }
+        devOnline {
+            minifyEnabled false
+            shrinkResources false
+            buildConfigField 'String', 'ENV', '"dev"'
+            buildConfigField 'String', 'WEB_DOMAIN', '"http://army8735.circling.cc:8080"'
+            buildConfigField 'String', 'H5_DOMAIN', '"http://dev.circling.cc2"'
+            buildConfigField 'String', 'WEIBO_APP_KEY', '"890459019"'
+            buildConfigField 'boolean', 'ONLINE', 'true'
+            buildConfigField 'boolean', 'FOCUS_UNZIP', 'false'
+            debuggable true
+            signingConfig signingConfigs.dev
+            resValue "string", "appName", "转圈devOnline"
+        }
+        devFocusUnzip {
+            minifyEnabled false
+            shrinkResources false
+            buildConfigField 'String', 'ENV', '"dev"'
+            buildConfigField 'String', 'WEB_DOMAIN', '"http://h5.dev.circling.cc2"'
+            buildConfigField 'String', 'H5_DOMAIN', '"http://dev.circling.cc2"'
+            buildConfigField 'String', 'WEIBO_APP_KEY', '"890459019"'
+            buildConfigField 'boolean', 'ONLINE', 'false'
+            buildConfigField 'boolean', 'FOCUS_UNZIP', 'true'
+            debuggable true
+            signingConfig signingConfigs.dev
+            resValue "string", "appName", "转圈devFocusUnzip"
         }
     }
 }

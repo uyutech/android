@@ -6,6 +6,7 @@ import com.alibaba.sdk.android.push.CloudPushService;
 import com.alibaba.sdk.android.push.CommonCallback;
 import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
 
+import com.tencent.bugly.Bugly;
 import com.umeng.analytics.MobclickAgent;
 
 import cc.circling.utils.LogUtil;
@@ -27,6 +28,8 @@ public class BaseApplication extends Application {
 
         MobclickAgent.startWithConfigure(new MobclickAgent.UMAnalyticsConfig(context, "5a27df1fb27b0a06f2000050", ""));
         MobclickAgent.enableEncrypt(true);
+
+        Bugly.init(BaseApplication.getContext(), "e8be097834", BuildConfig.ENV != "prod");
     }
 
     public static Context getContext() {

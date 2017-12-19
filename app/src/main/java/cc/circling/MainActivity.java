@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -76,46 +77,22 @@ public class MainActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         LogUtil.i("schema: " + intent.getScheme());
-        Uri uri = intent.getData();
-        if(uri != null) {
-            LogUtil.i("schema2: " + uri.getScheme());
-            LogUtil.i("host: " + uri.getHost());
-            LogUtil.i("port: " + uri.getPort());
-            LogUtil.i("path: " + uri.getPath());
-            LogUtil.i("query: " + uri.getQuery());
-            LogUtil.i("env: " + uri.getQueryParameter("env"));
-            String env = uri.getQueryParameter("env");
-            if(env != null) {
-                if(env.equals("dev-online")) {
-                    URLs.H5_DOMAIN = "http://dev.circling.cc2";
-                    URLs.WEB_DOMAIN = "http://army8735.circling.cc:8080";
-                    MyWebViewClient.online = true;
-                }
-                else if(env.equals("dev-focus-unzip")) {
-                    URLs.H5_DOMAIN = "http://dev.circling.cc2";
-                    URLs.WEB_DOMAIN = "http://h5.dev.circling.cc2";
-                    hasUnZipPack = false;
-                    SharedPreferences.Editor editor = this.getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), Context.MODE_PRIVATE).edit();
-                    editor.putBoolean("hasUnZip", false);
-                    editor.apply();
-                }
-                else if(env.equals("dev")) {
-                    URLs.H5_DOMAIN = "http://dev.circling.cc2";
-                    URLs.WEB_DOMAIN = "http://h5.dev.circling.cc2";
-                }
-                Bugly.init(BaseApplication.getContext(), "e8be097834", true);
-                Constants.APP_KEY = "890459019";
-            }
-            if(MyWebViewClient.online) {
-                showRedirect();
-            }
-            else {
-                Bugly.init(BaseApplication.getContext(), "e8be097834", false);
-                checkUpdate();
-            }
+        LogUtil.i("BUILD_TYPE: " + BuildConfig.BUILD_TYPE);
+        LogUtil.i("WEB_DOMAIN: " + BuildConfig.WEB_DOMAIN);
+        LogUtil.i("H5_DOMAIN: " + BuildConfig.H5_DOMAIN);
+        LogUtil.i("FOCUS_UNZIP: " + BuildConfig.FOCUS_UNZIP);
+        LogUtil.i("ONLINE: " + BuildConfig.ONLINE);
+
+        if(BuildConfig.FOCUS_UNZIP) {
+            hasUnZipPack = false;
+            SharedPreferences.Editor editor = this.getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), Context.MODE_PRIVATE).edit();
+            editor.putBoolean("hasUnZip", false);
+            editor.apply();
+        }
+        if(BuildConfig.ONLINE) {
+            showRedirect();
         }
         else {
-            Bugly.init(BaseApplication.getContext(), "e8be097834", false);
             checkUpdate();
         }
     }
@@ -155,17 +132,18 @@ public class MainActivity extends AppCompatActivity {
                         int version = json.getIntValue("version");
                         // 获取本地版本信息
                         SharedPreferences sharedPreferences = getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), MODE_PRIVATE);
-                        final int curVersion = sharedPreferences.getInt("version", 13);
+                        final int curVersion = sharedPreferences.getInt("version", 17);
                         LogUtil.i("checkUpdate version: ", version + ", " + curVersion);
                         if(curVersion < version) {
-                            SharedPreferences.Editor editor = MainActivity.this.getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), Context.MODE_PRIVATE).edit();
+                            final SharedPreferences.Editor editor = MainActivity.this.getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), Context.MODE_PRIVATE).edit();
                             editor.putInt("version", version);
                             editor.putBoolean("hasUnZip", false);
-                            editor.apply();
                             final String url = json.getString("url");
                             LogUtil.i("Download h5zip: ", url);
                             OkHttpClient client2 = new OkHttpClient
                                     .Builder()
+                                    .connectTimeout(10, TimeUnit.SECONDS)
+                                    .readTimeout(60, TimeUnit.SECONDS)
                                     .build();
                             Request request2 = new Request.Builder()
                                     .url(url)
@@ -195,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
                                         });
                                         return;
                                     }
+                                    editor.apply();
                                     InputStream is = null;
                                     byte[] buffer = new byte[10240];
                                     ByteArrayOutputStream outStream = new ByteArrayOutputStream();
@@ -331,7 +310,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showRedirect(final String data) {
+    private void showRedirect() {
         progressBar.setProgress(100);
         // 获取已登录信息
         SharedPreferences sharedPreferences = getSharedPreferences(PreferenceEnum.SESSION.name(), MODE_PRIVATE);
@@ -350,7 +329,7 @@ public class MainActivity extends AppCompatActivity {
         else {
             time = 1000 - ((int)(end - timeStart));
         }
-        LogUtil.i("showRedirect: ", time + ", " + data);
+        LogUtil.i("showRedirect: ", time + "");
         new Handler().postDelayed(new Runnable() {
             public void run() {
                 Intent intent = new Intent(MainActivity.this, X5Activity.class);
@@ -362,8 +341,5 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.finish();
             }
         }, time);
-    }
-    private void showRedirect() {
-        showRedirect("");
     }
 }

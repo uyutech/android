@@ -10,6 +10,7 @@ import android.webkit.WebViewClient;
 import android.webkit.WebView;
 
 import cc.circling.BaseApplication;
+import cc.circling.BuildConfig;
 import cc.circling.X5Activity;
 import cc.circling.utils.LogUtil;
 
@@ -21,7 +22,7 @@ import java.io.InputStream;
  */
 
 public class MyWebViewClient extends WebViewClient {
-    public static boolean online = false;
+    public static final boolean online = BuildConfig.ONLINE;
 
     private X5Activity activity;
 
