@@ -8,12 +8,6 @@ bugly {
 
 android {
     signingConfigs {
-        dev {
-            keyAlias 'key0'
-            keyPassword '87351984'
-            storeFile file('/Users/army8735/Documents/circling-dev')
-            storePassword '87351984'
-        }
         release {
             keyAlias 'circling'
             keyPassword '87351984'
@@ -70,7 +64,7 @@ android {
             buildConfigField 'boolean', 'ONLINE', 'false'
             buildConfigField 'boolean', 'FOCUS_UNZIP', 'false'
             debuggable true
-            signingConfig signingConfigs.dev
+            signingConfig signingConfigs.release
             resValue "string", "appName", "转圈dev"
         }
         devOnline {
@@ -83,7 +77,7 @@ android {
             buildConfigField 'boolean', 'ONLINE', 'true'
             buildConfigField 'boolean', 'FOCUS_UNZIP', 'false'
             debuggable true
-            signingConfig signingConfigs.dev
+            signingConfig signingConfigs.release
             resValue "string", "appName", "转圈devOnline"
         }
         devFocusUnzip {
@@ -96,7 +90,7 @@ android {
             buildConfigField 'boolean', 'ONLINE', 'false'
             buildConfigField 'boolean', 'FOCUS_UNZIP', 'true'
             debuggable true
-            signingConfig signingConfigs.dev
+            signingConfig signingConfigs.release
             resValue "string", "appName", "转圈devFocusUnzip"
         }
     }
