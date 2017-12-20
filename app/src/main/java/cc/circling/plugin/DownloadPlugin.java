@@ -61,6 +61,7 @@ public class DownloadPlugin extends H5Plugin {
                     ActivityCompat.requestPermissions(activity, new String[] {
                             Manifest.permission.READ_EXTERNAL_STORAGE
                     }, 1);
+                    return;
                 }
                 // 创建目录
                 String directoryPath = "";
@@ -94,8 +95,11 @@ public class DownloadPlugin extends H5Plugin {
                 if(path.endsWith(".mp3")) {
                     type = "audio/*";
                 }
-                else {
+                else if(path.endsWith(".mp4")) {
                     type = "video/*";
+                }
+                else {
+                    type = "image/*";
                 }
 
                 Intent intent = new Intent(Intent.ACTION_VIEW);
