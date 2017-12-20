@@ -40,14 +40,18 @@ public class AlbumPlugin extends H5Plugin {
             }
         }
 
-        int permission = ActivityCompat.checkSelfPermission(activity,
+        int permissionRead = ActivityCompat.checkSelfPermission(activity,
                 Manifest.permission.READ_EXTERNAL_STORAGE);
-        LogUtil.i("READ_EXTERNAL_STORAGE", permission + "");
-        if(permission != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-            JSONObject json2 = new JSONObject();
-            json2.put("success", false);
-            activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json2.toJSONString() + "');");
+        int permissionWrite = ActivityCompat.checkSelfPermission(activity,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        LogUtil.i("permissionRead", permissionRead + "");
+        LogUtil.i("permissionWrite", permissionWrite + "");
+        if(permissionRead != PackageManager.PERMISSION_GRANTED || permissionWrite != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity, new String[] {
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+            }, 1);
+            cancel();
             return;
         }
 

@@ -54,12 +54,16 @@ public class DownloadPlugin extends H5Plugin {
                     name = url;
                 }
                 final String fileName = name;
-                int permissionWrite = ActivityCompat.checkSelfPermission(activity,
+                int permissionRead = ActivityCompat.checkSelfPermission(activity,
                         Manifest.permission.READ_EXTERNAL_STORAGE);
-                LogUtil.i("REQUEST_ALBUM_OK permissionWrite", permissionWrite + "");
-                if(permissionWrite != PackageManager.PERMISSION_GRANTED) {
+                int permissionWrite = ActivityCompat.checkSelfPermission(activity,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                LogUtil.i("permissionRead", permissionRead + "");
+                LogUtil.i("permissionWrite", permissionWrite + "");
+                if(permissionRead != PackageManager.PERMISSION_GRANTED || permissionWrite != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(activity, new String[] {
-                            Manifest.permission.READ_EXTERNAL_STORAGE
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE
                     }, 1);
                     return;
                 }

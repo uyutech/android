@@ -575,13 +575,18 @@ public class X5Activity extends AppCompatActivity {
                             albumPlugin.cancel();
                             return;
                         }
+                        int permissionRead = ActivityCompat.checkSelfPermission(this,
+                                Manifest.permission.READ_EXTERNAL_STORAGE);
                         int permissionWrite = ActivityCompat.checkSelfPermission(this,
                                 Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                        LogUtil.i("REQUEST_ALBUM_OK permissionWrite", permissionWrite + "");
-                        if(permissionWrite != PackageManager.PERMISSION_GRANTED) {
+                        LogUtil.i("permissionRead", permissionRead + "");
+                        LogUtil.i("permissionWrite", permissionWrite + "");
+                        if(permissionRead != PackageManager.PERMISSION_GRANTED || permissionWrite != PackageManager.PERMISSION_GRANTED) {
                             ActivityCompat.requestPermissions(this, new String[] {
+                                    Manifest.permission.READ_EXTERNAL_STORAGE,
                                     Manifest.permission.WRITE_EXTERNAL_STORAGE
                             }, 1);
+                            return;
                         }
                         ArrayList<String> res = new ArrayList<String>();
                         for(Uri uri : list) {
@@ -610,7 +615,7 @@ public class X5Activity extends AppCompatActivity {
                             options.inSampleSize = inSampleSize;
                             Bitmap bitmap = BitmapFactory.decodeFile(file, options);
                             if(bitmap == null) {
-                                LogUtil.i("REQUEST_ALBUM_OK", (bitmap == null) + ",");
+                                LogUtil.i("REQUEST_ALBUM_OK", "null");
                                 break;
                             }
                             LogUtil.i("REQUEST_ALBUM_OK", bitmap.getByteCount() + " " + bitmap.getWidth() + " " + bitmap.getHeight());
