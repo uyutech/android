@@ -15,7 +15,7 @@ android {
             storePassword '87351984'
         }
         release {
-            keyAlias 'key0'
+            keyAlias 'circling'
             keyPassword '87351984'
             storeFile file('/Users/army8735/Documents/circling')
             storePassword '87351984'

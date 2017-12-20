@@ -40,11 +40,15 @@ public class AlbumPlugin extends H5Plugin {
             }
         }
 
-        int permissionWrite = ActivityCompat.checkSelfPermission(activity,
+        int permission = ActivityCompat.checkSelfPermission(activity,
                 Manifest.permission.READ_EXTERNAL_STORAGE);
-        LogUtil.i("REQUEST_ALBUM_OK permissionWrite", permissionWrite + "");
-        if(permissionWrite != PackageManager.PERMISSION_GRANTED) {
+        LogUtil.i("READ_EXTERNAL_STORAGE", permission + "");
+        if(permission != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(activity, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+            JSONObject json2 = new JSONObject();
+            json2.put("success", false);
+            activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json2.toJSONString() + "');");
+            return;
         }
 
         Matisse.from(activity)
