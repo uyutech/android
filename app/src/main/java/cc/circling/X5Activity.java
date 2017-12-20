@@ -586,6 +586,7 @@ public class X5Activity extends AppCompatActivity {
                                     Manifest.permission.READ_EXTERNAL_STORAGE,
                                     Manifest.permission.WRITE_EXTERNAL_STORAGE
                             }, 1);
+                            albumPlugin.cancel();
                             return;
                         }
                         ArrayList<String> res = new ArrayList<String>();
