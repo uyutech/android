@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.sdk.android.push.CloudPushService;
+import com.alibaba.sdk.android.push.CommonCallback;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.umeng.analytics.MobclickAgent;
 
@@ -12,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import cc.circling.BaseApplication;
 import cc.circling.X5Activity;
 import cc.circling.utils.LogUtil;
 import cc.circling.web.MyCookies;
@@ -99,11 +102,26 @@ public class WeiboLoginPlugin extends H5Plugin {
                             activity.syncCookie();
                             JSONObject json = JSONObject.parseObject(responseBody);
                             if (json.getBoolean("success")) {
-                                JSONObject userInfo = json.getJSONObject("userInfo");
-                                if (userInfo != null) {
-                                    String id = userInfo.getString("ID");
-                                    MobclickAgent.onProfileSignIn(id);
-                                    CrashReport.setUserId(id);
+                                JSONObject data = json.getJSONObject("data");
+                                if(data != null) {
+                                    JSONObject userInfo = data.getJSONObject("userInfo");
+                                    if (userInfo != null) {
+                                        String uid = userInfo.getString("UID");
+                                        LogUtil.i("weiboLogin: " + uid);
+                                        MobclickAgent.onProfileSignIn(uid);
+                                        CrashReport.setUserId(uid);
+                                        BaseApplication.getCloudPushService().bindAccount(uid, new CommonCallback() {
+                                            @Override
+                                            public void onSuccess(String message) {
+                                                LogUtil.i("bindAccount success", message);
+                                            }
+
+                                            @Override
+                                            public void onFailed(String message, String arg) {
+                                                LogUtil.i("bindAccount fail", message + ", " + arg);
+                                            }
+                                        });
+                                    }
                                 }
                             }
                             activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + responseBody + "');");

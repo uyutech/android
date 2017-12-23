@@ -18,6 +18,7 @@ import cc.circling.utils.LogUtil;
 
 public class BaseApplication extends Application {
     private static Context context;
+    private static CloudPushService pushService;
 
     @Override
     public void onCreate() {
@@ -35,10 +36,13 @@ public class BaseApplication extends Application {
     public static Context getContext() {
         return context;
     }
+    public static CloudPushService getCloudPushService() {
+        return pushService;
+    }
 
     private void initCloudChannel(Context applicationContext) {
         PushServiceFactory.init(applicationContext);
-        CloudPushService pushService = PushServiceFactory.getCloudPushService();
+        pushService = PushServiceFactory.getCloudPushService();
         pushService.register(applicationContext, new CommonCallback() {
             @Override
             public void onSuccess(String response) {
