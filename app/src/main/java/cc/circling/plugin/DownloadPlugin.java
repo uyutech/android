@@ -29,8 +29,6 @@ import cc.circling.R;
 import cc.circling.X5Activity;
 import cc.circling.utils.LogUtil;
 
-import static android.os.Environment.MEDIA_MOUNTED;
-
 /**
  * Created by army8735 on 2017/12/8.
  */
@@ -67,16 +65,37 @@ public class DownloadPlugin extends H5Plugin {
                     }, 1);
                     return;
                 }
+
+                String type;
+                if(fileName.endsWith(".mp3")) {
+                    type = "audio/*";
+                }
+                else if(fileName.endsWith(".mp4")) {
+                    type = "video/*";
+                }
+                else {
+                    type = "image/*";
+                }
+
                 // 创建目录
                 String directoryPath = "";
-                if(MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+                if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
                     LogUtil.i("DownloadPlugin: MEDIA_MOUNTED");
-                    directoryPath = BaseApplication.getContext().getExternalFilesDir("download").getAbsolutePath();
+                    if(fileName.endsWith(".mp3")) {
+                        directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath();
+                    }
+                    else if(fileName.endsWith(".mp4")) {
+                        directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES).getAbsolutePath();
+                    }
+                    else {
+                        directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath();
+                    }
                 }
                 else {
                     LogUtil.i("DownloadPlugin: !MEDIA_MOUNTED");
-                    directoryPath = BaseApplication.getContext().getFilesDir() + File.separator + "download";
+                    directoryPath = BaseApplication.getContext().getFilesDir().getAbsolutePath();
                 }
+                directoryPath += File.separator + "circling";
                 File file = new File(directoryPath);
                 if(!file.exists()) {
                     file.mkdirs();
@@ -95,17 +114,6 @@ public class DownloadPlugin extends H5Plugin {
                 builder.setSmallIcon(R.mipmap.ic_launcher);
                 builder.setLargeIcon(BitmapFactory.decodeResource(activity.getResources(), R.mipmap.ic_launcher));
 
-                String type;
-                if(path.endsWith(".mp3")) {
-                    type = "audio/*";
-                }
-                else if(path.endsWith(".mp4")) {
-                    type = "video/*";
-                }
-                else {
-                    type = "image/*";
-                }
-
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 Uri uri;
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -122,8 +130,6 @@ public class DownloadPlugin extends H5Plugin {
                 intent.addCategory(Intent.CATEGORY_DEFAULT);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.putExtra("oneshot", 0);
-                intent.putExtra("configchange", 0);
                 final PendingIntent pIntent = PendingIntent.getActivity(activity, 1, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 //                builder.setContentIntent(pIntent);
                 Notification notification = builder.build();

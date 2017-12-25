@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <paths>
-        <files-path name="files" path="download" />
-        <external-files-path name="externalfiles" path="download" />
+        <files-path name="files" path="" />
+        <external-path name="external" path="" />
+        <external-files-path name="externalfiles" path="" />
     </paths>
 </resources>

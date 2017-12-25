@@ -1,6 +1,6 @@
 <resources>
     <string name="domain">circling.cc</string>
-    <string name="copyright">2016-2017 © All Rights Reserved</string>
+    <string name="copyright">2016-2018 © All Rights Reserved</string>
 
     <string name="loginOther">其它账号登录</string>
     <string name="phoneNum">0123456789</string>

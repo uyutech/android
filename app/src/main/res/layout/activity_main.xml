@@ -6,7 +6,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/bgi"
-        android:src="@drawable/main_bg_1024_2208"
+        android:src="@drawable/main_bg_750_1136"
         android:scaleType="centerCrop"/>
 
     <LinearLayout
