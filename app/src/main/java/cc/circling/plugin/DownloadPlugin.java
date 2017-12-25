@@ -66,7 +66,7 @@ public class DownloadPlugin extends H5Plugin {
                     return;
                 }
 
-                String type;
+                final String type;
                 if(fileName.endsWith(".mp3")) {
                     type = "audio/*";
                 }
@@ -102,9 +102,9 @@ public class DownloadPlugin extends H5Plugin {
                 }
                 LogUtil.i("directoryPath: " + directoryPath);
                 FileDownloadHelper.holdContext(BaseApplication.getContext());
-                String path = directoryPath + File.separator + fileName;
+                final String path = directoryPath + File.separator + fileName;
                 LogUtil.i("path: " + path);
-                File file2 = new File(path);
+                File downloadFile = new File(path);
 
                 final int currentID = downloadID++;
                 final NotificationCompat.Builder builder = new NotificationCompat.Builder(activity, "download");
@@ -115,16 +115,16 @@ public class DownloadPlugin extends H5Plugin {
                 builder.setLargeIcon(BitmapFactory.decodeResource(activity.getResources(), R.mipmap.ic_launcher));
 
                 Intent intent = new Intent(Intent.ACTION_VIEW);
-                Uri uri;
+                final Uri uri;
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     uri = FileProvider.getUriForFile(BaseApplication.getContext(),
-                            BuildConfig.APPLICATION_ID + ".download", file2);
-                    LogUtil.i("url: " + uri);
+                            BuildConfig.APPLICATION_ID + ".download", downloadFile);
+                    LogUtil.i("uri: " + uri);
                     intent.setDataAndType(uri, type);
                 }
                 else {
-                    uri = Uri.fromFile(file2);
-                    LogUtil.i("url2: " + uri);
+                    uri = Uri.fromFile(downloadFile);
+                    LogUtil.i("uri2: " + uri);
                     intent.setDataAndType(uri, type);
                 }
                 intent.addCategory(Intent.CATEGORY_DEFAULT);
@@ -184,6 +184,11 @@ public class DownloadPlugin extends H5Plugin {
                             builder.setProgress(0, 0, false);
                             builder.setContentIntent(pIntent);
                             notificationManager.notify(currentID, builder.build());
+                            // 通知媒体库更新，可以在相册等看到
+                            Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                            intent.setData(uri);
+                            LogUtil.i("completed: ", intent.toString());
+                            activity.sendBroadcast(intent);
                         }
 
                         @Override
