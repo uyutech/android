@@ -44,7 +44,6 @@ public class WebView extends android.webkit.WebView {
                 break;
             case MotionEvent.ACTION_MOVE:
                 if(getScrollY() > 0) {
-//                    LogUtil.i("3setEnabled(false)");
                     swipeRefreshLayout.setEnabled(false);
                 }
                 else if(isStart) {
@@ -60,7 +59,6 @@ public class WebView extends android.webkit.WebView {
                 break;
             case MotionEvent.ACTION_UP:
                 isStart = false;
-//                LogUtil.i("4setEnabled(" + getScrollY() + ")");
                 swipeRefreshLayout.setEnabled(getScrollY() == 0);
                 break;
         }
