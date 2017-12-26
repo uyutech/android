@@ -692,7 +692,7 @@ public class X5Activity extends AppCompatActivity {
         super.onStop();
         webView.onPause();
         LogUtil.i("onStop: ", url);
-        webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('pause');");
+        webView.loadUrl("javascript: ZhuanQuanJSBridge.emit('pause');");
     }
     @Override
     protected void onDestroy() {
