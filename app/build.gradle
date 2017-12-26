@@ -21,8 +21,8 @@ android {
         applicationId "cc.circling"
         minSdkVersion 19
         targetSdkVersion 26
-        versionCode 8
-        versionName "0.2.9"
+        versionCode 9
+        versionName "0.3.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters "armeabi", "armeabi-v7a", "x86", "mips"
@@ -111,7 +111,7 @@ dependencies {
     compile 'com.tencent.bugly:crashreport_upgrade:latest.release'
     compile 'com.zhihu.android:matisse:0.4.3'
     compile 'com.github.bumptech.glide:glide:3.5.2'
-    compile 'com.liulishuo.filedownloader:library:1.6.8'
+    compile 'com.liulishuo.filedownloader:library:1.6.9'
     compile 'com.aliyun.ams:alicloud-android-push:3.0.12@aar'
     compile 'com.aliyun.ams:alicloud-android-utdid:1.1.5.3'
     compile 'com.aliyun.ams:alicloud-android-ut:5.1.0'
