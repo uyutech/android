@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
                         int version = json.getIntValue("version");
                         // 获取本地版本信息
                         SharedPreferences sharedPreferences = getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), MODE_PRIVATE);
-                        final int curVersion = sharedPreferences.getInt("version", 40);
+                        final int curVersion = sharedPreferences.getInt("version", 41);
                         LogUtil.i("checkUpdate version: ", version + ", " + curVersion);
                         if(curVersion < version) {
                             final SharedPreferences.Editor editor = MainActivity.this.getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), Context.MODE_PRIVATE).edit();
@@ -173,7 +173,6 @@ public class MainActivity extends AppCompatActivity {
                                         });
                                         return;
                                     }
-                                    editor.apply();
                                     InputStream is = null;
                                     byte[] buffer = new byte[10240];
                                     ByteArrayOutputStream outStream = new ByteArrayOutputStream();
@@ -197,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
                                             showRedirect();
                                         }
                                     });
+                                    editor.apply();
                                 }
                             });
                         }
