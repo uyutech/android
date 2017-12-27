@@ -55,7 +55,7 @@ import cc.circling.plugin.LoginWeiboPlugin;
 import cc.circling.plugin.GetPreferencePlugin;
 import cc.circling.plugin.MoveTaskToBackPlugin;
 import cc.circling.plugin.NetworkInfoPlugin;
-import cc.circling.plugin.NotificationPlugin;
+import cc.circling.plugin.NotifyPlugin;
 import cc.circling.plugin.OpenUriPlugin;
 import cc.circling.plugin.PromptPlugin;
 import cc.circling.plugin.SetOptionMenuPlugin;
@@ -124,7 +124,7 @@ public class X5Activity extends AppCompatActivity {
     private SetCookiePlugin setCookiePlugin;
     private WeiboLoginPlugin weiboLoginPlugin;
     private LoginOutPlugin loginOutPlugin;
-    private NotificationPlugin notificationPlugin;
+    private NotifyPlugin notificationPlugin;
     private AlbumPlugin albumPlugin;
     private PromptPlugin promptPlugin;
     private DownloadPlugin downloadPlugin;
@@ -415,7 +415,7 @@ public class X5Activity extends AppCompatActivity {
         loginOutPlugin = new LoginOutPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.LOGIN_OUT, loginOutPlugin);
 
-        notificationPlugin = new NotificationPlugin(this);
+        notificationPlugin = new NotifyPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.NOTIFY, notificationPlugin);
 
         albumPlugin = new AlbumPlugin(this);

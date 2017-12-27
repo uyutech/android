@@ -18,9 +18,9 @@ import cc.circling.utils.LogUtil;
  * Created by army8735 on 2017/12/5.
  */
 
-public class NotificationPlugin extends H5Plugin {
+public class NotifyPlugin extends H5Plugin {
     private static int uid = 0;
-    public NotificationPlugin(X5Activity activity) {
+    public NotifyPlugin(X5Activity activity) {
         super(activity);
     }
 
