@@ -30,7 +30,7 @@ public class BaseApplication extends Application {
         MobclickAgent.startWithConfigure(new MobclickAgent.UMAnalyticsConfig(context, "5a27df1fb27b0a06f2000050", ""));
         MobclickAgent.enableEncrypt(true);
 
-        Bugly.init(BaseApplication.getContext(), "e8be097834", BuildConfig.ENV != "prod");
+        Bugly.init(BaseApplication.getContext(), "e8be097834", !BuildConfig.ENV.equals("prod"));
     }
 
     public static Context getContext() {
