@@ -51,6 +51,7 @@ import cc.circling.plugin.AlbumPlugin;
 import cc.circling.plugin.DownloadPlugin;
 import cc.circling.plugin.HideOptionMenuPlugin;
 import cc.circling.plugin.LoginOutPlugin;
+import cc.circling.plugin.LoginPlugin;
 import cc.circling.plugin.LoginWeiboPlugin;
 import cc.circling.plugin.GetPreferencePlugin;
 import cc.circling.plugin.MoveTaskToBackPlugin;
@@ -129,6 +130,7 @@ public class X5Activity extends AppCompatActivity {
     private PromptPlugin promptPlugin;
     private DownloadPlugin downloadPlugin;
     private NetworkInfoPlugin networkInfoPlugin;
+    private LoginPlugin loginPlugin;
 
     private LinearLayout titleBar;
     private TextView title;
@@ -429,6 +431,9 @@ public class X5Activity extends AppCompatActivity {
 
         networkInfoPlugin = new NetworkInfoPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.NETWORK_INFO, networkInfoPlugin);
+
+        loginPlugin = new LoginPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.LOGIN, loginPlugin);
     }
 
     public void setDefaultTitle(String s) {
