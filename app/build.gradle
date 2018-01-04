@@ -21,8 +21,8 @@ android {
         applicationId "cc.circling"
         minSdkVersion 19
         targetSdkVersion 26
-        versionCode 10
-        versionName "0.4.0"
+        versionCode 11
+        versionName "0.4.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters "armeabi", "armeabi-v7a", "x86", "mips"
@@ -35,8 +35,8 @@ android {
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField 'String', 'ENV', '"prod"'
-            buildConfigField 'String', 'WEB_DOMAIN', '"http://h5.circling.cc"'
-            buildConfigField 'String', 'H5_DOMAIN', '"http://circling.cc"'
+            buildConfigField 'String', 'WEB_DOMAIN', '"https://h5.circling.cc"'
+            buildConfigField 'String', 'H5_DOMAIN', '"https://circling.cc"'
             buildConfigField 'String', 'WEIBO_APP_KEY', '"2920764466"'
             buildConfigField 'boolean', 'ONLINE', 'false'
             buildConfigField 'boolean', 'FOCUS_UNZIP', 'false'
@@ -46,8 +46,8 @@ android {
             minifyEnabled false
             shrinkResources false
             buildConfigField 'String', 'ENV', '"prod"'
-            buildConfigField 'String', 'WEB_DOMAIN', '"http://h5.circling.cc"'
-            buildConfigField 'String', 'H5_DOMAIN', '"http://circling.cc"'
+            buildConfigField 'String', 'WEB_DOMAIN', '"https://h5.circling.cc"'
+            buildConfigField 'String', 'H5_DOMAIN', '"https://circling.cc"'
             buildConfigField 'String', 'WEIBO_APP_KEY', '"2920764466"'
             buildConfigField 'boolean', 'ONLINE', 'false'
             buildConfigField 'boolean', 'FOCUS_UNZIP', 'false'

@@ -155,6 +155,7 @@ public class X5Activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        firstRun = true;
         Window window = getWindow();
         window.setFormat(PixelFormat.TRANSLUCENT);
 
@@ -709,6 +710,7 @@ public class X5Activity extends AppCompatActivity {
         ((ViewGroup) webView.getParent()).removeView(webView);
         webView.destroy();
         webView = null;
+        firstRun = true;
     }
 
     public SwipeRefreshLayout getSwipeRefreshLayout() {
