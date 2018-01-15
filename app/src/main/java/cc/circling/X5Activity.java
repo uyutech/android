@@ -1,7 +1,9 @@
 package cc.circling;
 
 import android.Manifest;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -13,6 +15,7 @@ import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -54,6 +57,7 @@ import cc.circling.plugin.LoginOutPlugin;
 import cc.circling.plugin.LoginPlugin;
 import cc.circling.plugin.LoginWeiboPlugin;
 import cc.circling.plugin.GetPreferencePlugin;
+import cc.circling.plugin.MediaPlugin;
 import cc.circling.plugin.MoveTaskToBackPlugin;
 import cc.circling.plugin.NetworkInfoPlugin;
 import cc.circling.plugin.NotifyPlugin;
@@ -131,6 +135,7 @@ public class X5Activity extends AppCompatActivity {
     private DownloadPlugin downloadPlugin;
     private NetworkInfoPlugin networkInfoPlugin;
     private LoginPlugin loginPlugin;
+    private MediaPlugin mediaPlugin;
 
     private LinearLayout titleBar;
     private TextView title;
@@ -152,10 +157,12 @@ public class X5Activity extends AppCompatActivity {
 
     private static CookieManager cookieManager;
 
+    private MediaService.PlayBinder playBinder;
+    private ServiceConnection serviceConnection;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        firstRun = true;
         Window window = getWindow();
         window.setFormat(PixelFormat.TRANSLUCENT);
 
@@ -225,7 +232,7 @@ public class X5Activity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 LogUtil.i("click back");
-                webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('back');");
+                webView.loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.trigger('back');");
             }
         });
 
@@ -242,7 +249,7 @@ public class X5Activity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 LogUtil.i("click optionMenuText");
-                webView.loadUrl("javascript: ZhuanQuanJSBridge.emit('optionMenu');");
+                webView.loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('optionMenu');");
             }
         });
 
@@ -278,7 +285,8 @@ public class X5Activity extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 LogUtil.i("swipeRefreshLayout onRefresh");
-                webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('refresh');");
+                // TODO: 极低概率下ZhuanQuanJSBridge还没有加载出来，进入卡死状态
+                webView.loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.trigger('refresh');");
             }
         });
 
@@ -435,6 +443,9 @@ public class X5Activity extends AppCompatActivity {
 
         loginPlugin = new LoginPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.LOGIN, loginPlugin);
+
+        mediaPlugin = new MediaPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.MEDIA, mediaPlugin);
     }
 
     public void setDefaultTitle(String s) {
@@ -545,13 +556,57 @@ public class X5Activity extends AppCompatActivity {
         }
         return filePath;
     }
+    public void media(final String key, final String value) {
+        LogUtil.i("media", key + ", " + value);
+        if(serviceConnection == null) {
+            serviceConnection = new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder service) {
+                    LogUtil.i("onServiceConnected");
+                    playBinder = (MediaService.PlayBinder) service;
+                    playBinder.start(X5Activity.this);
+                    mediaNext(key, value);
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName name) {
+                }
+            };
+            Intent intent = new Intent(this, MediaService.class);
+            bindService(intent, serviceConnection, BIND_AUTO_CREATE);
+        }
+        else {
+            mediaNext(key, value);
+        }
+    }
+    private void mediaNext(String key, String value) {
+        if(playBinder != null) {
+            switch (key) {
+                case "setUrl":
+                    playBinder.setUrl(value);
+                    break;
+                case "play":
+                    playBinder.play();
+                    break;
+                case "pause":
+                playBinder.pause();
+                    break;
+                case "stop":
+                    playBinder.stop();
+                    break;
+                case "reset":
+                    playBinder.reset(value);
+                    break;
+            }
+        }
+    }
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         LogUtil.i("keyup: " + keyCode);
         if(keyCode == KeyEvent.KEYCODE_BACK) {
             LogUtil.i("KEYCODE_BACK");
-            webView.loadUrl("javascript: ZhuanQuanJSBridge.trigger('back');");
+            webView.loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.trigger('back');");
             return true;
         }
         return super.onKeyUp(keyCode, event);
@@ -674,7 +729,7 @@ public class X5Activity extends AppCompatActivity {
         if(!firstRun) {
             webView.onResume();
             LogUtil.i("resume: ", popWindowParam);
-            webView.loadUrl("javascript: ZhuanQuanJSBridge.emit('resume', " + popWindowParam + ");");
+            webView.loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('resume', " + popWindowParam + ");");
             popWindowParam = null;
         }
         else {
@@ -698,7 +753,7 @@ public class X5Activity extends AppCompatActivity {
         super.onStop();
         webView.onPause();
         LogUtil.i("onStop: ", url);
-        webView.loadUrl("javascript: ZhuanQuanJSBridge.emit('pause');");
+        webView.loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('pause');");
     }
     @Override
     protected void onDestroy() {
@@ -710,7 +765,6 @@ public class X5Activity extends AppCompatActivity {
         ((ViewGroup) webView.getParent()).removeView(webView);
         webView.destroy();
         webView = null;
-        firstRun = true;
     }
 
     public SwipeRefreshLayout getSwipeRefreshLayout() {

@@ -2,12 +2,16 @@ package cc.circling;
 
 import android.app.Application;
 import android.content.Context;
+
 import com.alibaba.sdk.android.push.CloudPushService;
 import com.alibaba.sdk.android.push.CommonCallback;
 import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
 
 import com.tencent.bugly.Bugly;
 import com.umeng.analytics.MobclickAgent;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import cc.circling.utils.LogUtil;
 

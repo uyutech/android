@@ -56,3 +56,5 @@
 -dontwarn anetwork.**
 -dontwarn com.ut.**
 -dontwarn com.ta.**
+-dontwarn okio.**
+-dontwarn org.apache.commons.codec.binary.**
