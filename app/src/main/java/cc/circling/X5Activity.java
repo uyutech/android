@@ -556,7 +556,7 @@ public class X5Activity extends AppCompatActivity {
         }
         return filePath;
     }
-    public void media(final String key, final String value) {
+    public void media(final String key, final String value, final String clientId) {
         LogUtil.i("media", key + ", " + value);
         if(serviceConnection == null) {
             serviceConnection = new ServiceConnection() {
@@ -565,37 +565,39 @@ public class X5Activity extends AppCompatActivity {
                     LogUtil.i("onServiceConnected");
                     playBinder = (MediaService.PlayBinder) service;
                     playBinder.start(X5Activity.this);
-                    mediaNext(key, value);
+                    mediaNext(key, value, clientId);
                 }
 
                 @Override
                 public void onServiceDisconnected(ComponentName name) {
+                    LogUtil.i("onServiceDisconnected");
                 }
             };
             Intent intent = new Intent(this, MediaService.class);
+            startService(intent);
             bindService(intent, serviceConnection, BIND_AUTO_CREATE);
         }
         else {
-            mediaNext(key, value);
+            mediaNext(key, value, clientId);
         }
     }
-    private void mediaNext(String key, String value) {
+    private void mediaNext(String key, String value, String clientId) {
         if(playBinder != null) {
             switch (key) {
-                case "setUrl":
-                    playBinder.setUrl(value);
+                case "url":
+                    playBinder.url(value, clientId);
                     break;
                 case "play":
-                    playBinder.play();
+                    playBinder.play(clientId);
                     break;
                 case "pause":
-                playBinder.pause();
+                playBinder.pause(clientId);
                     break;
                 case "stop":
-                    playBinder.stop();
+                    playBinder.stop(clientId);
                     break;
-                case "reset":
-                    playBinder.reset(value);
+                case "seek":
+                    playBinder.seek(value, clientId);
                     break;
             }
         }
@@ -758,6 +760,12 @@ public class X5Activity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if(playBinder != null) {
+            playBinder.sourceDestroy();
+        }
+        if(serviceConnection != null) {
+            unbindService(serviceConnection);
+        }
         webView.setWebChromeClient(null);
         webView.setWebViewClient(null);
         webView.setSwipeRefreshLayout(null);

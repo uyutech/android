@@ -19,10 +19,11 @@ public class MediaPlugin extends H5Plugin {
     public void handle(JSONObject json) {
         LogUtil.i("MediaPlugin: " + json.toJSONString());
         JSONObject param = json.getJSONObject("param");
+        String clientId = json.getString("clientId");
         if(param != null) {
             String key = param.getString("key");
             String value = param.getString("value");
-            this.activity.media(key, value);
+            this.activity.media(key, value, clientId);
         }
     }
 }

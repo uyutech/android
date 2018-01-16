@@ -7,11 +7,9 @@ import com.alibaba.sdk.android.push.CloudPushService;
 import com.alibaba.sdk.android.push.CommonCallback;
 import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
 
+import com.danikula.videocache.HttpProxyCacheServer;
 import com.tencent.bugly.Bugly;
 import com.umeng.analytics.MobclickAgent;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import cc.circling.utils.LogUtil;
 
@@ -23,6 +21,7 @@ import cc.circling.utils.LogUtil;
 public class BaseApplication extends Application {
     private static Context context;
     private static CloudPushService pushService;
+    private static HttpProxyCacheServer proxy;;
 
     @Override
     public void onCreate() {
@@ -43,6 +42,14 @@ public class BaseApplication extends Application {
     public static CloudPushService getCloudPushService() {
         return pushService;
     }
+    public static HttpProxyCacheServer getProxy() {
+        if(proxy == null) {
+            proxy = new HttpProxyCacheServer.Builder(context)
+                .maxCacheSize(1024 * 1024 * 1024)
+                .build();
+        }
+        return proxy;
+    }
 
     private void initCloudChannel(Context applicationContext) {
         PushServiceFactory.init(applicationContext);
@@ -57,5 +64,8 @@ public class BaseApplication extends Application {
                 LogUtil.i("init cloudchannel failed -- errorcode:" + errorCode + " -- errorMessage:" + errorMessage);
             }
         });
+    }
+    private HttpProxyCacheServer newProxy() {
+        return new HttpProxyCacheServer(this);
     }
 }
