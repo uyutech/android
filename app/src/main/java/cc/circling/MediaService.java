@@ -19,6 +19,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import cc.circling.utils.LogUtil;
+import cc.circling.utils.MediaUrl2IDCache;
 //import tv.danmaku.ijk.media.player.IMediaPlayer;
 //import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
@@ -151,8 +152,13 @@ public class MediaService extends Service {
             };
             timer.schedule(timerTask, 0, 200);
         }
-        public void url(String url, final String clientId) {
-            LogUtil.i("setUrl", url);
+        public void info(JSONObject value, final String clientId) {
+            LogUtil.i("info", value.toJSONString());
+            String url = value.getString("url");
+            String name = value.getString("name");
+            if(name != null && name.length() > 0) {
+                MediaUrl2IDCache.put(url, name);
+            }
             if(url == null || url.equals("")) {
                 return;
             }
@@ -290,8 +296,8 @@ public class MediaService extends Service {
                 });
             }
         }
-        public void seek(String value, final String clientId) {
-            int time = Integer.parseInt(value);
+        public void seek(JSONObject value, final String clientId) {
+            int time = value.getInteger("time");
             mediaPlayer.seekTo(time);
             if(clientId != null && activity != null) {
                 activity.runOnUiThread(new Runnable() {
@@ -306,6 +312,9 @@ public class MediaService extends Service {
             }
         }
         public void sourceDestroy() {
+            if(activity != null) {
+                activity = null;
+            }
             if(timer != null) {
                 timer.cancel();
                 timer = null;

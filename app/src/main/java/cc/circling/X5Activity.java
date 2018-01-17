@@ -602,7 +602,7 @@ public class X5Activity extends AppCompatActivity {
         }
         return filePath;
     }
-    public void media(final String key, final String value, final String clientId) {
+    public void media(final String key, final JSONObject value, final String clientId) {
         LogUtil.i("media", key + ", " + value);
         if(serviceConnection == null) {
             serviceConnection = new ServiceConnection() {
@@ -627,11 +627,11 @@ public class X5Activity extends AppCompatActivity {
             mediaNext(key, value, clientId);
         }
     }
-    private void mediaNext(String key, String value, String clientId) {
+    private void mediaNext(String key, JSONObject value, String clientId) {
         if(playBinder != null) {
             switch (key) {
-                case "url":
-                    playBinder.url(value, clientId);
+                case "info":
+                    playBinder.info(value, clientId);
                     break;
                 case "play":
                     playBinder.play(clientId);

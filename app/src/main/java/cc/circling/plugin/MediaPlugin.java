@@ -22,7 +22,7 @@ public class MediaPlugin extends H5Plugin {
         String clientId = json.getString("clientId");
         if(param != null) {
             String key = param.getString("key");
-            String value = param.getString("value");
+            JSONObject value = param.getJSONObject("value");
             this.activity.media(key, value, clientId);
         }
     }
