@@ -22,6 +22,6 @@
     <color name="link">#69F</color>
     <color name="linkActive">#059</color>
 
-    <color name="titleBar">#4E8EB0</color>
-    <color name="titleText">#FFF</color>
+    <color name="titleBg">#FFF</color>
+    <color name="titleText">#636365</color>
 </resources>

@@ -52,7 +52,6 @@ import java.util.List;
 import cc.circling.login.oauth.Constants;
 import cc.circling.plugin.AlbumPlugin;
 import cc.circling.plugin.DownloadPlugin;
-import cc.circling.plugin.HideOptionMenuPlugin;
 import cc.circling.plugin.LoginOutPlugin;
 import cc.circling.plugin.LoginPlugin;
 import cc.circling.plugin.LoginWeiboPlugin;
@@ -63,16 +62,17 @@ import cc.circling.plugin.NetworkInfoPlugin;
 import cc.circling.plugin.NotifyPlugin;
 import cc.circling.plugin.OpenUriPlugin;
 import cc.circling.plugin.PromptPlugin;
+import cc.circling.plugin.SetBackPlugin;
 import cc.circling.plugin.SetOptionMenuPlugin;
 import cc.circling.plugin.SetPreferencePlugin;
 import cc.circling.plugin.SetCookiePlugin;
 import cc.circling.plugin.SetSubTitlePlugin;
 import cc.circling.plugin.SetTitleBgColorPlugin;
-import cc.circling.plugin.ShowOptionMenuPlugin;
 import cc.circling.plugin.RefreshPlugin;
 import cc.circling.plugin.RefreshStatePlugin;
 import cc.circling.plugin.WeiboLoginPlugin;
 import cc.circling.utils.AndroidBug5497Workaround;
+import cc.circling.utils.ImgUtil;
 import cc.circling.web.MyCookies;
 import cc.circling.web.WebView;
 
@@ -120,8 +120,6 @@ public class X5Activity extends AppCompatActivity {
     private LoginWeiboPlugin loginWeiboPlugin;
     private GetPreferencePlugin getPreferencePlugin;
     private SetPreferencePlugin setPreferencePlugin;
-    private ShowOptionMenuPlugin showOptionMenuPlugin;
-    private HideOptionMenuPlugin hideOptionMenuPlugin;
     private SetOptionMenuPlugin setOptionMenuPlugin;
     private SetTitleBgColorPlugin setTitleBgColorPlugin;
     private MoveTaskToBackPlugin moveTaskToBackPlugin;
@@ -136,6 +134,7 @@ public class X5Activity extends AppCompatActivity {
     private NetworkInfoPlugin networkInfoPlugin;
     private LoginPlugin loginPlugin;
     private MediaPlugin mediaPlugin;
+    private SetBackPlugin setBackPlugin;
 
     private LinearLayout titleBar;
     private TextView title;
@@ -144,6 +143,8 @@ public class X5Activity extends AppCompatActivity {
     private ImageView back;
     private WebView webView;
     private TextView optionMenuText;
+    private ImageView optionMenuIv1;
+    private ImageView optionMenuIv2;
     private ViewGroup web;
     private FrameLayout fullScreenView;
 
@@ -187,12 +188,14 @@ public class X5Activity extends AppCompatActivity {
         webView = findViewById(R.id.x5);
         back = findViewById(R.id.back);
         optionMenuText = findViewById(R.id.optionMenuText);
+        optionMenuIv1 = findViewById(R.id.optionMenuIv1);
+        optionMenuIv2 = findViewById(R.id.optionMenuIv2);
         web = findViewById(R.id.web);
         fullScreenView =  findViewById(R.id.fullScreen);
 
         // webview背景色
         String backgroundColor = intent.getStringExtra("backgroundColor");
-        LogUtil.i("backgroundColor ", backgroundColor);
+        LogUtil.i("backgroundColor", backgroundColor);
         if(backgroundColor != null && backgroundColor.length() > 0) {
             int color = Color.parseColor(backgroundColor);
             webView.setBackgroundColor(color);
@@ -213,14 +216,14 @@ public class X5Activity extends AppCompatActivity {
 
         // titleBgColor
         String titleBgColor = intent.getStringExtra("titleBgColor");
-        LogUtil.i("titleBgColor ", titleBgColor);
+        LogUtil.i("titleBgColor", titleBgColor);
         if(titleBgColor != null && titleBgColor.length() > 0) {
             setTitleBgColor(titleBgColor);
         }
 
         // 是否隐藏back键
         String hideBackButton = intent.getStringExtra("hideBackButton");
-        LogUtil.i("hideBackButton ", hideBackButton + "");
+        LogUtil.i("hideBackButton ", hideBackButton);
         if(hideBackButton != null && hideBackButton.equals("true")) {
             back.setVisibility(View.GONE);
         }
@@ -236,15 +239,13 @@ public class X5Activity extends AppCompatActivity {
             }
         });
 
-        // 是否显示optionMenu
-        String showOptionMenu = intent.getStringExtra("showOptionMenu");
-        LogUtil.i("showOptionMenu ", showOptionMenu + "");
-        if(showOptionMenu != null && showOptionMenu.equals("true")) {
-            optionMenuText.setVisibility(View.VISIBLE);
+        // 自定义back图片base64
+        String backImg = intent.getStringExtra("backImg");
+        LogUtil.i("backImg ", backImg);
+        if(backImg != null && backImg.length() > 0) {
+            setBackImg(backImg);
         }
-        else {
-            optionMenuText.setVisibility(View.GONE);
-        }
+
         optionMenuText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -252,12 +253,48 @@ public class X5Activity extends AppCompatActivity {
                 webView.loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('optionMenu');");
             }
         });
+        optionMenuIv1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LogUtil.i("click optionMenuIv1");
+                webView.loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('optionMenu1');");
+            }
+        });
+        optionMenuIv2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LogUtil.i("click optionMenuIv");
+                webView.loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('optionMenu2');");
+            }
+        });
 
         // optionMenu文字
         String optionMenu = intent.getStringExtra("optionMenu");
-        LogUtil.i("optionMenu ", showOptionMenu + "");
+        String optionMenuIcon1 = intent.getStringExtra("optionMenuIcon1");
+        String optionMenuIcon2 = intent.getStringExtra("optionMenuIcon2");
+        LogUtil.i("optionMenu", optionMenu);
+        LogUtil.i("optionMenuIcon1", optionMenuIcon1);
+        LogUtil.i("optionMenuIcon2", optionMenuIcon2);
         if(optionMenu != null && !optionMenu.equals("")) {
             optionMenuText.setText(optionMenu);
+            optionMenuText.setVisibility(View.VISIBLE);
+        }
+        else {
+            optionMenuText.setVisibility(View.GONE);
+        }
+        if(optionMenuIcon1 != null && !optionMenuIcon1.equals("")) {
+            optionMenuIv1.setImageURI(Uri.parse(optionMenuIcon1));
+            optionMenuText.setVisibility(View.VISIBLE);
+        }
+        else {
+            optionMenuIv1.setVisibility(View.GONE);
+        }
+        if(optionMenuIcon2 != null && !optionMenuIcon2.equals("")) {
+            optionMenuIv2.setImageURI(Uri.parse(optionMenuIcon2));
+            optionMenuText.setVisibility(View.VISIBLE);
+        }
+        else {
+            optionMenuIv2.setVisibility(View.GONE);
         }
 
         // 是否读取网页标题
@@ -319,15 +356,9 @@ public class X5Activity extends AppCompatActivity {
 
         cookieManager.setAcceptCookie(true);
         cookieManager.removeExpiredCookie();
-//        cookieManager.removeAllCookie();
         // 跨域CORS的ajax设置允许cookie
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             cookieManager.setAcceptThirdPartyCookies(webView, true);
-//            cookieManager.removeAllCookies(new ValueCallback<Boolean>() {
-//                @Override
-//                public void onReceiveValue(Boolean value) {
-//                }
-//            });
         }
 
         HashMap<String, String> hashMap = MyCookies.getAll();
@@ -399,12 +430,6 @@ public class X5Activity extends AppCompatActivity {
         setPreferencePlugin = new SetPreferencePlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.SET_PRE_FERENCE, setPreferencePlugin);
 
-        showOptionMenuPlugin = new ShowOptionMenuPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.SHOW_OPTIONMENU, showOptionMenuPlugin);
-
-        hideOptionMenuPlugin = new HideOptionMenuPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.HIDE_OPTIONMENU, hideOptionMenuPlugin);
-
         setOptionMenuPlugin = new SetOptionMenuPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.SET_OPTIONMENU, setOptionMenuPlugin);
 
@@ -446,6 +471,9 @@ public class X5Activity extends AppCompatActivity {
 
         mediaPlugin = new MediaPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.MEDIA, mediaPlugin);
+
+        setBackPlugin = new SetBackPlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.SET_BACK, setBackPlugin);
     }
 
     public void setDefaultTitle(String s) {
@@ -515,14 +543,32 @@ public class X5Activity extends AppCompatActivity {
     public void showBackButton() {
         back.setVisibility(View.VISIBLE);
     }
-    public void hideOptionMenu() {
-        optionMenuText.setVisibility(View.GONE);
-    }
-    public void showOptionMenu() {
-        optionMenuText.setVisibility(View.VISIBLE);
-    }
     public void setOptionMenuText(String text) {
-        optionMenuText.setText(text);
+        if(text != null && text.length() > 0) {
+            optionMenuText.setText(text);
+            optionMenuText.setVisibility(View.VISIBLE);
+        }
+        else {
+            optionMenuText.setVisibility(View.GONE);
+        }
+    }
+    public void setOptionMenuImg1(String img) {
+        if(img != null && img.length() > 0) {
+            optionMenuIv1.setImageBitmap(ImgUtil.parseBase64(img));
+            optionMenuIv1.setVisibility(View.VISIBLE);
+        }
+        else {
+            optionMenuIv1.setVisibility(View.GONE);
+        }
+    }
+    public void setOptionMenuImg2(String img) {
+        if(img != null && img.length() > 0) {
+            optionMenuIv2.setImageBitmap(ImgUtil.parseBase64(img));
+            optionMenuIv2.setVisibility(View.VISIBLE);
+        }
+        else {
+            optionMenuIv2.setVisibility(View.GONE);
+        }
     }
     public void fullScreen(View view) {
         altFullScreen();
@@ -601,6 +647,11 @@ public class X5Activity extends AppCompatActivity {
                     break;
             }
         }
+    }
+    public void setBackImg(String img) {
+        LogUtil.i("setBackImg", img);
+        Bitmap bitmap = ImgUtil.parseBase64(img);
+        back.setImageBitmap(bitmap);
     }
 
     @Override

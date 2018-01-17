@@ -24,23 +24,20 @@
             android:layout_width="match_parent"
             android:layout_height="64dp"
             android:paddingTop="23dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
             android:id="@+id/titleBar">
 
             <ImageView
                 android:id="@+id/back"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
+                android:scaleType="fitXY"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:layout_gravity="center"
-                android:layout_marginStart="5dp"
-                android:layout_marginEnd="5dp"
-                android:padding="4dp"
-                android:paddingStart="9dp"
-                android:paddingEnd="9dp"
-                android:src="@drawable/left_arrow"/>
+                android:src="@drawable/back"/>
             <LinearLayout
                 android:orientation="vertical"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
+                android:paddingLeft="5dp"
                 android:layout_gravity="center"
                 android:layout_width="0dp"
                 android:layout_weight="1"
@@ -63,21 +60,37 @@
                     android:layout_gravity="center"
                     android:visibility="gone"/>
             </LinearLayout>
-            <FrameLayout
+            <LinearLayout
                 android:id="@+id/optionMenu"
-                android:layout_width="24dp"
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginStart="5dp"
-                android:layout_marginEnd="5dp">
+                android:minWidth="24dp"
+                android:layout_gravity="center">
+                <ImageView
+                    android:id="@+id/optionMenuIv1"
+                    android:layout_marginStart="5dp"
+                    android:scaleType="fitXY"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center"/>
+                <ImageView
+                    android:id="@+id/optionMenuIv2"
+                    android:layout_marginStart="5dp"
+                    android:scaleType="fitXY"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center"/>
                 <TextView
                     android:id="@+id/optionMenuText"
+                    android:layout_marginStart="5dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:textColor="@color/titleText"
                     android:textSize="12dp"
+                    android:gravity="center"
                     android:textAlignment="center"/>
-            </FrameLayout>
+            </LinearLayout>
         </LinearLayout>
 
     </FrameLayout>

@@ -43,6 +43,7 @@ public abstract class H5Plugin implements IH5EventHandle {
     public static final String NETWORK_INFO = "networkInfo";
     public static final String LOGIN = "login";
     public static final String MEDIA = "media";
+    public static final String SET_BACK = "setBack";
 
     protected X5Activity activity;
 

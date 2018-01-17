@@ -1,11 +1,13 @@
 package cc.circling;
 
+import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.v7.app.NotificationCompat;
 
 import com.alibaba.fastjson.JSONObject;
 import com.danikula.videocache.CacheListener;
@@ -37,12 +39,16 @@ public class MediaService extends Service {
     private CacheListener cacheListener;
 
     class PlayBinder extends Binder {
+        private int percentsAvailable;
+
         public void start(final X5Activity activity) {
             LogUtil.i("start");
             MediaService.this.activity = activity;
         }
         private void init() {
             this.stop();
+            this.percentsAvailable = 0;
+
             mediaPlayer = new MediaPlayer();
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
@@ -72,7 +78,11 @@ public class MediaService extends Service {
             mediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
                 @Override
                 public void onBufferingUpdate(MediaPlayer mp, final int percent) {
-                    LogUtil.i("onBufferingUpdate", percent + "");
+                    LogUtil.i("onBufferingUpdate", percent + ", " + percentsAvailable);
+                    // 偶现网络读取尚未到100时media加载直接跳100，屏蔽之
+                    if(percent == 100 && percentsAvailable != 100) {
+                        return;
+                    }
                     if(activity != null) {
                         activity.runOnUiThread(new Runnable() {
                             @Override
@@ -172,14 +182,7 @@ public class MediaService extends Service {
                     @Override
                     public void onCacheAvailable(File cacheFile, String url, final int percentsAvailable) {
                         LogUtil.i("onCacheAvailable", percentsAvailable + "");
-//                        if(activity != null) {
-//                            activity.runOnUiThread(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('progress', " + percentsAvailable + ");");
-//                                }
-//                            });
-//                        }
+                        PlayBinder.this.percentsAvailable = percentsAvailable;
                     }
                 };
                 proxy.registerCacheListener(cacheListener, url);

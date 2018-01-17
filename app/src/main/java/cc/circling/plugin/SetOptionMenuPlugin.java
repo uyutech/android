@@ -14,15 +14,18 @@ public class SetOptionMenuPlugin extends H5Plugin {
     public SetOptionMenuPlugin(X5Activity activity) {
         super(activity);
     }
+
     @Override
     public void handle(JSONObject json) {
         LogUtil.i("SetOptionMenuPlugin: " + json.toJSONString());
         JSONObject param = json.getJSONObject("param");
         if(param != null) {
             String text = param.getString("text");
-            if(text != null && text.length() > 0) {
-                activity.setOptionMenuText(text);
-            }
+            String img1 = param.getString("img1");
+            String img2 = param.getString("img2");
+            activity.setOptionMenuText(text);
+            activity.setOptionMenuImg1(img1);
+            activity.setOptionMenuImg2(img2);
         }
     }
 }
