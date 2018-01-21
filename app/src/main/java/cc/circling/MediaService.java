@@ -73,7 +73,8 @@ public class MediaService extends Service {
                                     return;
                                 }
                                 final JSONObject json = new JSONObject();
-                                json.put("duration", mediaPlayer.getDuration());
+                                duration = Math.max(0, mediaPlayer.getDuration());
+                                json.put("duration", duration);
                                 activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('prepared','" + json.toJSONString() + "')");
                             }
                         });
@@ -119,10 +120,9 @@ public class MediaService extends Service {
                                     return;
                                 }
                                 JSONObject json = new JSONObject();
-                                json.put("isPlaying", mediaPlayer.isPlaying());
                                 json.put("currentTime", mediaPlayer.getCurrentPosition());
                                 json.put("duration", duration);
-                                activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('ended', '" + json.toJSONString() + "')");
+                                activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('end', '" + json.toJSONString() + "')");
                             }
                         });
                     }
@@ -156,7 +156,8 @@ public class MediaService extends Service {
                                     }
                                     final JSONObject json = new JSONObject();
                                     json.put("currentTime", mediaPlayer.getCurrentPosition());
-                                    json.put("duration", mediaPlayer.getDuration());
+                                    duration = Math.max(0, mediaPlayer.getDuration());
+                                    json.put("duration", duration);
                                     activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('timeupdate', '" + json.toJSONString() + "');");
                                 }
                             });
