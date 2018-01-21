@@ -74,7 +74,7 @@ public class MediaService extends Service {
                                 }
                                 final JSONObject json = new JSONObject();
                                 json.put("duration", mediaPlayer.getDuration());
-                                activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('prepared'," + json.toJSONString() + ")");
+                                activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('prepared','" + json.toJSONString() + "')");
                             }
                         });
                     }
@@ -95,11 +95,12 @@ public class MediaService extends Service {
                                 if(activity.getWebView() == null) {
                                     return;
                                 }
-                                final JSONObject json = new JSONObject();
-                                json.put("duration", mediaPlayer.getDuration());
-                                json.put("progress", percent);
+                                JSONObject json = new JSONObject();
+                                duration = Math.max(0, mediaPlayer.getDuration());
+                                json.put("duration", duration);
+                                json.put("percent", percent);
                                 json.put("prepared", prepared);
-                                activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('progress', " + json.toJSONString() + ");");
+                                activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('progress', '" + json.toJSONString() + "');");
                             }
                         });
                     }
@@ -109,6 +110,7 @@ public class MediaService extends Service {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
                     LogUtil.i("onCompletion");
+                    // TODO: 加载出错时，在onError之后也会触发
                     if(activity != null) {
                         activity.runOnUiThread(new Runnable() {
                             @Override
@@ -116,7 +118,11 @@ public class MediaService extends Service {
                                 if(activity.getWebView() == null) {
                                     return;
                                 }
-                                activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('ended')");
+                                JSONObject json = new JSONObject();
+                                json.put("isPlaying", mediaPlayer.isPlaying());
+                                json.put("currentTime", mediaPlayer.getCurrentPosition());
+                                json.put("duration", duration);
+                                activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('ended', '" + json.toJSONString() + "')");
                             }
                         });
                     }
@@ -185,9 +191,6 @@ public class MediaService extends Service {
                             JSONObject json = new JSONObject();
                             json.put("same", true);
                             json.put("isCached", isCached);
-                            json.put("duration", mediaPlayer.getDuration());
-                            json.put("isPlaying", mediaPlayer.isPlaying());
-                            json.put("prepared", prepared);
                             activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "', '" + json.toJSONString() + "');");
                         }
                     });
@@ -199,8 +202,7 @@ public class MediaService extends Service {
 
             LogUtil.i("isCached", isCached + "");
             if(isCached) {
-                prepared = true;
-                if(activity != null) {
+                if(activity != null && clientId != null) {
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -208,16 +210,8 @@ public class MediaService extends Service {
                                 return;
                             }
                             JSONObject json = new JSONObject();
-                            json.put("duration", mediaPlayer.getDuration());
-                            json.put("progress", 100);
-                            json.put("prepared", prepared);
-                            activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('progress', '" + json.toJSONString() + "');");
-                            if(clientId != null) {
-                                JSONObject json2 = new JSONObject();
-                                json2.put("isCached", isCached);
-                                json2.put("duration", mediaPlayer.getDuration());
-                                activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "', '" + json2.toJSONString() + "');");
-                            }
+                            json.put("isCached", isCached);
+                            activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('" + clientId + "', '" + json.toJSONString() + "');");
                         }
                     });
                 }
@@ -251,7 +245,6 @@ public class MediaService extends Service {
                         }
                         JSONObject json = new JSONObject();
                         json.put("isCached", isCached);
-                        json.put("duration", mediaPlayer.getDuration());
                         activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "', '" + json.toJSONString() + "');");
                     }
                 });
