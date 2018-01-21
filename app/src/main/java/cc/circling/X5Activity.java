@@ -193,6 +193,21 @@ public class X5Activity extends AppCompatActivity {
         web = findViewById(R.id.web);
         fullScreenView =  findViewById(R.id.fullScreen);
 
+        // 动态设置状态栏paddingTop
+        int statusBarHeight = 0;
+        int resourceId = this.getResources().getIdentifier("status_bar_height", "dimen",
+                "android");
+        if (resourceId > 0) {
+            statusBarHeight = this.getResources().getDimensionPixelSize(resourceId);
+            LogUtil.i("statusBarHeight", statusBarHeight + "");
+            int paddingLeft = titleBar.getPaddingLeft();
+            int paddingRight = titleBar.getPaddingRight();
+            LogUtil.i("paddingLeftRight", paddingLeft + ", " + paddingRight);
+            titleBar.setPadding(paddingLeft, statusBarHeight, paddingRight, 0);
+            float scale = this.getResources().getDisplayMetrics().density;
+            LogUtil.i("scale", scale + "");
+        }
+
         // webview背景色
         String backgroundColor = intent.getStringExtra("backgroundColor");
         LogUtil.i("backgroundColor", backgroundColor);
@@ -212,6 +227,16 @@ public class X5Activity extends AppCompatActivity {
         if(sSubTitle != null && sSubTitle.length() > 0) {
             subTitle.setText(sSubTitle);
             subTitle.setVisibility(View.VISIBLE);
+        }
+
+        // titleColor
+        String titleColor = intent.getStringExtra("titleColor");
+        LogUtil.i("titleColor", titleColor);
+        if(titleColor != null && titleColor.length() > 0) {
+            int color = Color.parseColor(titleColor);
+            LogUtil.i("titleColor ", color + "");
+            title.setTextColor(color);
+            subTitle.setTextColor(color);
         }
 
         // titleBgColor
@@ -240,10 +265,10 @@ public class X5Activity extends AppCompatActivity {
         });
 
         // 自定义back图片base64
-        String backImg = intent.getStringExtra("backImg");
-        LogUtil.i("backImg ", backImg);
-        if(backImg != null && backImg.length() > 0) {
-            setBackImg(backImg);
+        String backIcon = intent.getStringExtra("backIcon");
+        LogUtil.i("backIcon ", backIcon);
+        if(backIcon != null && backIcon.length() > 0) {
+            setBackIcon(backIcon);
         }
 
         optionMenuText.setOnClickListener(new View.OnClickListener() {
@@ -282,15 +307,17 @@ public class X5Activity extends AppCompatActivity {
         else {
             optionMenuText.setVisibility(View.GONE);
         }
-        if(optionMenuIcon1 != null && !optionMenuIcon1.equals("")) {
-            optionMenuIv1.setImageURI(Uri.parse(optionMenuIcon1));
+        if(optionMenuIcon1 != null && optionMenuIcon1.length() > 0) {
+            Bitmap bitmap = ImgUtil.parseBase64(optionMenuIcon1);
+            optionMenuIv1.setImageBitmap(bitmap);
             optionMenuText.setVisibility(View.VISIBLE);
         }
         else {
             optionMenuIv1.setVisibility(View.GONE);
         }
-        if(optionMenuIcon2 != null && !optionMenuIcon2.equals("")) {
-            optionMenuIv2.setImageURI(Uri.parse(optionMenuIcon2));
+        if(optionMenuIcon2 != null && optionMenuIcon2.length() > 0) {
+            Bitmap bitmap = ImgUtil.parseBase64(optionMenuIcon2);
+            optionMenuIv2.setImageBitmap(bitmap);
             optionMenuText.setVisibility(View.VISIBLE);
         }
         else {
@@ -648,8 +675,8 @@ public class X5Activity extends AppCompatActivity {
             }
         }
     }
-    public void setBackImg(String img) {
-        LogUtil.i("setBackImg", img);
+    public void setBackIcon(String img) {
+        LogUtil.i("setBackIcon", img);
         Bitmap bitmap = ImgUtil.parseBase64(img);
         back.setImageBitmap(bitmap);
     }
@@ -812,7 +839,7 @@ public class X5Activity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         if(playBinder != null) {
-            playBinder.sourceDestroy();
+            playBinder.end();
         }
         if(serviceConnection != null) {
             unbindService(serviceConnection);

@@ -22,7 +22,7 @@ public class SetBackPlugin extends H5Plugin {
         if(param != null) {
             String img = param.getString("img");
             if(img != null && img.length() > 0) {
-                activity.setBackImg(img);
+                activity.setBackIcon(img);
             }
         }
     }

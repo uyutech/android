@@ -13,7 +13,7 @@
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="64dp"
-            android:paddingTop="23dp"
+            android:paddingTop="22dp"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:id="@+id/titleBar"
