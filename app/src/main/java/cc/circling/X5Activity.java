@@ -810,10 +810,10 @@ public class X5Activity extends AppCompatActivity {
         LogUtil.i("onRestart: ", url);
         super.onRestart();
         LogUtil.i("resume: ", popWindowParam);
+        webView.onResume();
+        LogUtil.i("resume: ", popWindowParam);
         webView.loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('resume', " + popWindowParam + ");");
         popWindowParam = null;
-//        Intent intent = new Intent(this, MediaService.class);
-//        bindService(intent, serviceConnection, BIND_AUTO_CREATE);
     }
     @Override
     protected void onResume() {
@@ -837,6 +837,7 @@ public class X5Activity extends AppCompatActivity {
         webView.loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('pause');");
         if(playBinder != null) {
             playBinder.end(this);
+            playBinder = null;
         }
         if(serviceConnection != null) {
             unbindService(serviceConnection);
@@ -847,13 +848,6 @@ public class X5Activity extends AppCompatActivity {
     protected void onDestroy() {
         LogUtil.i("onDestroy: ", url);
         super.onDestroy();
-//        if(playBinder != null) {
-//            playBinder.end();
-//        }
-//        if(serviceConnection != null) {
-//            unbindService(serviceConnection);
-//            serviceConnection = null;
-//        }
         webView.setWebChromeClient(null);
         webView.setWebViewClient(null);
         webView.setSwipeRefreshLayout(null);

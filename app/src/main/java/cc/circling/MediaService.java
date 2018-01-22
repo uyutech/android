@@ -75,7 +75,7 @@ public class MediaService extends Service {
                                 final JSONObject json = new JSONObject();
                                 duration = Math.max(0, mediaPlayer.getDuration());
                                 json.put("duration", duration);
-                                activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('prepared','" + json.toJSONString() + "')");
+                                activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('mediaPrepared','" + json.toJSONString() + "')");
                             }
                         });
                     }
@@ -101,7 +101,7 @@ public class MediaService extends Service {
                                 json.put("duration", duration);
                                 json.put("percent", percent);
                                 json.put("prepared", prepared);
-                                activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('progress', '" + json.toJSONString() + "');");
+                                activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('mediaProgress', '" + json.toJSONString() + "');");
                             }
                         });
                     }
@@ -122,7 +122,7 @@ public class MediaService extends Service {
                                 JSONObject json = new JSONObject();
                                 json.put("currentTime", mediaPlayer.getCurrentPosition());
                                 json.put("duration", duration);
-                                activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('end', '" + json.toJSONString() + "')");
+                                activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('mediaEnd', '" + json.toJSONString() + "')");
                             }
                         });
                     }
@@ -158,7 +158,7 @@ public class MediaService extends Service {
                                     json.put("currentTime", mediaPlayer.getCurrentPosition());
                                     duration = Math.max(0, mediaPlayer.getDuration());
                                     json.put("duration", duration);
-                                    activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('timeupdate', '" + json.toJSONString() + "');");
+                                    activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('mediaTimeupdate', '" + json.toJSONString() + "');");
                                 }
                             });
                         }
@@ -212,7 +212,7 @@ public class MediaService extends Service {
                             }
                             JSONObject json = new JSONObject();
                             json.put("isCached", isCached);
-                            activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('" + clientId + "', '" + json.toJSONString() + "');");
+                            activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge._invokeJS('" + clientId + "', '" + json.toJSONString() + "');");
                         }
                     });
                 }
