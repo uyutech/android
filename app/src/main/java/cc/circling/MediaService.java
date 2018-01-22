@@ -69,7 +69,7 @@ public class MediaService extends Service {
                         activity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                if(activity.getWebView() == null) {
+                                if(activity == null || activity.getWebView() == null) {
                                     return;
                                 }
                                 final JSONObject json = new JSONObject();
@@ -93,7 +93,7 @@ public class MediaService extends Service {
                         activity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                if(activity.getWebView() == null) {
+                                if(activity == null || activity.getWebView() == null) {
                                     return;
                                 }
                                 JSONObject json = new JSONObject();
@@ -116,7 +116,7 @@ public class MediaService extends Service {
                         activity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                if(activity.getWebView() == null) {
+                                if(activity == null || activity.getWebView() == null) {
                                     return;
                                 }
                                 JSONObject json = new JSONObject();
@@ -151,7 +151,7 @@ public class MediaService extends Service {
                             activity.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if(activity.getWebView() == null) {
+                                    if(activity == null || activity.getWebView() == null) {
                                         return;
                                     }
                                     final JSONObject json = new JSONObject();
@@ -186,7 +186,7 @@ public class MediaService extends Service {
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if(activity.getWebView() == null) {
+                            if(activity == null || activity.getWebView() == null) {
                                 return;
                             }
                             JSONObject json = new JSONObject();
@@ -207,7 +207,7 @@ public class MediaService extends Service {
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if(activity.getWebView() == null) {
+                            if(activity == null || activity.getWebView() == null) {
                                 return;
                             }
                             JSONObject json = new JSONObject();
@@ -241,7 +241,7 @@ public class MediaService extends Service {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if(activity.getWebView() == null) {
+                        if(activity == null || activity.getWebView() == null) {
                             return;
                         }
                         JSONObject json = new JSONObject();
@@ -273,7 +273,7 @@ public class MediaService extends Service {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if(activity.getWebView() == null) {
+                        if(activity == null || activity.getWebView() == null) {
                             return;
                         }
                         activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "');");
@@ -291,7 +291,7 @@ public class MediaService extends Service {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if(activity.getWebView() == null) {
+                        if(activity == null || activity.getWebView() == null) {
                             return;
                         }
                         activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "');");
@@ -330,7 +330,7 @@ public class MediaService extends Service {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if(activity.getWebView() == null) {
+                        if(activity == null || activity.getWebView() == null) {
                             return;
                         }
                         activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "');");
@@ -340,12 +340,13 @@ public class MediaService extends Service {
         }
         public void seek(JSONObject value, final String clientId) {
             int time = value.getInteger("time");
+            LogUtil.i("seek", time + "");
             mediaPlayer.seekTo(time);
             if(clientId != null && activity != null) {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if(activity.getWebView() == null) {
+                        if(activity == null || activity.getWebView() == null) {
                             return;
                         }
                         activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "');");
@@ -353,9 +354,11 @@ public class MediaService extends Service {
                 });
             }
         }
-        public void end() {
-            if(activity != null) {
-                activity = null;
+        public void end(X5Activity activity) {
+            LogUtil.i("end");
+            if(MediaService.this.activity != null && MediaService.this.activity == activity) {
+                LogUtil.i("end in");
+                MediaService.this.activity = null;
             }
 //            if(timer != null) {
 //                timer.cancel();
@@ -373,15 +376,23 @@ public class MediaService extends Service {
     }
     @Override
     public IBinder onBind(Intent intent) {
+        LogUtil.i("onBind");
         return playBinder;
     }
-    @Override public void onCreate() {
-        super.onCreate();
-        LogUtil.i("onCreate");
+    @Override
+    public boolean onUnbind(Intent intent) {
+        LogUtil.i("onUnbind");
+        return super.onUnbind(intent);
     }
-    @Override public void onDestroy() {
-        super.onDestroy();
+    @Override
+    public void onCreate() {
+        LogUtil.i("onCreate");
+        super.onCreate();
+    }
+    @Override
+    public void onDestroy() {
         LogUtil.i("onDestroy");
+        super.onDestroy();
         mediaPlayer.reset();
         mediaPlayer.release();
         mediaPlayer = null;

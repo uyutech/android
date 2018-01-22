@@ -150,7 +150,6 @@ public class X5Activity extends AppCompatActivity {
 
     private String url;
     private String popWindowParam;
-    private boolean firstRun;
     private boolean hasSetTitle = false;
     private boolean readTitle;
 
@@ -330,7 +329,6 @@ public class X5Activity extends AppCompatActivity {
         this.readTitle = readTitle != null && readTitle.equals("true");
 
         initPlugins();
-        firstRun = true;
 
         WebSettings webSettings = webView.getSettings();
         String ua = webSettings.getUserAgentString();
@@ -655,8 +653,8 @@ public class X5Activity extends AppCompatActivity {
         }
     }
     private void mediaNext(String key, JSONObject value, String clientId) {
-        if(playBinder != null) {
-            switch (key) {
+        if(playBinder != null && key != null) {
+            switch(key) {
                 case "info":
                     playBinder.info(value, clientId);
                     break;
@@ -804,46 +802,58 @@ public class X5Activity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
+        LogUtil.i("onStart: ", url);
         super.onStart();
-        LogUtil.i("onStart: ", url + ", " + firstRun);
-        if(!firstRun) {
-            webView.onResume();
-            LogUtil.i("resume: ", popWindowParam);
-            webView.loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('resume', " + popWindowParam + ");");
-            popWindowParam = null;
-        }
-        else {
-            firstRun = false;
-        }
+    }
+    @Override
+    protected void onRestart() {
+        LogUtil.i("onRestart: ", url);
+        super.onRestart();
+        LogUtil.i("resume: ", popWindowParam);
+        webView.loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('resume', " + popWindowParam + ");");
+        popWindowParam = null;
+//        Intent intent = new Intent(this, MediaService.class);
+//        bindService(intent, serviceConnection, BIND_AUTO_CREATE);
     }
     @Override
     protected void onResume() {
+        LogUtil.i("onResume: ", url);
         super.onResume();
         MobclickAgent.onPageStart(url);
         MobclickAgent.onResume(this);
     }
     @Override
     protected void onPause() {
+        LogUtil.i("onPause: ", url);
         super.onPause();
         MobclickAgent.onPageEnd(url);
         MobclickAgent.onPause(this);
     }
     @Override
     protected void onStop() {
+        LogUtil.i("onStop: ", url);
         super.onStop();
         webView.onPause();
-        LogUtil.i("onStop: ", url);
         webView.loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('pause');");
-    }
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
         if(playBinder != null) {
-            playBinder.end();
+            playBinder.end(this);
         }
         if(serviceConnection != null) {
             unbindService(serviceConnection);
+            serviceConnection = null;
         }
+    }
+    @Override
+    protected void onDestroy() {
+        LogUtil.i("onDestroy: ", url);
+        super.onDestroy();
+//        if(playBinder != null) {
+//            playBinder.end();
+//        }
+//        if(serviceConnection != null) {
+//            unbindService(serviceConnection);
+//            serviceConnection = null;
+//        }
         webView.setWebChromeClient(null);
         webView.setWebViewClient(null);
         webView.setSwipeRefreshLayout(null);
