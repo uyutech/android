@@ -2,6 +2,7 @@ package cc.circling.plugin;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.webkit.ValueCallback;
 
 import com.alibaba.fastjson.JSONObject;
 
@@ -36,7 +37,12 @@ public class SetPreferencePlugin extends H5Plugin {
                 editor.putString(key, value);
             }
             editor.apply();
-            activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "');");
+            activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "');", new ValueCallback<String>() {
+                @Override
+                public void onReceiveValue(String value) {
+                    //
+                }
+            });
         }
     }
 }

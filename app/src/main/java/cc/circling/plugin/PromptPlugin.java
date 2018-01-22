@@ -2,6 +2,7 @@ package cc.circling.plugin;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.webkit.ValueCallback;
 import android.widget.EditText;
 
 import com.alibaba.fastjson.JSONObject;
@@ -42,7 +43,12 @@ public class PromptPlugin extends H5Plugin {
                     JSONObject json = new JSONObject();
                     json.put("success", true);
                     json.put("value", s);
-                    PromptPlugin.this.activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');");
+                    PromptPlugin.this.activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');", new ValueCallback<String>() {
+                        @Override
+                        public void onReceiveValue(String value) {
+                            //
+                        }
+                    });
                 }
             });
             dialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -50,7 +56,12 @@ public class PromptPlugin extends H5Plugin {
                 public void onClick(DialogInterface dialogInterface, int which) {
                     JSONObject json = new JSONObject();
                     json.put("success", false);
-                    PromptPlugin.this.activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');");
+                    PromptPlugin.this.activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');", new ValueCallback<String>() {
+                        @Override
+                        public void onReceiveValue(String value) {
+                            //
+                        }
+                    });
                 }
             });
             dialog.show();

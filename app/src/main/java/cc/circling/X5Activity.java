@@ -26,6 +26,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -259,7 +260,12 @@ public class X5Activity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 LogUtil.i("click back");
-                webView.loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.trigger('back');");
+                webView.evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.trigger('back');", new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String value) {
+                        //
+                    }
+                });
             }
         });
 
@@ -274,21 +280,36 @@ public class X5Activity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 LogUtil.i("click optionMenuText");
-                webView.loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('optionMenu');");
+                webView.evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('optionMenu');", new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String value) {
+                        //
+                    }
+                });
             }
         });
         optionMenuIv1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 LogUtil.i("click optionMenuIv1");
-                webView.loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('optionMenu1');");
+                webView.evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('optionMenu1');", new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String value) {
+                        //
+                    }
+                });
             }
         });
         optionMenuIv2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 LogUtil.i("click optionMenuIv");
-                webView.loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('optionMenu2');");
+                webView.evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('optionMenu2');", new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String value) {
+                        //
+                    }
+                });
             }
         });
 
@@ -348,7 +369,12 @@ public class X5Activity extends AppCompatActivity {
             public void onRefresh() {
                 LogUtil.i("swipeRefreshLayout onRefresh");
                 // TODO: 极低概率下ZhuanQuanJSBridge还没有加载出来，进入卡死状态
-                webView.loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.trigger('refresh');");
+                webView.evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.trigger('refresh');", new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String value) {
+                        //
+                    }
+                });
             }
         });
 
@@ -684,7 +710,12 @@ public class X5Activity extends AppCompatActivity {
         LogUtil.i("keyup: " + keyCode);
         if(keyCode == KeyEvent.KEYCODE_BACK) {
             LogUtil.i("KEYCODE_BACK");
-            webView.loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.trigger('back');");
+            webView.evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.trigger('back');", new ValueCallback<String>() {
+                @Override
+                public void onReceiveValue(String value) {
+                    //
+                }
+            });
             return true;
         }
         return super.onKeyUp(keyCode, event);
@@ -812,7 +843,12 @@ public class X5Activity extends AppCompatActivity {
         LogUtil.i("resume: ", popWindowParam);
         webView.onResume();
         LogUtil.i("resume: ", popWindowParam);
-        webView.loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('resume', " + popWindowParam + ");");
+        webView.evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('resume', " + popWindowParam + ");", new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+                //
+            }
+        });
         popWindowParam = null;
     }
     @Override
@@ -834,7 +870,12 @@ public class X5Activity extends AppCompatActivity {
         LogUtil.i("onStop: ", url);
         super.onStop();
         webView.onPause();
-        webView.loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('pause');");
+        webView.evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('pause');", new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+                //
+            }
+        });
         if(playBinder != null) {
             playBinder.end(this);
             playBinder = null;

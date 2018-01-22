@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
+import android.webkit.ValueCallback;
 
 import com.alibaba.fastjson.JSONObject;
 import com.zhihu.matisse.Matisse;
@@ -69,17 +70,32 @@ public class AlbumPlugin extends H5Plugin {
         JSONObject json = new JSONObject();
         json.put("success", true);
         json.put("base64", base64);
-        activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');");
+        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "'," + json.toJSONString() + ");", new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+                //
+            }
+        });
     }
     public void cancel() {
         JSONObject json = new JSONObject();
         json.put("success", false);
         json.put("cancel", true);
-        activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');");
+        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "'," + json.toJSONString() + ");", new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+                //
+            }
+        });
     }
     public void error() {
         JSONObject json = new JSONObject();
         json.put("success", false);
-        activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');");
+        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "'," + json.toJSONString() + ");", new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+                //
+            }
+        });
     }
 }

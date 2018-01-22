@@ -2,6 +2,7 @@ package cc.circling.plugin;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.webkit.ValueCallback;
 
 import com.alibaba.fastjson.JSONObject;
 import com.umeng.analytics.MobclickAgent;
@@ -42,7 +43,12 @@ public class LoginOutPlugin extends H5Plugin {
         }
         editor.apply();
         activity.syncCookie();
-        activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "');");
+        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "');", new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+                //
+            }
+        });
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {

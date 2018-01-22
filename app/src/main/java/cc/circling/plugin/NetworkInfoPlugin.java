@@ -3,6 +3,7 @@ package cc.circling.plugin;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.webkit.ValueCallback;
 
 import com.alibaba.fastjson.JSONObject;
 
@@ -31,12 +32,22 @@ public class NetworkInfoPlugin extends H5Plugin {
             JSONObject json2 = new JSONObject();
             json2.put("available", true);
             json2.put("wifi", wifiNetworkInfo != null & wifiNetworkInfo.isConnected() && wifiNetworkInfo.isAvailable());
-            activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json2.toJSONString() + "');");
+            activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json2.toJSONString() + "');", new ValueCallback<String>() {
+                @Override
+                public void onReceiveValue(String value) {
+                    //
+                }
+            });
         }
         else {
             JSONObject json2 = new JSONObject();
             json2.put("available", false);
-            activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json2.toJSONString() + "');");
+            activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json2.toJSONString() + "');", new ValueCallback<String>() {
+                @Override
+                public void onReceiveValue(String value) {
+                    //
+                }
+            });
         }
     }
 }

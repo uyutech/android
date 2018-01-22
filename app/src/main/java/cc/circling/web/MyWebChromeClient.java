@@ -3,6 +3,7 @@ package cc.circling.web;
 import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.JsResult;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
@@ -34,7 +35,12 @@ public class MyWebChromeClient extends WebChromeClient {
         if(args != null && args.length() > 0) {
             activity.setDefaultTitle(args);
         }
-        view.loadUrl("javascript: " + LoadBridge.getBridgeJs());
+        view.evaluateJavascript(LoadBridge.getBridgeJs(), new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+                //
+            }
+        });
     }
     @Override
     public boolean onConsoleMessage(ConsoleMessage cm) {

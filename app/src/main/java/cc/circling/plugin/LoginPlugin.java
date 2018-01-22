@@ -2,6 +2,7 @@ package cc.circling.plugin;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.webkit.ValueCallback;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.sdk.android.push.CommonCallback;
@@ -94,7 +95,12 @@ public class LoginPlugin extends H5Plugin {
                                     public void run() {
                                         JSONObject json = new JSONObject();
                                         json.put("success", false);
-                                        activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');");
+                                        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "'," + json.toJSONString() + ");", new ValueCallback<String>() {
+                                            @Override
+                                            public void onReceiveValue(String value) {
+                                                //
+                                            }
+                                        });
                                     }
                                 });
                             }
@@ -126,7 +132,12 @@ public class LoginPlugin extends H5Plugin {
                                             }
                                         }
                                     }
-                                    activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + responseBody + "');");
+                                    activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "'," + responseBody + ");", new ValueCallback<String>() {
+                                        @Override
+                                        public void onReceiveValue(String value) {
+                                            //
+                                        }
+                                    });
                                 }
                             });
                         } catch (Exception e) {
@@ -137,7 +148,12 @@ public class LoginPlugin extends H5Plugin {
                                 public void run() {
                                     JSONObject json = new JSONObject();
                                     json.put("success", false);
-                                    activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');");
+                                    activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "'," + json.toJSONString() + ");", new ValueCallback<String>() {
+                                        @Override
+                                        public void onReceiveValue(String value) {
+                                            //
+                                        }
+                                    });
                                 }
                             });
                         }

@@ -8,6 +8,7 @@ import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.v7.app.NotificationCompat;
+import android.webkit.ValueCallback;
 
 import com.alibaba.fastjson.JSONObject;
 import com.danikula.videocache.CacheListener;
@@ -75,7 +76,12 @@ public class MediaService extends Service {
                                 final JSONObject json = new JSONObject();
                                 duration = Math.max(0, mediaPlayer.getDuration());
                                 json.put("duration", duration);
-                                activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('mediaPrepared','" + json.toJSONString() + "')");
+                                activity.getWebView().evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('mediaPrepared'," + json.toJSONString() + ")", new ValueCallback<String>() {
+                                    @Override
+                                    public void onReceiveValue(String value) {
+                                        //
+                                    }
+                                });
                             }
                         });
                     }
@@ -101,7 +107,12 @@ public class MediaService extends Service {
                                 json.put("duration", duration);
                                 json.put("percent", percent);
                                 json.put("prepared", prepared);
-                                activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('mediaProgress', '" + json.toJSONString() + "');");
+                                activity.getWebView().evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('mediaProgress', " + json.toJSONString() + ");", new ValueCallback<String>() {
+                                    @Override
+                                    public void onReceiveValue(String value) {
+                                        //
+                                    }
+                                });
                             }
                         });
                     }
@@ -122,7 +133,12 @@ public class MediaService extends Service {
                                 JSONObject json = new JSONObject();
                                 json.put("currentTime", mediaPlayer.getCurrentPosition());
                                 json.put("duration", duration);
-                                activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('mediaEnd', '" + json.toJSONString() + "')");
+                                activity.getWebView().evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('mediaEnd', " + json.toJSONString() + ")", new ValueCallback<String>() {
+                                    @Override
+                                    public void onReceiveValue(String value) {
+                                        //
+                                    }
+                                });
                             }
                         });
                     }
@@ -158,7 +174,12 @@ public class MediaService extends Service {
                                     json.put("currentTime", mediaPlayer.getCurrentPosition());
                                     duration = Math.max(0, mediaPlayer.getDuration());
                                     json.put("duration", duration);
-                                    activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('mediaTimeupdate', '" + json.toJSONString() + "');");
+                                    activity.getWebView().evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('mediaTimeupdate', " + json.toJSONString() + ");", new ValueCallback<String>() {
+                                        @Override
+                                        public void onReceiveValue(String value) {
+                                            //
+                                        }
+                                    });
                                 }
                             });
                         }
@@ -192,7 +213,12 @@ public class MediaService extends Service {
                             JSONObject json = new JSONObject();
                             json.put("same", true);
                             json.put("isCached", isCached);
-                            activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "', '" + json.toJSONString() + "');");
+                            activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
+                                @Override
+                                public void onReceiveValue(String value) {
+                                    //
+                                }
+                            });
                         }
                     });
                 }
@@ -212,7 +238,12 @@ public class MediaService extends Service {
                             }
                             JSONObject json = new JSONObject();
                             json.put("isCached", isCached);
-                            activity.getWebView().loadUrl("javascript: window.ZhuanQuanJSBridge && ZhuanQuanJSBridge._invokeJS('" + clientId + "', '" + json.toJSONString() + "');");
+                            activity.getWebView().evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
+                                @Override
+                                public void onReceiveValue(String value) {
+                                    //
+                                }
+                            });
                         }
                     });
                 }
@@ -246,7 +277,12 @@ public class MediaService extends Service {
                         }
                         JSONObject json = new JSONObject();
                         json.put("isCached", isCached);
-                        activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "', '" + json.toJSONString() + "');");
+                        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
+                            @Override
+                            public void onReceiveValue(String value) {
+                                //
+                            }
+                        });
                     }
                 });
             }
@@ -276,7 +312,12 @@ public class MediaService extends Service {
                         if(activity == null || activity.getWebView() == null) {
                             return;
                         }
-                        activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "');");
+                        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "');", new ValueCallback<String>() {
+                            @Override
+                            public void onReceiveValue(String value) {
+                                //
+                            }
+                        });
                     }
                 });
             }
@@ -294,7 +335,12 @@ public class MediaService extends Service {
                         if(activity == null || activity.getWebView() == null) {
                             return;
                         }
-                        activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "');");
+                        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "');", new ValueCallback<String>() {
+                            @Override
+                            public void onReceiveValue(String value) {
+                                //
+                            }
+                        });
                     }
                 });
             }
@@ -333,7 +379,12 @@ public class MediaService extends Service {
                         if(activity == null || activity.getWebView() == null) {
                             return;
                         }
-                        activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "');");
+                        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "');", new ValueCallback<String>() {
+                            @Override
+                            public void onReceiveValue(String value) {
+                                //
+                            }
+                        });
                     }
                 });
             }
@@ -349,7 +400,12 @@ public class MediaService extends Service {
                         if(activity == null || activity.getWebView() == null) {
                             return;
                         }
-                        activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "');");
+                        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "');", new ValueCallback<String>() {
+                            @Override
+                            public void onReceiveValue(String value) {
+                                //
+                            }
+                        });
                     }
                 });
             }

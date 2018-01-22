@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
+import android.webkit.ValueCallback;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebViewClient;
@@ -110,6 +111,11 @@ public class MyWebViewClient extends WebViewClient {
     @Override
     public void onPageFinished(WebView view, String args) {
         LogUtil.i("onPageFinished: " + args + ", " + activity.getUrl());
-        view.loadUrl("javascript: " + LoadBridge.getBridgeJs());
+        view.evaluateJavascript(LoadBridge.getBridgeJs(), new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+                //
+            }
+        });
     }
 }

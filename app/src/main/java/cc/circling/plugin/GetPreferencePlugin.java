@@ -2,6 +2,7 @@ package cc.circling.plugin;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.webkit.ValueCallback;
 
 import com.alibaba.fastjson.JSONObject;
 
@@ -26,8 +27,13 @@ public class GetPreferencePlugin extends H5Plugin {
         String param = json.getString("param");
         if(param != null && !param.equals("")) {
             SharedPreferences sharedPreferences = BaseApplication.getContext().getSharedPreferences(PreferenceEnum.H5OFF.name(), Context.MODE_PRIVATE);
-            String value = sharedPreferences.getString(param, "");
-            activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + value + "');");
+            String value = sharedPreferences.getString(param, "null");
+            activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "'," + value + ");", new ValueCallback<String>() {
+                @Override
+                public void onReceiveValue(String value) {
+                    //
+                }
+            });
         }
     }
 }

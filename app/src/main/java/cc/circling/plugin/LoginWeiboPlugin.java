@@ -1,5 +1,7 @@
 package cc.circling.plugin;
 
+import android.webkit.ValueCallback;
+
 import com.alibaba.fastjson.JSONObject;
 
 import cc.circling.X5Activity;
@@ -28,20 +30,35 @@ public class LoginWeiboPlugin extends H5Plugin {
         json.put("success", true);
         json.put("openID", openID);
         json.put("token", token);
-        activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');");
+        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');", new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+                //
+            }
+        });
     }
     public void cancel() {
         JSONObject json = new JSONObject();
         json.put("success", false);
         json.put("type", 0);
         json.put("message", "取消授权");
-        activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');");
+        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');", new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+                //
+            }
+        });
     }
     public void failure(String message) {
         JSONObject json = new JSONObject();
         json.put("success", false);
         json.put("type", 1);
         json.put("message", message);
-        activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');");
+        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');", new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+                //
+            }
+        });
     }
 }

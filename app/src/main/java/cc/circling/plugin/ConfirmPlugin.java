@@ -2,6 +2,7 @@ package cc.circling.plugin;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.webkit.ValueCallback;
 
 import com.alibaba.fastjson.JSONObject;
 
@@ -32,13 +33,23 @@ public class ConfirmPlugin extends H5Plugin {
             dialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int which) {
-                    ConfirmPlugin.this.activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "',true);");
+                    ConfirmPlugin.this.activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "',true);", new ValueCallback<String>() {
+                        @Override
+                        public void onReceiveValue(String value) {
+                            //
+                        }
+                    });
                 }
             });
             dialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int which) {
-                    ConfirmPlugin.this.activity.getWebView().loadUrl("javascript: ZhuanQuanJSBridge._invokeJS('" + clientId + "',false);");
+                    ConfirmPlugin.this.activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "',false);", new ValueCallback<String>() {
+                        @Override
+                        public void onReceiveValue(String value) {
+                            //
+                        }
+                    });
                 }
             });
             dialog.show();
