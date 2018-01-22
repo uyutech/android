@@ -30,7 +30,7 @@ public class LoginWeiboPlugin extends H5Plugin {
         json.put("success", true);
         json.put("openID", openID);
         json.put("token", token);
-        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');", new ValueCallback<String>() {
+        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "'," + json.toJSONString() + ");", new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
                 //
@@ -42,7 +42,7 @@ public class LoginWeiboPlugin extends H5Plugin {
         json.put("success", false);
         json.put("type", 0);
         json.put("message", "取消授权");
-        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');", new ValueCallback<String>() {
+        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "'," + json.toJSONString() + ");", new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
                 //
@@ -54,7 +54,7 @@ public class LoginWeiboPlugin extends H5Plugin {
         json.put("success", false);
         json.put("type", 1);
         json.put("message", message);
-        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');", new ValueCallback<String>() {
+        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "'," + json.toJSONString() + ");", new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
                 //
