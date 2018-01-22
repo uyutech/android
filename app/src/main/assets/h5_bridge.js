@@ -80,17 +80,10 @@
             }
         },
         _invokeJS: function(clientId, resp) {
-            console.log("_invokeJS: " + clientId + ", " + typeof resp + ", " + resp);
-            if(resp !== null && resp !== undefined && isString(resp)
-                && (resp.charAt(0) == '{' && resp.charAt(resp.length - 1) == '}'
-                   || resp.charAt(0) == '[' && resp.charAt(resp.length - 1) == ']')) {
-                resp = JSON.parse(resp);
-            }
+            console.log("_invokeJS: " + clientId + ", " + resp);
             var func = callbackHash[clientId];
-            setTimeout(function() {
-                func(resp);
-                delete callbackHash[clientId];
-            }, 1);
+            func && func(resp);
+            delete callbackHash[clientId];
         }
     };
 
