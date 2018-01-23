@@ -37,7 +37,7 @@ public class MediaService extends Service {
     private boolean prepared;
     private boolean autoStart;
     private int duration;
-    private String lastUrl;
+    private String lastId;
     private Timer timer;
     private TimerTask timerTask;
     private CacheListener cacheListener;
@@ -74,6 +74,7 @@ public class MediaService extends Service {
                                     return;
                                 }
                                 final JSONObject json = new JSONObject();
+                                json.put("id", lastId);
                                 duration = Math.max(0, mediaPlayer.getDuration());
                                 json.put("duration", duration);
                                 activity.getWebView().evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('mediaPrepared'," + json.toJSONString() + ")", new ValueCallback<String>() {
@@ -103,6 +104,7 @@ public class MediaService extends Service {
                                     return;
                                 }
                                 JSONObject json = new JSONObject();
+                                json.put("id", lastId);
                                 duration = Math.max(0, mediaPlayer.getDuration());
                                 json.put("duration", duration);
                                 json.put("percent", percent);
@@ -131,6 +133,7 @@ public class MediaService extends Service {
                                     return;
                                 }
                                 JSONObject json = new JSONObject();
+                                json.put("id", lastId);
                                 json.put("currentTime", mediaPlayer.getCurrentPosition());
                                 json.put("duration", duration);
                                 activity.getWebView().evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('mediaEnd', " + json.toJSONString() + ")", new ValueCallback<String>() {
@@ -171,6 +174,7 @@ public class MediaService extends Service {
                                         return;
                                     }
                                     final JSONObject json = new JSONObject();
+                                    json.put("id", lastId);
                                     json.put("currentTime", mediaPlayer.getCurrentPosition());
                                     duration = Math.max(0, mediaPlayer.getDuration());
                                     json.put("duration", duration);
@@ -192,17 +196,19 @@ public class MediaService extends Service {
             LogUtil.i("info", value.toJSONString());
             String url = value.getString("url");
             String name = value.getString("name");
+            String id = value.getString("id");
+            // url对应name作为本地缓存文件名
             if(name != null && name.length() > 0) {
                 MediaUrl2IDCache.put(url, name);
             }
             if(url == null || url.equals("")) {
                 return;
             }
-            LogUtil.i("info", url + ", " + lastUrl);
+            LogUtil.i("info", url + ", " + name + ", " + id);
 
             HttpProxyCacheServer proxy = BaseApplication.getProxy();
             final boolean isCached = proxy.isCached(url);
-            if(url.equals(lastUrl)) {
+            if(id.equals(lastId)) {
                 if(clientId != null && activity != null) {
                     activity.runOnUiThread(new Runnable() {
                         @Override
@@ -211,6 +217,7 @@ public class MediaService extends Service {
                                 return;
                             }
                             JSONObject json = new JSONObject();
+                            json.put("id", lastId);
                             json.put("same", true);
                             json.put("isCached", isCached);
                             activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
@@ -225,7 +232,7 @@ public class MediaService extends Service {
                 return;
             }
             this.init();
-            lastUrl = url;
+            lastId = id;
 
             LogUtil.i("isCached", isCached + "");
             if(isCached) {
@@ -237,6 +244,7 @@ public class MediaService extends Service {
                                 return;
                             }
                             JSONObject json = new JSONObject();
+                            json.put("id", lastId);
                             json.put("isCached", isCached);
                             activity.getWebView().evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
                                 @Override
@@ -266,7 +274,7 @@ public class MediaService extends Service {
                 mediaPlayer.setDataSource(url);
             } catch (IOException e) {
                 e.printStackTrace();
-                lastUrl = null;
+                lastId = null;
             }
             if(clientId != null && activity != null) {
                 activity.runOnUiThread(new Runnable() {
@@ -276,6 +284,7 @@ public class MediaService extends Service {
                             return;
                         }
                         JSONObject json = new JSONObject();
+                        json.put("id", lastId);
                         json.put("isCached", isCached);
                         activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
                             @Override
@@ -312,7 +321,9 @@ public class MediaService extends Service {
                         if(activity == null || activity.getWebView() == null) {
                             return;
                         }
-                        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "');", new ValueCallback<String>() {
+                        JSONObject json = new JSONObject();
+                        json.put("id", lastId);
+                        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
                             @Override
                             public void onReceiveValue(String value) {
                                 //
@@ -335,7 +346,9 @@ public class MediaService extends Service {
                         if(activity == null || activity.getWebView() == null) {
                             return;
                         }
-                        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "');", new ValueCallback<String>() {
+                        JSONObject json = new JSONObject();
+                        json.put("id", lastId);
+                        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
                             @Override
                             public void onReceiveValue(String value) {
                                 //
@@ -359,7 +372,7 @@ public class MediaService extends Service {
             prepareAsync = false;
             prepared = false;
             autoStart = false;
-            lastUrl = null;
+            lastId = null;
             if(timer != null) {
                 timer.cancel();
                 timer = null;
@@ -379,7 +392,9 @@ public class MediaService extends Service {
                         if(activity == null || activity.getWebView() == null) {
                             return;
                         }
-                        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "');", new ValueCallback<String>() {
+                        JSONObject json = new JSONObject();
+                        json.put("id", lastId);
+                        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
                             @Override
                             public void onReceiveValue(String value) {
                                 //
@@ -400,7 +415,9 @@ public class MediaService extends Service {
                         if(activity == null || activity.getWebView() == null) {
                             return;
                         }
-                        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "');", new ValueCallback<String>() {
+                        JSONObject json = new JSONObject();
+                        json.put("id", lastId);
+                        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
                             @Override
                             public void onReceiveValue(String value) {
                                 //
@@ -455,7 +472,7 @@ public class MediaService extends Service {
         prepareAsync = false;
         prepared = false;
         autoStart = false;
-        lastUrl = null;
+        lastId = null;
         if(timer != null) {
             timer.cancel();
             timer = null;
