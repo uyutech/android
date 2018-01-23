@@ -204,11 +204,11 @@ public class MediaService extends Service {
             if(url == null || url.equals("")) {
                 return;
             }
-            LogUtil.i("info", url + ", " + name + ", " + id);
+            LogUtil.i("info", url + ", " + name + ", " + (id == null ? "null" : id));
 
             HttpProxyCacheServer proxy = BaseApplication.getProxy();
             final boolean isCached = proxy.isCached(url);
-            if(id.equals(lastId)) {
+            if(id != null && id.equals(lastId)) {
                 if(clientId != null && activity != null) {
                     activity.runOnUiThread(new Runnable() {
                         @Override
