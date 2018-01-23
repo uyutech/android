@@ -594,9 +594,12 @@ public class X5Activity extends AppCompatActivity {
     public void showBackButton() {
         back.setVisibility(View.VISIBLE);
     }
-    public void setOptionMenuText(String text) {
+    public void setOptionMenuText(String text, String textColor) {
         if(text != null && text.length() > 0) {
             optionMenuText.setText(text);
+            int color = Color.parseColor(textColor);
+            LogUtil.i("titleColor ", color + "");
+            optionMenuText.setTextColor(color);
             optionMenuText.setVisibility(View.VISIBLE);
         }
         else {

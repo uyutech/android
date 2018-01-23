@@ -21,9 +21,13 @@ public class SetOptionMenuPlugin extends H5Plugin {
         JSONObject param = json.getJSONObject("param");
         if(param != null) {
             String text = param.getString("text");
+            String textColor = param.getString("textColor");
+            if(textColor == null || textColor.length() == 0) {
+                textColor = "#000000";
+            }
             String img1 = param.getString("img1");
             String img2 = param.getString("img2");
-            activity.setOptionMenuText(text);
+            activity.setOptionMenuText(text, textColor);
             activity.setOptionMenuImg1(img1);
             activity.setOptionMenuImg2(img2);
         }

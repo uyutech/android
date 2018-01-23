@@ -32,7 +32,7 @@ public class NetworkInfoPlugin extends H5Plugin {
             JSONObject json2 = new JSONObject();
             json2.put("available", true);
             json2.put("wifi", wifiNetworkInfo != null & wifiNetworkInfo.isConnected() && wifiNetworkInfo.isAvailable());
-            activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json2.toJSONString() + "');", new ValueCallback<String>() {
+            activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "'," + json2.toJSONString() + ");", new ValueCallback<String>() {
                 @Override
                 public void onReceiveValue(String value) {
                     //
@@ -42,7 +42,7 @@ public class NetworkInfoPlugin extends H5Plugin {
         else {
             JSONObject json2 = new JSONObject();
             json2.put("available", false);
-            activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json2.toJSONString() + "');", new ValueCallback<String>() {
+            activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "'," + json2.toJSONString() + ");", new ValueCallback<String>() {
                 @Override
                 public void onReceiveValue(String value) {
                     //
