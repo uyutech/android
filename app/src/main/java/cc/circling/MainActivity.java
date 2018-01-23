@@ -129,10 +129,17 @@ public class MainActivity extends AppCompatActivity {
                     final JSONObject json = JSON.parseObject(responseBody);
                     boolean success = json.getBoolean("success");
                     if(success) {
+                        // 远程h5版本
                         int version = json.getIntValue("version");
-                        // 获取本地版本信息
+                        // 更新需要最小android版本
+                        int minSdk = json.getIntValue("minSdk");
+                        if(BuildConfig.VERSION_CODE < minSdk) {
+                            unZipH5Pack();
+                            showRedirect();
+                        }
+                        // 获取本地h5版本信息
                         SharedPreferences sharedPreferences = getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), MODE_PRIVATE);
-                        final int curVersion = sharedPreferences.getInt("version", 46);
+                        final int curVersion = sharedPreferences.getInt("version", 48);
                         LogUtil.i("checkUpdate version: ", version + ", " + curVersion);
                         if(curVersion < version) {
                             final SharedPreferences.Editor editor = MainActivity.this.getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), Context.MODE_PRIVATE).edit();
