@@ -1,13 +1,11 @@
 package cc.circling;
 
-import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
-import android.support.v7.app.NotificationCompat;
 import android.webkit.ValueCallback;
 
 import com.alibaba.fastjson.JSONObject;
@@ -37,6 +35,7 @@ public class MediaService extends Service {
     private boolean prepared;
     private boolean autoStart;
     private int duration;
+    private int percent;
     private String lastId;
     private Timer timer;
     private TimerTask timerTask;
@@ -96,6 +95,7 @@ public class MediaService extends Service {
                     if(percent == 100 && percentsAvailable != 100) {
                         return;
                     }
+                    MediaService.this.percent = percent;
                     if(activity != null) {
                         activity.runOnUiThread(new Runnable() {
                             @Override
@@ -123,9 +123,9 @@ public class MediaService extends Service {
             mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                    LogUtil.i("onCompletion");
-                    // TODO: 加载出错时，在onError之后也会触发
-                    if(activity != null) {
+                    LogUtil.i("onCompletion", (activity != null && percent == 100) + "");
+                    // percent为100加载完毕之后才能触发播放结束，避免proxycache网络错误造成加载过程中出现结束事件
+                    if(activity != null && percent == 100) {
                         activity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -178,6 +178,8 @@ public class MediaService extends Service {
                                     json.put("currentTime", mediaPlayer.getCurrentPosition());
                                     duration = Math.max(0, mediaPlayer.getDuration());
                                     json.put("duration", duration);
+                                    json.put("percent", percent);
+                                    json.put("prepared", prepared);
                                     activity.getWebView().evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('mediaTimeupdate', " + json.toJSONString() + ");", new ValueCallback<String>() {
                                         @Override
                                         public void onReceiveValue(String value) {
@@ -373,6 +375,7 @@ public class MediaService extends Service {
             prepared = false;
             autoStart = false;
             lastId = null;
+            percent = 0;
             if(timer != null) {
                 timer.cancel();
                 timer = null;
@@ -473,6 +476,7 @@ public class MediaService extends Service {
         prepared = false;
         autoStart = false;
         lastId = null;
+        percent = 0;
         if(timer != null) {
             timer.cancel();
             timer = null;

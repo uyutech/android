@@ -3,7 +3,6 @@ package cc.circling;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,12 +15,9 @@ import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.tencent.bugly.Bugly;
 
-import cc.circling.login.oauth.Constants;
 import cc.circling.utils.LogUtil;
 import cc.circling.web.MyCookies;
-import cc.circling.web.MyWebViewClient;
 import cc.circling.web.PreferenceEnum;
 import cc.circling.web.URLs;
 

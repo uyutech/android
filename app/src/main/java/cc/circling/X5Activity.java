@@ -657,7 +657,7 @@ public class X5Activity extends AppCompatActivity {
         return filePath;
     }
     public void media(final String key, final JSONObject value, final String clientId) {
-        LogUtil.i("media", key + ", " + value);
+        LogUtil.i("serviceConnection is null:", (serviceConnection == null) + "");
         if(serviceConnection == null) {
             serviceConnection = new ServiceConnection() {
                 @Override
