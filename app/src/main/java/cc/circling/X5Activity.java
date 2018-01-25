@@ -706,6 +706,9 @@ public class X5Activity extends AppCompatActivity {
                 case "stop":
                     playBinder.stop(clientId);
                     break;
+                case "release":
+                    playBinder.release(clientId);
+                    break;
                 case "seek":
                     playBinder.seek(value, clientId);
                     break;
