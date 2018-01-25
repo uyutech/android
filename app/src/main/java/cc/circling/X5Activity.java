@@ -53,6 +53,7 @@ import java.util.List;
 import cc.circling.login.oauth.Constants;
 import cc.circling.plugin.AlbumPlugin;
 import cc.circling.plugin.DownloadPlugin;
+import cc.circling.plugin.GetCachePlugin;
 import cc.circling.plugin.LoginOutPlugin;
 import cc.circling.plugin.LoginPlugin;
 import cc.circling.plugin.LoginWeiboPlugin;
@@ -64,6 +65,7 @@ import cc.circling.plugin.NotifyPlugin;
 import cc.circling.plugin.OpenUriPlugin;
 import cc.circling.plugin.PromptPlugin;
 import cc.circling.plugin.SetBackPlugin;
+import cc.circling.plugin.SetCachePlugin;
 import cc.circling.plugin.SetOptionMenuPlugin;
 import cc.circling.plugin.SetPreferencePlugin;
 import cc.circling.plugin.SetCookiePlugin;
@@ -136,6 +138,8 @@ public class X5Activity extends AppCompatActivity {
     private LoginPlugin loginPlugin;
     private MediaPlugin mediaPlugin;
     private SetBackPlugin setBackPlugin;
+    private SetCachePlugin setCachePlugin;
+    private GetCachePlugin getCachePlugin;
 
     private LinearLayout titleBar;
     private TextView title;
@@ -525,6 +529,12 @@ public class X5Activity extends AppCompatActivity {
 
         setBackPlugin = new SetBackPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.SET_BACK, setBackPlugin);
+
+        setCachePlugin = new SetCachePlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.SET_CACHE, setCachePlugin);
+
+        getCachePlugin = new GetCachePlugin(this);
+        H5EventDispatcher.addEventListener(H5Plugin.GET_CACHE, getCachePlugin);
     }
 
     public void setDefaultTitle(String s) {

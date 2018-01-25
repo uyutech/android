@@ -20,6 +20,7 @@ public class SetPreferencePlugin extends H5Plugin {
     public SetPreferencePlugin(X5Activity activity) {
         super(activity);
     }
+
     @Override
     public void handle(JSONObject json) {
         LogUtil.i("SetPreferencePlugin: " + json.toJSONString());

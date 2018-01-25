@@ -44,6 +44,8 @@ public abstract class H5Plugin implements IH5EventHandle {
     public static final String LOGIN = "login";
     public static final String MEDIA = "media";
     public static final String SET_BACK = "setBack";
+    public static final String SET_CACHE = "setCache";
+    public static final String GET_CACHE = "getCache";
 
     protected X5Activity activity;
 

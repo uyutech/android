@@ -170,9 +170,10 @@ public class MediaService extends Service {
                             activity.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if(activity == null || activity.getWebView() == null) {
+                                    if(activity == null || activity.getWebView() == null || !mediaPlayer.isPlaying()) {
                                         return;
                                     }
+                                    LogUtil.i("timerTask");
                                     final JSONObject json = new JSONObject();
                                     json.put("id", lastId);
                                     json.put("currentTime", mediaPlayer.getCurrentPosition());
