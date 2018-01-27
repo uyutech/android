@@ -5,8 +5,8 @@
     <color name="colorAccent">#71B5D9</color>
 
     <color name="mainBg">#E8F4FF</color>
-    <color name="mainDomain">#5D99C4</color>
-    <color name="mainCopyright">#6C7275</color>
+    <color name="mainDomain">#FFFFFF</color>
+    <color name="mainCopyright">#FFFFFF</color>
     <color name="mainShadow">#33FFFFFF</color>
 
     <color name="loginBg">#4C8DAF</color>

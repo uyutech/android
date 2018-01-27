@@ -20,7 +20,7 @@ public class OpenUriPlugin extends H5Plugin {
 
     @Override
     public void handle(JSONObject json) {
-        LogUtil.i("AlertPlugin: " + json.toJSONString());
+        LogUtil.i("OpenUriPlugin: " + json.toJSONString());
         String param = json.getString("param");
         if(param != null && param.length() > 0) {
             Intent intent = new Intent();
