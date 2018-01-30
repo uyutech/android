@@ -204,7 +204,7 @@ public class MediaService extends Service {
             if(url == null || url.equals("")) {
                 return;
             }
-            LogUtil.i("info", url + ", " + name + ", " + (id == null ? "null" : id));
+            LogUtil.i("info", url + ", " + name + ", " + (id == null ? "null" : id) + ", " + (lastId == null ? "null" : lastId));
 
             HttpProxyCacheServer proxy = BaseApplication.getProxy();
             final boolean isCached = proxy.isCached(url);
