@@ -8,7 +8,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import cc.circling.BaseApplication;
-import cc.circling.X5Activity;
+import cc.circling.MainActivity;
 import cc.circling.utils.LogUtil;
 import cc.circling.web.PreferenceEnum;
 
@@ -18,7 +18,7 @@ import cc.circling.web.PreferenceEnum;
 
 public class SetCachePlugin extends H5Plugin {
 
-    public SetCachePlugin(X5Activity activity) {
+    public SetCachePlugin(MainActivity activity) {
         super(activity);
     }
 

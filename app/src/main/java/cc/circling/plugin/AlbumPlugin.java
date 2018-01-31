@@ -12,10 +12,10 @@ import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.engine.impl.GlideEngine;
 
 import cc.circling.R;
-import cc.circling.X5Activity;
+import cc.circling.MainActivity;
 import cc.circling.utils.LogUtil;
 
-import static cc.circling.X5Activity.REQUEST_ALBUM_OK;
+import static cc.circling.MainActivity.REQUEST_ALBUM_OK;
 
 /**
  * Created by army8735 on 2017/12/6.
@@ -24,7 +24,7 @@ import static cc.circling.X5Activity.REQUEST_ALBUM_OK;
 public class AlbumPlugin extends H5Plugin {
     private String clientId;
 
-    public AlbumPlugin(X5Activity activity) {
+    public AlbumPlugin(MainActivity activity) {
         super(activity);
     }
 

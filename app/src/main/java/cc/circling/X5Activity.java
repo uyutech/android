@@ -68,7 +68,6 @@ import cc.circling.plugin.SetBackPlugin;
 import cc.circling.plugin.SetCachePlugin;
 import cc.circling.plugin.SetOptionMenuPlugin;
 import cc.circling.plugin.SetPreferencePlugin;
-import cc.circling.plugin.SetCookiePlugin;
 import cc.circling.plugin.SetSubTitlePlugin;
 import cc.circling.plugin.SetTitleBgColorPlugin;
 import cc.circling.plugin.RefreshPlugin;
@@ -127,7 +126,6 @@ public class X5Activity extends AppCompatActivity {
     private SetTitleBgColorPlugin setTitleBgColorPlugin;
     private MoveTaskToBackPlugin moveTaskToBackPlugin;
     private OpenUriPlugin openUriPlugin;
-    private SetCookiePlugin setCookiePlugin;
     private WeiboLoginPlugin weiboLoginPlugin;
     private LoginOutPlugin loginOutPlugin;
     private NotifyPlugin notificationPlugin;
@@ -183,7 +181,8 @@ public class X5Activity extends AppCompatActivity {
         }
         AndroidBug5497Workaround.assistActivity(this);
 
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
         titleBar = findViewById(R.id.titleBar);
         title = findViewById(R.id.title);
@@ -199,9 +198,9 @@ public class X5Activity extends AppCompatActivity {
 
         // 动态设置状态栏paddingTop
         int statusBarHeight = 0;
-        int resourceId = this.getResources().getIdentifier("status_bar_height", "dimen",
-                "android");
-        if (resourceId > 0) {
+        int resourceId = this.getResources().getIdentifier("status_bar_height",
+                "dimen", "android");
+        if(resourceId > 0) {
             statusBarHeight = this.getResources().getDimensionPixelSize(resourceId);
             LogUtil.i("statusBarHeight", statusBarHeight + "");
             int paddingLeft = titleBar.getPaddingLeft();
@@ -353,7 +352,7 @@ public class X5Activity extends AppCompatActivity {
         LogUtil.i("readTitle ", readTitle + "");
         this.readTitle = readTitle != null && readTitle.equals("true");
 
-        initPlugins();
+//        initPlugins();
 
         WebSettings webSettings = webView.getSettings();
         String ua = webSettings.getUserAgentString();
@@ -382,8 +381,8 @@ public class X5Activity extends AppCompatActivity {
             }
         });
 
-        MyWebViewClient webViewClient = new MyWebViewClient(this);
-        webView.setWebViewClient(webViewClient);
+//        MyWebViewClient webViewClient = new MyWebViewClient(this);
+//        webView.setWebViewClient(webViewClient);
         MyWebChromeClient webChromeClient = new MyWebChromeClient(this);
         webView.setWebChromeClient(webChromeClient);
         webView.setWebContentsDebuggingEnabled(true);
@@ -433,109 +432,106 @@ public class X5Activity extends AppCompatActivity {
         }
     }
 
-    private void initPlugins() {
-        setTitlePlugin = new SetTitlePlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.SET_TITLE, setTitlePlugin);
-
-        setSubTitlePlugin = new SetSubTitlePlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.SET_SUB_TITLE, setSubTitlePlugin);
-
-        pushWindowPlugin = new PushWindowPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.PUSH_WINDOW, pushWindowPlugin);
-
-        popWindowPlugin = new PopWindowPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.POP_WINDOW, popWindowPlugin);
-
-        backPlugin = new BackPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.BACK, backPlugin);
-
-        toastPlugin = new ToastPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.TOAST, toastPlugin);
-
-        showLoadingPlugin = new ShowLoadingPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.SHOW_LOADING, showLoadingPlugin);
-
-        hideLoadingPlugin = new HideLoadingPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.HIDE_LOADING, hideLoadingPlugin);
-
-        alertPlugin = new AlertPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.ALERT, alertPlugin);
-
-        confirmPlugin = new ConfirmPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.CONFIRM, confirmPlugin);
-
-        hideBackButtonPlugin = new HideBackButtonPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.HIDE_BACKBUTTON, hideBackButtonPlugin);
-
-        showBackButtonPlugin = new ShowBackButtonPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.SHOW_BACKBUTTON, showBackButtonPlugin);
-
-        refreshPlugin = new RefreshPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.REFRESH, refreshPlugin);
-
-        refreshStatePlugin = new RefreshStatePlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.REFRESH_STATE, refreshStatePlugin);
-
-        loginWeiboPlugin = new LoginWeiboPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.LOGIN_WEIBO, loginWeiboPlugin);
-
-        getPreferencePlugin = new GetPreferencePlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.GET_PRE_FERENCE, getPreferencePlugin);
-
-        setPreferencePlugin = new SetPreferencePlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.SET_PRE_FERENCE, setPreferencePlugin);
-
-        setOptionMenuPlugin = new SetOptionMenuPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.SET_OPTIONMENU, setOptionMenuPlugin);
-
-        setTitleBgColorPlugin = new SetTitleBgColorPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.SET_TITLE_BG_COLOR, setTitleBgColorPlugin);
-
-        moveTaskToBackPlugin = new MoveTaskToBackPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.MOVE_TASK_TO_BACK, moveTaskToBackPlugin);
-
-        openUriPlugin = new OpenUriPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.OPEN_URI, openUriPlugin);
-
-        setCookiePlugin = new SetCookiePlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.SET_COOKIE, setCookiePlugin);
-
-        weiboLoginPlugin = new WeiboLoginPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.WEIBO_LOGIN, weiboLoginPlugin);
-
-        loginOutPlugin = new LoginOutPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.LOGIN_OUT, loginOutPlugin);
-
-        notificationPlugin = new NotifyPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.NOTIFY, notificationPlugin);
-
-        albumPlugin = new AlbumPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.ALBUM, albumPlugin);
-
-        promptPlugin = new PromptPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.PROMPT, promptPlugin);
-
-        downloadPlugin = new DownloadPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.DOWNLOAD, downloadPlugin);
-
-        networkInfoPlugin = new NetworkInfoPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.NETWORK_INFO, networkInfoPlugin);
-
-        loginPlugin = new LoginPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.LOGIN, loginPlugin);
-
-        mediaPlugin = new MediaPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.MEDIA, mediaPlugin);
-
-        setBackPlugin = new SetBackPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.SET_BACK, setBackPlugin);
-
-        setCachePlugin = new SetCachePlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.SET_CACHE, setCachePlugin);
-
-        getCachePlugin = new GetCachePlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.GET_CACHE, getCachePlugin);
-    }
+//    private void initPlugins() {
+//        setTitlePlugin = new SetTitlePlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.SET_TITLE, setTitlePlugin);
+//
+//        setSubTitlePlugin = new SetSubTitlePlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.SET_SUB_TITLE, setSubTitlePlugin);
+//
+//        pushWindowPlugin = new PushWindowPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.PUSH_WINDOW, pushWindowPlugin);
+//
+//        popWindowPlugin = new PopWindowPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.POP_WINDOW, popWindowPlugin);
+//
+//        backPlugin = new BackPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.BACK, backPlugin);
+//
+//        toastPlugin = new ToastPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.TOAST, toastPlugin);
+//
+//        showLoadingPlugin = new ShowLoadingPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.SHOW_LOADING, showLoadingPlugin);
+//
+//        hideLoadingPlugin = new HideLoadingPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.HIDE_LOADING, hideLoadingPlugin);
+//
+//        alertPlugin = new AlertPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.ALERT, alertPlugin);
+//
+//        confirmPlugin = new ConfirmPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.CONFIRM, confirmPlugin);
+//
+//        hideBackButtonPlugin = new HideBackButtonPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.HIDE_BACKBUTTON, hideBackButtonPlugin);
+//
+//        showBackButtonPlugin = new ShowBackButtonPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.SHOW_BACKBUTTON, showBackButtonPlugin);
+//
+//        refreshPlugin = new RefreshPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.REFRESH, refreshPlugin);
+//
+//        refreshStatePlugin = new RefreshStatePlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.REFRESH_STATE, refreshStatePlugin);
+//
+//        loginWeiboPlugin = new LoginWeiboPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.LOGIN_WEIBO, loginWeiboPlugin);
+//
+//        getPreferencePlugin = new GetPreferencePlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.GET_PRE_FERENCE, getPreferencePlugin);
+//
+//        setPreferencePlugin = new SetPreferencePlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.SET_PRE_FERENCE, setPreferencePlugin);
+//
+//        setOptionMenuPlugin = new SetOptionMenuPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.SET_OPTIONMENU, setOptionMenuPlugin);
+//
+//        setTitleBgColorPlugin = new SetTitleBgColorPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.SET_TITLE_BG_COLOR, setTitleBgColorPlugin);
+//
+//        moveTaskToBackPlugin = new MoveTaskToBackPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.MOVE_TASK_TO_BACK, moveTaskToBackPlugin);
+//
+//        openUriPlugin = new OpenUriPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.OPEN_URI, openUriPlugin);
+//
+//        weiboLoginPlugin = new WeiboLoginPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.WEIBO_LOGIN, weiboLoginPlugin);
+//
+//        loginOutPlugin = new LoginOutPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.LOGIN_OUT, loginOutPlugin);
+//
+//        notificationPlugin = new NotifyPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.NOTIFY, notificationPlugin);
+//
+//        albumPlugin = new AlbumPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.ALBUM, albumPlugin);
+//
+//        promptPlugin = new PromptPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.PROMPT, promptPlugin);
+//
+//        downloadPlugin = new DownloadPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.DOWNLOAD, downloadPlugin);
+//
+//        networkInfoPlugin = new NetworkInfoPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.NETWORK_INFO, networkInfoPlugin);
+//
+//        loginPlugin = new LoginPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.LOGIN, loginPlugin);
+//
+//        mediaPlugin = new MediaPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.MEDIA, mediaPlugin);
+//
+//        setBackPlugin = new SetBackPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.SET_BACK, setBackPlugin);
+//
+//        setCachePlugin = new SetCachePlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.SET_CACHE, setCachePlugin);
+//
+//        getCachePlugin = new GetCachePlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.GET_CACHE, getCachePlugin);
+//    }
 
     public void setDefaultTitle(String s) {
         LogUtil.i("setDefaultTitle: " + s + ", " + hasSetTitle);

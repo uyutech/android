@@ -5,7 +5,7 @@ import android.content.Intent;
 
 import com.alibaba.fastjson.JSONObject;
 
-import cc.circling.X5Activity;
+import cc.circling.MainActivity;
 import cc.circling.utils.LogUtil;
 
 /**
@@ -14,7 +14,7 @@ import cc.circling.utils.LogUtil;
 
 public class PopWindowPlugin extends H5Plugin {
 
-    public PopWindowPlugin(X5Activity activity) {
+    public PopWindowPlugin(MainActivity activity) {
         super(activity);
     }
 

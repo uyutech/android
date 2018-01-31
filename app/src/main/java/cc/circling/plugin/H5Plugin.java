@@ -2,7 +2,7 @@ package cc.circling.plugin;
 
 import com.alibaba.fastjson.JSONObject;
 
-import cc.circling.X5Activity;
+import cc.circling.MainActivity;
 import cc.circling.event.IH5EventHandle;
 
 /**
@@ -27,13 +27,10 @@ public abstract class H5Plugin implements IH5EventHandle {
     public static final String LOGIN_WEIBO = "loginWeibo";
     public static final String GET_PRE_FERENCE = "getPreference";
     public static final String SET_PRE_FERENCE = "setPreference";
-    public static final String SHOW_OPTIONMENU = "showOptionMenu";
-    public static final String HIDE_OPTIONMENU = "hideOptionMenu";
     public static final String SET_OPTIONMENU = "setOptionMenu";
     public static final String SET_TITLE_BG_COLOR = "setTitleBgColor";
     public static final String MOVE_TASK_TO_BACK = "moveTaskToBack";
     public static final String OPEN_URI = "openUri";
-    public static final String SET_COOKIE = "setCookie";
     public static final String WEIBO_LOGIN = "weiboLogin";
     public static final String LOGIN_OUT = "loginOut";
     public static final String NOTIFY = "notify";
@@ -47,15 +44,15 @@ public abstract class H5Plugin implements IH5EventHandle {
     public static final String SET_CACHE = "setCache";
     public static final String GET_CACHE = "getCache";
 
-    protected X5Activity activity;
+    protected MainActivity activity;
 
-    public H5Plugin(X5Activity activity) {
+    public H5Plugin(MainActivity activity) {
         this.activity = activity;
     }
 
     public abstract void handle(JSONObject param);
 
-    public boolean isActivity(X5Activity activity) {
+    public boolean isActivity(MainActivity activity) {
         return this.activity == activity;
     }
 }

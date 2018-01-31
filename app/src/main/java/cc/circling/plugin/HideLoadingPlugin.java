@@ -2,7 +2,7 @@ package cc.circling.plugin;
 
 import com.alibaba.fastjson.JSONObject;
 
-import cc.circling.X5Activity;
+import cc.circling.MainActivity;
 import cc.circling.utils.LogUtil;
 
 /**
@@ -11,7 +11,7 @@ import cc.circling.utils.LogUtil;
 
 public class HideLoadingPlugin extends H5Plugin {
 
-    public HideLoadingPlugin(X5Activity activity) {
+    public HideLoadingPlugin(MainActivity activity) {
         super(activity);
     }
     @Override

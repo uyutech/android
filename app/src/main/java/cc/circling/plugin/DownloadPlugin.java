@@ -26,7 +26,7 @@ import java.io.File;
 import cc.circling.BaseApplication;
 import cc.circling.BuildConfig;
 import cc.circling.R;
-import cc.circling.X5Activity;
+import cc.circling.MainActivity;
 import cc.circling.utils.LogUtil;
 
 /**
@@ -36,7 +36,7 @@ import cc.circling.utils.LogUtil;
 public class DownloadPlugin extends H5Plugin {
     public static int downloadID = 0;
 
-    public DownloadPlugin(X5Activity activity) {
+    public DownloadPlugin(MainActivity activity) {
         super(activity);
     }
 

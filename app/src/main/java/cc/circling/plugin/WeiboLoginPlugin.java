@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 import cc.circling.BaseApplication;
-import cc.circling.X5Activity;
+import cc.circling.MainActivity;
 import cc.circling.utils.LogUtil;
 import cc.circling.web.MyCookies;
 import cc.circling.web.PreferenceEnum;
@@ -36,7 +36,7 @@ import okhttp3.Response;
 
 public class WeiboLoginPlugin extends H5Plugin {
 
-    public WeiboLoginPlugin(X5Activity activity) {
+    public WeiboLoginPlugin(MainActivity activity) {
         super(activity);
     }
 
@@ -106,7 +106,7 @@ public class WeiboLoginPlugin extends H5Plugin {
                         activity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                activity.syncCookie();
+//                                activity.syncCookie();
                                 JSONObject json = JSONObject.parseObject(responseBody);
                                 if (json.getBoolean("success")) {
                                     JSONObject data = json.getJSONObject("data");

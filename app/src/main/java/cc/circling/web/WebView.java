@@ -64,16 +64,5 @@ public class WebView extends android.webkit.WebView {
         }
         return super.onTouchEvent(event);
     }
-//    @Override
-//    protected void onScrollChanged(final int l, final int t, final int oldl, final int oldt) {
-//        super.onScrollChanged(l, t, oldl, oldt);
-////        LogUtil.i("onScrollChanged: ", this.getWebScrollY() + "");
-//        if(getScrollY() == 0) {
-//            swipeRefreshLayout.setEnabled(true);
-//        }
-//        else {
-//            swipeRefreshLayout.setEnabled(false);
-//        }
-//    }
 
 }

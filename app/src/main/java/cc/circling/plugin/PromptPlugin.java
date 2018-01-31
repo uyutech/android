@@ -7,7 +7,7 @@ import android.widget.EditText;
 
 import com.alibaba.fastjson.JSONObject;
 
-import cc.circling.X5Activity;
+import cc.circling.MainActivity;
 import cc.circling.utils.LogUtil;
 
 /**
@@ -15,7 +15,7 @@ import cc.circling.utils.LogUtil;
  */
 
 public class PromptPlugin extends H5Plugin {
-    public PromptPlugin(X5Activity activity) {
+    public PromptPlugin(MainActivity activity) {
         super(activity);
     }
 

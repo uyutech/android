@@ -5,7 +5,7 @@ import android.content.DialogInterface;
 
 import com.alibaba.fastjson.JSONObject;
 
-import cc.circling.X5Activity;
+import cc.circling.MainActivity;
 import cc.circling.utils.LogUtil;
 
 /**
@@ -13,7 +13,7 @@ import cc.circling.utils.LogUtil;
  */
 
 public class AlertPlugin extends H5Plugin {
-    public AlertPlugin(X5Activity activity) {
+    public AlertPlugin(MainActivity activity) {
         super(activity);
     }
 

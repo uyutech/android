@@ -5,7 +5,7 @@ import android.widget.Toast;
 
 import com.alibaba.fastjson.JSONObject;
 
-import cc.circling.X5Activity;
+import cc.circling.MainActivity;
 import cc.circling.utils.LogUtil;
 
 /**
@@ -14,7 +14,7 @@ import cc.circling.utils.LogUtil;
 
 public class ToastPlugin extends H5Plugin {
 
-    public ToastPlugin(X5Activity activity) {
+    public ToastPlugin(MainActivity activity) {
         super(activity);
     }
     @Override

@@ -11,7 +11,7 @@ import android.support.v7.app.NotificationCompat;
 import com.alibaba.fastjson.JSONObject;
 
 import cc.circling.R;
-import cc.circling.X5Activity;
+import cc.circling.MainActivity;
 import cc.circling.utils.LogUtil;
 
 /**
@@ -20,7 +20,7 @@ import cc.circling.utils.LogUtil;
 
 public class NotifyPlugin extends H5Plugin {
     private static int uid = 0;
-    public NotifyPlugin(X5Activity activity) {
+    public NotifyPlugin(MainActivity activity) {
         super(activity);
     }
 
@@ -53,7 +53,7 @@ public class NotifyPlugin extends H5Plugin {
             builder.setLargeIcon(BitmapFactory.decodeResource(activity.getResources(), R.mipmap.ic_launcher));
 
             if(url != null && !url.equals("")) {
-                Intent intent = new Intent(activity, X5Activity.class);
+                Intent intent = new Intent(activity, MainActivity.class);
                 intent.putExtra("__url__", url);
                 JSONObject params = p.getJSONObject("params");
                 if(params != null) {

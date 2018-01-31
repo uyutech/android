@@ -22,7 +22,7 @@
 
     var callbackHash = {};
 
-    window.ZhuanQuanJSBridge = {
+    window.ZhuanQuanJSBridge = window.ZhuanQuanJsBridge = {
         android: true,
         call: function(fn, param, cb) {
             if(!isString(fn)) {

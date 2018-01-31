@@ -4,7 +4,7 @@ import android.webkit.ValueCallback;
 
 import com.alibaba.fastjson.JSONObject;
 
-import cc.circling.X5Activity;
+import cc.circling.MainActivity;
 import cc.circling.utils.LogUtil;
 
 /**
@@ -14,7 +14,7 @@ import cc.circling.utils.LogUtil;
 public class LoginWeiboPlugin extends H5Plugin {
     private String clientId;
 
-    public LoginWeiboPlugin(X5Activity activity) {
+    public LoginWeiboPlugin(MainActivity activity) {
         super(activity);
     }
 

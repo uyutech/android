@@ -2,7 +2,7 @@ package cc.circling.plugin;
 
 import com.alibaba.fastjson.JSONObject;
 
-import cc.circling.X5Activity;
+import cc.circling.MainActivity;
 import cc.circling.utils.LogUtil;
 
 /**
@@ -10,7 +10,7 @@ import cc.circling.utils.LogUtil;
  */
 
 public class RefreshStatePlugin extends H5Plugin {
-    public RefreshStatePlugin(X5Activity activity) {
+    public RefreshStatePlugin(MainActivity activity) {
         super(activity);
     }
 
@@ -18,6 +18,6 @@ public class RefreshStatePlugin extends H5Plugin {
     public void handle(JSONObject json) {
         LogUtil.i("RefreshStatePlugin: " + json.toJSONString());
         boolean p = json.getBoolean("param");
-        this.activity.getSwipeRefreshLayout().setCanEnabled(p);
+//        this.activity.getSwipeRefreshLayout().setCanEnabled(p);
     }
 }

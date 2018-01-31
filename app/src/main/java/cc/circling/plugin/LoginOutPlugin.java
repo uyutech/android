@@ -9,7 +9,7 @@ import com.umeng.analytics.MobclickAgent;
 
 import java.util.Map;
 
-import cc.circling.X5Activity;
+import cc.circling.MainActivity;
 import cc.circling.utils.LogUtil;
 import cc.circling.web.MyCookies;
 import cc.circling.web.PreferenceEnum;
@@ -23,7 +23,7 @@ import static android.content.Context.MODE_PRIVATE;
 public class LoginOutPlugin extends H5Plugin {
     private String clientId;
 
-    public LoginOutPlugin(X5Activity activity) {
+    public LoginOutPlugin(MainActivity activity) {
         super(activity);
     }
 
@@ -42,7 +42,7 @@ public class LoginOutPlugin extends H5Plugin {
             LogUtil.i(key, cookie);
         }
         editor.apply();
-        activity.syncCookie();
+//        activity.syncCookie();
         activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "');", new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {

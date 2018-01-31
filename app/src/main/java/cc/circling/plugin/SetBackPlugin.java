@@ -2,7 +2,7 @@ package cc.circling.plugin;
 
 import com.alibaba.fastjson.JSONObject;
 
-import cc.circling.X5Activity;
+import cc.circling.MainActivity;
 import cc.circling.utils.LogUtil;
 
 /**
@@ -11,7 +11,7 @@ import cc.circling.utils.LogUtil;
 
 public class SetBackPlugin extends H5Plugin {
 
-    public SetBackPlugin(X5Activity activity) {
+    public SetBackPlugin(MainActivity activity) {
         super(activity);
     }
 
@@ -22,7 +22,7 @@ public class SetBackPlugin extends H5Plugin {
         if(param != null) {
             String img = param.getString("img");
             if(img != null && img.length() > 0) {
-                activity.setBackIcon(img);
+//                activity.setBackIcon(img);
             }
         }
     }

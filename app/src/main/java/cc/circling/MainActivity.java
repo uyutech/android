@@ -4,18 +4,60 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.sina.weibo.sdk.auth.sso.SsoHandler;
 
+import cc.circling.event.H5EventDispatcher;
+import cc.circling.plugin.AlbumPlugin;
+import cc.circling.plugin.AlertPlugin;
+import cc.circling.plugin.BackPlugin;
+import cc.circling.plugin.ConfirmPlugin;
+import cc.circling.plugin.DownloadPlugin;
+import cc.circling.plugin.GetCachePlugin;
+import cc.circling.plugin.GetPreferencePlugin;
+import cc.circling.plugin.H5Plugin;
+import cc.circling.plugin.HideBackButtonPlugin;
+import cc.circling.plugin.HideLoadingPlugin;
+import cc.circling.plugin.LoginOutPlugin;
+import cc.circling.plugin.LoginPlugin;
+import cc.circling.plugin.LoginWeiboPlugin;
+import cc.circling.plugin.MediaPlugin;
+import cc.circling.plugin.MoveTaskToBackPlugin;
+import cc.circling.plugin.NetworkInfoPlugin;
+import cc.circling.plugin.NotifyPlugin;
+import cc.circling.plugin.OpenUriPlugin;
+import cc.circling.plugin.PopWindowPlugin;
+import cc.circling.plugin.PromptPlugin;
+import cc.circling.plugin.PushWindowPlugin;
+import cc.circling.plugin.RefreshPlugin;
+import cc.circling.plugin.RefreshStatePlugin;
+import cc.circling.plugin.SetBackPlugin;
+import cc.circling.plugin.SetCachePlugin;
+import cc.circling.plugin.SetOptionMenuPlugin;
+import cc.circling.plugin.SetPreferencePlugin;
+import cc.circling.plugin.SetSubTitlePlugin;
+import cc.circling.plugin.SetTitleBgColorPlugin;
+import cc.circling.plugin.SetTitlePlugin;
+import cc.circling.plugin.ShowBackButtonPlugin;
+import cc.circling.plugin.ShowLoadingPlugin;
+import cc.circling.plugin.ToastPlugin;
+import cc.circling.plugin.WeiboLoginPlugin;
+import cc.circling.utils.AndroidBug5497Workaround;
 import cc.circling.utils.LogUtil;
 import cc.circling.web.MyCookies;
 import cc.circling.web.PreferenceEnum;
@@ -26,12 +68,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import cc.circling.web.WebView;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -45,28 +89,82 @@ import okhttp3.Response;
  */
 
 public class MainActivity extends AppCompatActivity {
-    private boolean hasUnZipPack = false;
+    public static final int PUSH_WINDOW_OK = 8735;
+    public static final int REQUEST_ALBUM_OK = 8736;
+    public static int WIDTH;
+
+    private SetTitlePlugin setTitlePlugin;
+    private SetSubTitlePlugin setSubTitlePlugin;
+    private PushWindowPlugin pushWindowPlugin;
+    private PopWindowPlugin popWindowPlugin;
+    private BackPlugin backPlugin;
+    private ToastPlugin toastPlugin;
+    private ShowLoadingPlugin showLoadingPlugin;
+    private HideLoadingPlugin hideLoadingPlugin;
+    private AlertPlugin alertPlugin;
+    private ConfirmPlugin confirmPlugin;
+    private HideBackButtonPlugin hideBackButtonPlugin;
+    private ShowBackButtonPlugin showBackButtonPlugin;
+    private RefreshPlugin refreshPlugin;
+    private RefreshStatePlugin refreshStatePlugin;
+    private LoginWeiboPlugin loginWeiboPlugin;
+    private GetPreferencePlugin getPreferencePlugin;
+    private SetPreferencePlugin setPreferencePlugin;
+    private SetOptionMenuPlugin setOptionMenuPlugin;
+    private SetTitleBgColorPlugin setTitleBgColorPlugin;
+    private MoveTaskToBackPlugin moveTaskToBackPlugin;
+    private OpenUriPlugin openUriPlugin;
+    private WeiboLoginPlugin weiboLoginPlugin;
+    private LoginOutPlugin loginOutPlugin;
+    private NotifyPlugin notificationPlugin;
+    private AlbumPlugin albumPlugin;
+    private PromptPlugin promptPlugin;
+    private DownloadPlugin downloadPlugin;
+    private NetworkInfoPlugin networkInfoPlugin;
+    private LoginPlugin loginPlugin;
+    private MediaPlugin mediaPlugin;
+    private SetBackPlugin setBackPlugin;
+    private SetCachePlugin setCachePlugin;
+    private GetCachePlugin getCachePlugin;
+
+    private FrameLayout base;
+    private FrameLayout open;
     private ImageView bgi;
     private ProgressBar progressBar;
     private TextView domain;
     private TextView copyright;
     private long timeStart;
 
+    private boolean hasUnZipPack = false;
+    private WebFragment reserve;
+    private ArrayList<WebFragment> wfList;
+    private SsoHandler mSsoHandler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        AndroidBug5497Workaround.assistActivity(this);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
+        // 获取屏幕宽度
+        WindowManager manager = this.getWindowManager();
+        DisplayMetrics dm = new DisplayMetrics();
+        manager.getDefaultDisplay().getMetrics(dm);
+        WIDTH = dm.widthPixels;
+
+        base = findViewById(R.id.base);
+        open = findViewById(R.id.open);
         bgi = findViewById(R.id.bgi);
         progressBar = findViewById(R.id.progressBar);
         domain = findViewById(R.id.domain);
         copyright = findViewById(R.id.copyright);
+        wfList = new ArrayList();
 
         // 背景渐显
         Animation alphaAnimation = new AlphaAnimation(0.1f, 1.0f);
-        alphaAnimation.setDuration(1000);
+        alphaAnimation.setDuration(500);
         bgi.setAnimation(alphaAnimation);
         alphaAnimation.startNow();
         timeStart = new Date().getTime();
@@ -135,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         // 获取本地h5版本信息
                         SharedPreferences sharedPreferences = getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), MODE_PRIVATE);
-                        final int curVersion = sharedPreferences.getInt("version", 48);
+                        final int curVersion = sharedPreferences.getInt("version", 49);
                         LogUtil.i("checkUpdate version: ", version + ", " + curVersion);
                         if(curVersion < version) {
                             final SharedPreferences.Editor editor = MainActivity.this.getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), Context.MODE_PRIVATE).edit();
@@ -326,23 +424,196 @@ public class MainActivity extends AppCompatActivity {
 
         long end = new Date().getTime();
         int time;
-        if(end - timeStart >= 1000) {
+        if(end - timeStart >= 2000) {
             time = 0;
         }
         else {
-            time = 1000 - ((int)(end - timeStart));
+            time = 2000 - ((int)(end - timeStart));
         }
         LogUtil.i("showRedirect: ", time + "");
+        prepare();
         new Handler().postDelayed(new Runnable() {
             public void run() {
-                Intent intent = new Intent(MainActivity.this, X5Activity.class);
-                String url = URLs.WEB_DOMAIN + "/index.html";
-                intent.putExtra("__url__", url);
-                intent.putExtra("transparentTitle", "true");
-                intent.putExtra("hideBackButton", "true");
-                startActivity(intent);
-                MainActivity.this.finish();
+                Bundle bundle = new Bundle();
+                bundle.putString("transparentTitle", "true");
+                bundle.putString("hideBackButton", "true");
+                MainActivity.this.enter(URLs.WEB_DOMAIN + "/index.html", bundle);
+                // 移除最初的欢迎界面
+                new Handler().postDelayed(new Runnable() {
+                    public void run() {
+                        base.removeView(open);
+                    }
+                }, 10000);
             }
         }, time);
     }
+
+    private void initPlugins() {
+//        setTitlePlugin = new SetTitlePlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.SET_TITLE, setTitlePlugin);
+//
+//        setSubTitlePlugin = new SetSubTitlePlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.SET_SUB_TITLE, setSubTitlePlugin);
+//
+//        pushWindowPlugin = new PushWindowPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.PUSH_WINDOW, pushWindowPlugin);
+//
+//        popWindowPlugin = new PopWindowPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.POP_WINDOW, popWindowPlugin);
+//
+//        backPlugin = new BackPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.BACK, backPlugin);
+//
+//        toastPlugin = new ToastPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.TOAST, toastPlugin);
+//
+//        showLoadingPlugin = new ShowLoadingPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.SHOW_LOADING, showLoadingPlugin);
+//
+//        hideLoadingPlugin = new HideLoadingPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.HIDE_LOADING, hideLoadingPlugin);
+//
+//        alertPlugin = new AlertPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.ALERT, alertPlugin);
+//
+//        confirmPlugin = new ConfirmPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.CONFIRM, confirmPlugin);
+//
+//        hideBackButtonPlugin = new HideBackButtonPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.HIDE_BACKBUTTON, hideBackButtonPlugin);
+//
+//        showBackButtonPlugin = new ShowBackButtonPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.SHOW_BACKBUTTON, showBackButtonPlugin);
+//
+//        refreshPlugin = new RefreshPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.REFRESH, refreshPlugin);
+//
+//        refreshStatePlugin = new RefreshStatePlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.REFRESH_STATE, refreshStatePlugin);
+//
+//        loginWeiboPlugin = new LoginWeiboPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.LOGIN_WEIBO, loginWeiboPlugin);
+//
+//        getPreferencePlugin = new GetPreferencePlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.GET_PRE_FERENCE, getPreferencePlugin);
+//
+//        setPreferencePlugin = new SetPreferencePlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.SET_PRE_FERENCE, setPreferencePlugin);
+//
+//        setOptionMenuPlugin = new SetOptionMenuPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.SET_OPTIONMENU, setOptionMenuPlugin);
+//
+//        setTitleBgColorPlugin = new SetTitleBgColorPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.SET_TITLE_BG_COLOR, setTitleBgColorPlugin);
+//
+//        moveTaskToBackPlugin = new MoveTaskToBackPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.MOVE_TASK_TO_BACK, moveTaskToBackPlugin);
+//
+//        openUriPlugin = new OpenUriPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.OPEN_URI, openUriPlugin);
+//
+//        weiboLoginPlugin = new WeiboLoginPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.WEIBO_LOGIN, weiboLoginPlugin);
+//
+//        loginOutPlugin = new LoginOutPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.LOGIN_OUT, loginOutPlugin);
+//
+//        notificationPlugin = new NotifyPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.NOTIFY, notificationPlugin);
+//
+//        albumPlugin = new AlbumPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.ALBUM, albumPlugin);
+//
+//        promptPlugin = new PromptPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.PROMPT, promptPlugin);
+//
+//        downloadPlugin = new DownloadPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.DOWNLOAD, downloadPlugin);
+//
+//        networkInfoPlugin = new NetworkInfoPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.NETWORK_INFO, networkInfoPlugin);
+//
+//        loginPlugin = new LoginPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.LOGIN, loginPlugin);
+//
+//        mediaPlugin = new MediaPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.MEDIA, mediaPlugin);
+//
+//        setBackPlugin = new SetBackPlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.SET_BACK, setBackPlugin);
+//
+//        setCachePlugin = new SetCachePlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.SET_CACHE, setCachePlugin);
+//
+//        getCachePlugin = new GetCachePlugin(this);
+//        H5EventDispatcher.addEventListener(H5Plugin.GET_CACHE, getCachePlugin);
+    }
+    private void prepare() {
+        reserve = new WebFragment();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.base, reserve);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+    private void enter(String url, Bundle bundle) {
+        LogUtil.i("enter", url);
+        reserve.enter(url, bundle);
+        wfList.add(reserve);
+        this.prepare();
+    }
+
+    @Override
+    protected void onStart() {
+        LogUtil.i("onStart: ");
+        super.onStart();
+    }
+    @Override
+    protected void onRestart() {
+        LogUtil.i("onRestart: ");
+        super.onRestart();
+    }
+    @Override
+    protected void onResume() {
+        LogUtil.i("onResume: ");
+        super.onResume();
+    }
+    @Override
+    protected void onPause() {
+        LogUtil.i("onPause: ");
+        super.onPause();
+    }
+    @Override
+    protected void onStop() {
+        LogUtil.i("onStop: ");
+        super.onStop();
+    }
+    @Override
+    protected void onDestroy() {
+        LogUtil.i("onDestroy: ");
+        super.onDestroy();
+    }
+
+    public WebView getWebView() {
+        return null;
+    }
+    public void pushWindow(JSONObject data) {
+        final String url = data.getString("url");
+        JSONObject params = data.getJSONObject("params");
+        final Bundle bundle = new Bundle();
+        for(String key : params.keySet()) {
+            String value = params.getString(key);
+            bundle.putString(key, value);
+        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                MainActivity.this.enter(url, bundle);
+            }
+        });
+    }
+    public void setSubTitle(String title) {}
+    public void hideBackButton() {}
+    public void showBackButton() {}
+    public void loginWeibo() {}
 }

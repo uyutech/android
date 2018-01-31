@@ -25,11 +25,8 @@ import java.io.InputStream;
 public class MyWebViewClient extends WebViewClient {
     public static final boolean online = BuildConfig.ONLINE;
 
-    private X5Activity activity;
-
-    public MyWebViewClient(X5Activity activity) {
+    public MyWebViewClient() {
         super();
-        this.activity = activity;
     }
 
     @Override
@@ -78,9 +75,7 @@ public class MyWebViewClient extends WebViewClient {
 //                InputStream is = BaseApplication.getContext().getResources().openRawResource(R.raw.cc.circling);
 //                InputStream is = BaseApplication.getContext().getAssets().open("cc.circling.html");
                     is = BaseApplication.getContext().openFileInput(noSepPath);
-                    if (noSepPath.endsWith(".html")) {
-                        wrr = new WebResourceResponse("text/html", "utf-8", is);
-                    } else if (noSepPath.endsWith(".htm")) {
+                    if (noSepPath.endsWith(".html") || noSepPath.endsWith(".htm")) {
                         wrr = new WebResourceResponse("text/html", "utf-8", is);
                     } else if (noSepPath.endsWith(".css")) {
                         wrr = new WebResourceResponse("text/css", "utf-8", is);
@@ -106,11 +101,11 @@ public class MyWebViewClient extends WebViewClient {
 
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon) {
-        LogUtil.i("onPageStarted: " + url + ", " + activity.getUrl());
+        LogUtil.i("onPageStarted: " + url);
     }
     @Override
     public void onPageFinished(WebView view, String args) {
-        LogUtil.i("onPageFinished: " + args + ", " + activity.getUrl());
+        LogUtil.i("onPageFinished: " + args);
         view.evaluateJavascript(LoadBridge.getBridgeJs(), new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {

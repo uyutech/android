@@ -2,7 +2,7 @@ package cc.circling.event;
 
 import com.alibaba.fastjson.JSONObject;
 
-import cc.circling.X5Activity;
+import cc.circling.MainActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +14,7 @@ import java.util.HashMap;
 public class H5EventDispatcher {
     private static HashMap<String, ArrayList<IH5EventHandle>> map = new HashMap();
 
-    public static void dispatch(String action, X5Activity activity, JSONObject param) {
+    public static void dispatch(String action, MainActivity activity, JSONObject param) {
         if(map.containsKey(action)) {
             ArrayList<IH5EventHandle> list = map.get(action);
             for(IH5EventHandle handle : list) {
@@ -24,7 +24,7 @@ public class H5EventDispatcher {
             }
         }
     }
-    public static void dispatch(X5Activity activity, JSONObject json) {
+    public static void dispatch(MainActivity activity, JSONObject json) {
         String action = json.getString("fn");
         dispatch(action, activity, json);
     }

@@ -2,7 +2,7 @@ package cc.circling.plugin;
 
 import com.alibaba.fastjson.JSONObject;
 
-import cc.circling.X5Activity;
+import cc.circling.MainActivity;
 import cc.circling.utils.LogUtil;
 
 /**
@@ -10,7 +10,7 @@ import cc.circling.utils.LogUtil;
  */
 
 public class RefreshPlugin extends H5Plugin {
-    public RefreshPlugin(X5Activity activity) {
+    public RefreshPlugin(MainActivity activity) {
         super(activity);
     }
 
@@ -23,7 +23,7 @@ public class RefreshPlugin extends H5Plugin {
             if(!prevent) {
                 activity.getWebView().reload();
             }
-            activity.getSwipeRefreshLayout().setRefreshing(false);
+//            activity.getSwipeRefreshLayout().setRefreshing(false);
         }
     }
 }

@@ -7,7 +7,7 @@ import android.webkit.ValueCallback;
 
 import com.alibaba.fastjson.JSONObject;
 
-import cc.circling.X5Activity;
+import cc.circling.MainActivity;
 import cc.circling.utils.LogUtil;
 
 /**
@@ -16,7 +16,7 @@ import cc.circling.utils.LogUtil;
 
 public class NetworkInfoPlugin extends H5Plugin {
 
-    public NetworkInfoPlugin(X5Activity activity) {
+    public NetworkInfoPlugin(MainActivity activity) {
         super(activity);
     }
 

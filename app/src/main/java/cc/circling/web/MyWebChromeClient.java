@@ -48,7 +48,7 @@ public class MyWebChromeClient extends WebChromeClient {
         LogUtil.i("onConsoleMessage: " + msg);
         if(msg.startsWith(PREFIX)) {
             JSONObject json = JSON.parseObject(msg.substring(PREFIX.length() - 1));
-            H5EventDispatcher.dispatch(this.activity, json);
+//            H5EventDispatcher.dispatch(this.activity, json);
         }
         return false;
     }

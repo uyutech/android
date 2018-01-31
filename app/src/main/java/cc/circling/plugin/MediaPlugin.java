@@ -2,7 +2,7 @@ package cc.circling.plugin;
 
 import com.alibaba.fastjson.JSONObject;
 
-import cc.circling.X5Activity;
+import cc.circling.MainActivity;
 import cc.circling.utils.LogUtil;
 
 /**
@@ -11,7 +11,7 @@ import cc.circling.utils.LogUtil;
 
 public class MediaPlugin extends H5Plugin {
 
-    public MediaPlugin(X5Activity activity) {
+    public MediaPlugin(MainActivity activity) {
         super(activity);
     }
 
@@ -23,7 +23,7 @@ public class MediaPlugin extends H5Plugin {
         if(param != null) {
             String key = param.getString("key");
             JSONObject value = param.getJSONObject("value");
-            this.activity.media(key, value, clientId);
+//            this.activity.media(key, value, clientId);
         }
     }
 }

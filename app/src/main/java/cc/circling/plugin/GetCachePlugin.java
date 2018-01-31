@@ -10,7 +10,7 @@ import com.alibaba.fastjson.JSONObject;
 import java.util.ArrayList;
 
 import cc.circling.BaseApplication;
-import cc.circling.X5Activity;
+import cc.circling.MainActivity;
 import cc.circling.utils.LogUtil;
 import cc.circling.web.PreferenceEnum;
 
@@ -20,7 +20,7 @@ import cc.circling.web.PreferenceEnum;
 
 public class GetCachePlugin extends H5Plugin {
 
-    public GetCachePlugin(X5Activity activity) {
+    public GetCachePlugin(MainActivity activity) {
         super(activity);
     }
 

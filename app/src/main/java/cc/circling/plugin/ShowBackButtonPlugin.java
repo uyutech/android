@@ -2,7 +2,7 @@ package cc.circling.plugin;
 
 import com.alibaba.fastjson.JSONObject;
 
-import cc.circling.X5Activity;
+import cc.circling.MainActivity;
 import cc.circling.utils.LogUtil;
 
 /**
@@ -10,7 +10,7 @@ import cc.circling.utils.LogUtil;
  */
 
 public class ShowBackButtonPlugin extends H5Plugin {
-    public ShowBackButtonPlugin(X5Activity activity) {
+    public ShowBackButtonPlugin(MainActivity activity) {
         super(activity);
     }
 

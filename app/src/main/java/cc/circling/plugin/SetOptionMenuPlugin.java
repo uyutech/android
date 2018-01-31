@@ -2,7 +2,7 @@ package cc.circling.plugin;
 
 import com.alibaba.fastjson.JSONObject;
 
-import cc.circling.X5Activity;
+import cc.circling.MainActivity;
 import cc.circling.utils.LogUtil;
 
 /**
@@ -11,7 +11,7 @@ import cc.circling.utils.LogUtil;
 
 public class SetOptionMenuPlugin extends H5Plugin {
 
-    public SetOptionMenuPlugin(X5Activity activity) {
+    public SetOptionMenuPlugin(MainActivity activity) {
         super(activity);
     }
 
@@ -27,9 +27,9 @@ public class SetOptionMenuPlugin extends H5Plugin {
             }
             String img1 = param.getString("img1");
             String img2 = param.getString("img2");
-            activity.setOptionMenuText(text, textColor);
-            activity.setOptionMenuImg1(img1);
-            activity.setOptionMenuImg2(img2);
+//            activity.setOptionMenuText(text, textColor);
+//            activity.setOptionMenuImg1(img1);
+//            activity.setOptionMenuImg2(img2);
         }
     }
 }
