@@ -43,7 +43,7 @@ public class PromptPlugin extends H5Plugin {
                     JSONObject json = new JSONObject();
                     json.put("success", true);
                     json.put("value", s);
-                    PromptPlugin.this.activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');", new ValueCallback<String>() {
+                    PromptPlugin.this.activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "'," + json.toJSONString() + ");", new ValueCallback<String>() {
                         @Override
                         public void onReceiveValue(String value) {
                             //
@@ -56,7 +56,7 @@ public class PromptPlugin extends H5Plugin {
                 public void onClick(DialogInterface dialogInterface, int which) {
                     JSONObject json = new JSONObject();
                     json.put("success", false);
-                    PromptPlugin.this.activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "','" + json.toJSONString() + "');", new ValueCallback<String>() {
+                    PromptPlugin.this.activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "'," + json.toJSONString() + ");", new ValueCallback<String>() {
                         @Override
                         public void onReceiveValue(String value) {
                             //
