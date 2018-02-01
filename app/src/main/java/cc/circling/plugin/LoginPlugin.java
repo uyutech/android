@@ -17,6 +17,7 @@ import cc.circling.BaseApplication;
 import cc.circling.MainActivity;
 import cc.circling.utils.LogUtil;
 import cc.circling.web.MyCookies;
+import cc.circling.web.OkHttpDns;
 import cc.circling.web.PreferenceEnum;
 import cc.circling.web.URLs;
 import okhttp3.Cookie;
@@ -54,6 +55,7 @@ public class LoginPlugin extends H5Plugin {
                         try {
                             OkHttpClient client = new OkHttpClient
                                     .Builder()
+                                    .dns(OkHttpDns.getInstance())
                                     .cookieJar(new CookieJar() {
                                         @Override
                                         public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
