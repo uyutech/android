@@ -23,7 +23,8 @@
         android:theme="@style/AppTheme">
         <meta-data android:name="com.alibaba.app.appkey" android:value="24731551"/> <!-- 请填写你自己的- appKey -->
         <meta-data android:name="com.alibaba.app.appsecret" android:value="ccd93fbb2a584d81d8c0bdc5bdccb824"/>
-        <activity android:name=".MainActivity" android:screenOrientation="portrait">
+        <activity android:name=".MainActivity" android:screenOrientation="portrait"
+            android:hardwareAccelerated="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

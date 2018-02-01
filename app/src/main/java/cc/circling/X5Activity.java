@@ -383,8 +383,8 @@ public class X5Activity extends AppCompatActivity {
 
 //        MyWebViewClient webViewClient = new MyWebViewClient(this);
 //        webView.setWebViewClient(webViewClient);
-        MyWebChromeClient webChromeClient = new MyWebChromeClient(this);
-        webView.setWebChromeClient(webChromeClient);
+//        MyWebChromeClient webChromeClient = new MyWebChromeClient(this);
+//        webView.setWebChromeClient(webChromeClient);
         webView.setWebContentsDebuggingEnabled(true);
 
         // 从上个启动活动获取需要加载的url

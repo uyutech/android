@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
@@ -28,6 +29,7 @@ import java.util.HashMap;
 import cc.circling.utils.ImgUtil;
 import cc.circling.utils.LogUtil;
 import cc.circling.web.MyCookies;
+import cc.circling.web.MyWebChromeClient;
 import cc.circling.web.MyWebViewClient;
 import cc.circling.web.SwipeRefreshLayout;
 import cc.circling.web.URLs;
@@ -72,7 +74,6 @@ public class WebFragment extends Fragment {
         hasCreateView = true;
         View view = inflater.inflate(R.layout.web_fragment, container, false);
         rootView = (FrameLayout) view;
-        rootView.setTranslationX(MainActivity.WIDTH);
         init();
         if(hasEnter) {
             this.enter(this.url, this.bundle);
@@ -83,6 +84,23 @@ public class WebFragment extends Fragment {
     public void onStart() {
         LogUtil.i("onStart");
         super.onStart();
+    }
+    @Override
+    public void onDestroyView() {
+        LogUtil.i("onDestroyView");
+        super.onDestroyView();
+        webView.setWebChromeClient(null);
+        webView.setWebViewClient(null);
+        webView.setSwipeRefreshLayout(null);
+        webView.clearHistory();
+        ((ViewGroup) webView.getParent()).removeView(webView);
+        webView.destroy();
+        webView = null;
+    }
+    @Override
+    public void onDestroy() {
+        LogUtil.i("onDestroy");
+        super.onDestroy();
     }
 
     private void init() {
@@ -110,8 +128,8 @@ public class WebFragment extends Fragment {
 
         MyWebViewClient webViewClient = new MyWebViewClient();
         webView.setWebViewClient(webViewClient);
-//        MyWebChromeClient webChromeClient = new MyWebChromeClient(mainActivity);
-//        webView.setWebChromeClient(webChromeClient);
+        MyWebChromeClient webChromeClient = new MyWebChromeClient(mainActivity);
+        webView.setWebChromeClient(webChromeClient);
         webView.setWebContentsDebuggingEnabled(true);
 
         webView.setSwipeRefreshLayout(swipeRefreshLayout);
@@ -166,6 +184,9 @@ public class WebFragment extends Fragment {
         if(backgroundColor != null && backgroundColor.length() > 0) {
             int color = Color.parseColor(backgroundColor);
             webView.setBackgroundColor(color);
+        }
+        else {
+            webView.setBackgroundColor(Color.parseColor("#FFFFFF"));
         }
 
         // title
@@ -295,9 +316,21 @@ public class WebFragment extends Fragment {
         }
         TranslateAnimation translateAnimation = new TranslateAnimation(MainActivity.WIDTH,0,0,0);
         translateAnimation.setDuration(300);
+        translateAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                rootView.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+        });
         rootView.startAnimation(translateAnimation);
-        rootView.setTranslationX(0);
-        rootView.setVisibility(View.VISIBLE);
     }
     public void setTitleBgColor(String backgroundColor) {
         if(backgroundColor.equals("transparent")) {
@@ -372,6 +405,36 @@ public class WebFragment extends Fragment {
     public WebView getWebView() {
         return webView;
     }
+    public View getView() {
+        return rootView;
+    }
+    public void back() {
+        webView.evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.trigger('back');", new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+            }
+        });
+    }
+    public void remove() {
+        webView.onPause();
+        TranslateAnimation translateAnimation = new TranslateAnimation(0,MainActivity.WIDTH,0,0);
+        translateAnimation.setDuration(300);
+        rootView.startAnimation(translateAnimation);
+        translateAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                mainActivity.remove(WebFragment.this);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+        });
+    }
 
     class ZhuanQuanJsBridgeNative extends Object {
         @JavascriptInterface
@@ -383,6 +446,19 @@ public class WebFragment extends Fragment {
             switch(key) {
                 case "pushWindow":
                     mainActivity.pushWindow(value);
+                    break;
+                case "back":
+                    mainActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(webView.canGoBack()) {
+                                webView.goBack();
+                            }
+                            else {
+                                mainActivity.back();
+                            }
+                        }
+                    });
                     break;
             }
         }

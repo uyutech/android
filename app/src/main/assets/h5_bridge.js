@@ -50,7 +50,9 @@
                 var event = document.createEvent('Events');
                 event.initEvent(name, false, true);
                 var prevent = !document.dispatchEvent(event);
-                ZhuanQuanJSBridge.call(name, { prevent: prevent });
+                if(!prevent) {
+                    ZhuanQuanJsBridgeNative.call(JSON.stringify({ key: "back" }));
+                }
             }
         },
         emit: function(name, param) {

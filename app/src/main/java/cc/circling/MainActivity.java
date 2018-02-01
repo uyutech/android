@@ -9,10 +9,12 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.webkit.ValueCallback;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -60,6 +62,7 @@ import cc.circling.plugin.WeiboLoginPlugin;
 import cc.circling.utils.AndroidBug5497Workaround;
 import cc.circling.utils.LogUtil;
 import cc.circling.web.MyCookies;
+import cc.circling.web.OkHttpDns;
 import cc.circling.web.PreferenceEnum;
 import cc.circling.web.URLs;
 
@@ -200,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     OkHttpClient client = new OkHttpClient
                             .Builder()
+                            .dns(OkHttpDns.getInstance())
                             .build();
                     RequestBody requestBody = new FormBody.Builder().build();
                     Request request = new Request.Builder()
@@ -233,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         // 获取本地h5版本信息
                         SharedPreferences sharedPreferences = getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), MODE_PRIVATE);
-                        final int curVersion = sharedPreferences.getInt("version", 49);
+                        final int curVersion = sharedPreferences.getInt("version", 50);
                         LogUtil.i("checkUpdate version: ", version + ", " + curVersion);
                         if(curVersion < version) {
                             final SharedPreferences.Editor editor = MainActivity.this.getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), Context.MODE_PRIVATE).edit();
@@ -243,7 +247,8 @@ public class MainActivity extends AppCompatActivity {
                             LogUtil.i("Download h5zip: ", url);
                             OkHttpClient client2 = new OkHttpClient
                                     .Builder()
-                                    .connectTimeout(10, TimeUnit.SECONDS)
+                                    .dns(OkHttpDns.getInstance())
+                                    .connectTimeout(20, TimeUnit.SECONDS)
                                     .readTimeout(300, TimeUnit.SECONDS)
                                     .build();
                             Request request2 = new Request.Builder()
@@ -443,7 +448,7 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         base.removeView(open);
                     }
-                }, 10000);
+                }, 3000);
             }
         }, time);
     }
@@ -553,7 +558,7 @@ public class MainActivity extends AppCompatActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.base, reserve);
-        fragmentTransaction.addToBackStack(null);
+//        fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
     private void enter(String url, Bundle bundle) {
@@ -593,6 +598,19 @@ public class MainActivity extends AppCompatActivity {
         LogUtil.i("onDestroy: ");
         super.onDestroy();
     }
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        LogUtil.i("keyup: " + keyCode);
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+            LogUtil.i("KEYCODE_BACK");
+            int i = wfList.size();
+            if(i > 0) {
+                wfList.get(i - 1).back();
+            }
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
+    }
 
     public WebView getWebView() {
         return null;
@@ -616,4 +634,20 @@ public class MainActivity extends AppCompatActivity {
     public void hideBackButton() {}
     public void showBackButton() {}
     public void loginWeibo() {}
+    public void back() {
+        int i = wfList.size();
+        if(i > 1) {
+            WebFragment top = wfList.remove(i - 1);
+            top.remove();
+        }
+        else {
+            this.moveTaskToBack(true);
+        }
+    }
+    public void remove(WebFragment top) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.remove(top);
+        fragmentTransaction.commit();
+    }
 }

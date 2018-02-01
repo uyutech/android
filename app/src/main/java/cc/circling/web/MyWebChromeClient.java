@@ -11,6 +11,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.tencent.bugly.crashreport.CrashReport;
 
+import cc.circling.MainActivity;
 import cc.circling.X5Activity;
 import cc.circling.event.H5EventDispatcher;
 import cc.circling.utils.LogUtil;
@@ -20,11 +21,10 @@ import cc.circling.utils.LogUtil;
  */
 
 public class MyWebChromeClient extends WebChromeClient {
-    private static final String PREFIX = "h5container.message: ";
 
-    private X5Activity activity;
+    private MainActivity activity;
 
-    public MyWebChromeClient(X5Activity activity) {
+    public MyWebChromeClient(MainActivity activity) {
         super();
         this.activity = activity;
     }
@@ -32,9 +32,6 @@ public class MyWebChromeClient extends WebChromeClient {
     public void onReceivedTitle(WebView view, String args) {
         super.onReceivedTitle(view, args);
         LogUtil.i("onReceivedTitle: " + args);
-        if(args != null && args.length() > 0) {
-            activity.setDefaultTitle(args);
-        }
         view.evaluateJavascript(LoadBridge.getBridgeJs(), new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
@@ -43,32 +40,16 @@ public class MyWebChromeClient extends WebChromeClient {
         });
     }
     @Override
-    public boolean onConsoleMessage(ConsoleMessage cm) {
-        String msg = cm.message();
-        LogUtil.i("onConsoleMessage: " + msg);
-        if(msg.startsWith(PREFIX)) {
-            JSONObject json = JSON.parseObject(msg.substring(PREFIX.length() - 1));
-//            H5EventDispatcher.dispatch(this.activity, json);
-        }
-        return false;
-    }
-    @Override
-    public boolean onJsAlert(WebView view, String url, String message,
-                             JsResult result) {
-        LogUtil.i("onJsAlert");
-        return false;
-    }
-    @Override
     public void onShowCustomView(View view, CustomViewCallback callback) {
         LogUtil.i("onShowCustomView", view.getClass().getName());
         super.onShowCustomView(view, callback);
-        activity.fullScreen(view);
+//        activity.fullScreen(view);
     }
     @Override
     public void onHideCustomView() {
         LogUtil.i("onHideCustomView");
         super.onHideCustomView();
-        activity.unFullScreen();
+//        activity.unFullScreen();
     }
     @Override
     public void onProgressChanged(WebView webView, int progress) {
