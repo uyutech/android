@@ -117,7 +117,7 @@ dependencies {
 //    compile 'tv.danmaku.ijk.media:ijkplayer-java:0.8.4'
 //    compile 'tv.danmaku.ijk.media:ijkplayer-armv7a:0.8.4'
     compile 'com.danikula:videocache:2.7.0'
-//    compile 'com.aliyun.ams:alicloud-android-httpdns:1.1.4'
+    compile 'com.aliyun.ams:alicloud-android-httpdns:1.1.4'
 //    compile files('libs/tbs_sdk_thirdapp_v3.2.0.1104_43200_sharewithdownload_withfilereader_withoutGame_obfs_20170609_115346.jar')
     testCompile 'junit:junit:4.12'
 }

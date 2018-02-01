@@ -18,6 +18,7 @@ import com.alibaba.fastjson.JSONObject;
 
 import cc.circling.utils.LogUtil;
 import cc.circling.web.MyCookies;
+import cc.circling.web.OkHttpDns;
 import cc.circling.web.PreferenceEnum;
 import cc.circling.web.URLs;
 
@@ -102,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     OkHttpClient client = new OkHttpClient
                             .Builder()
+                            .dns(OkHttpDns.getInstance())
                             .build();
                     RequestBody requestBody = new FormBody.Builder().build();
                     Request request = new Request.Builder()
@@ -135,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         // 获取本地h5版本信息
                         SharedPreferences sharedPreferences = getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), MODE_PRIVATE);
-                        final int curVersion = sharedPreferences.getInt("version", 48);
+                        final int curVersion = sharedPreferences.getInt("version", 50);
                         LogUtil.i("checkUpdate version: ", version + ", " + curVersion);
                         if(curVersion < version) {
                             final SharedPreferences.Editor editor = MainActivity.this.getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), Context.MODE_PRIVATE).edit();
@@ -145,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
                             LogUtil.i("Download h5zip: ", url);
                             OkHttpClient client2 = new OkHttpClient
                                     .Builder()
+                                    .dns(OkHttpDns.getInstance())
                                     .connectTimeout(10, TimeUnit.SECONDS)
                                     .readTimeout(300, TimeUnit.SECONDS)
                                     .build();
