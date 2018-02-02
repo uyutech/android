@@ -44,7 +44,10 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/title"
                     android:textSize="16dp"
-                    android:textColor="@color/titleText"
+                    android:textColor="@color/titleTextTransparent"
+                    android:shadowColor="#33000000"
+                    android:shadowDy="2"
+                    android:shadowRadius="4"
                     android:textAlignment="center"
                     android:layout_gravity="center"/>
                 <TextView
@@ -52,7 +55,10 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/subTitle"
                     android:textSize="10dp"
-                    android:textColor="@color/titleText"
+                    android:textColor="@color/titleTextTransparent"
+                    android:shadowColor="#33000000"
+                    android:shadowDy="2"
+                    android:shadowRadius="4"
                     android:textAlignment="center"
                     android:layout_gravity="center"
                     android:visibility="gone"/>
