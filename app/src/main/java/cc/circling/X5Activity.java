@@ -324,7 +324,7 @@ public class X5Activity extends AppCompatActivity {
         LogUtil.i("optionMenu", optionMenu);
         LogUtil.i("optionMenuIcon1", optionMenuIcon1);
         LogUtil.i("optionMenuIcon2", optionMenuIcon2);
-        if(optionMenu != null && !optionMenu.equals("")) {
+        if(optionMenu != null && optionMenu.length() > 0) {
             optionMenuText.setText(optionMenu);
             optionMenuText.setVisibility(View.VISIBLE);
         }
@@ -342,7 +342,7 @@ public class X5Activity extends AppCompatActivity {
         if(optionMenuIcon2 != null && optionMenuIcon2.length() > 0) {
             Bitmap bitmap = ImgUtil.parseBase64(optionMenuIcon2);
             optionMenuIv2.setImageBitmap(bitmap);
-            optionMenuText.setVisibility(View.VISIBLE);
+            optionMenuIv2.setVisibility(View.VISIBLE);
         }
         else {
             optionMenuIv2.setVisibility(View.GONE);
