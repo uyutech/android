@@ -334,7 +334,7 @@ public class X5Activity extends AppCompatActivity {
         if(optionMenuIcon1 != null && optionMenuIcon1.length() > 0) {
             Bitmap bitmap = ImgUtil.parseBase64(optionMenuIcon1);
             optionMenuIv1.setImageBitmap(bitmap);
-            optionMenuText.setVisibility(View.VISIBLE);
+            optionMenuIv1.setVisibility(View.VISIBLE);
         }
         else {
             optionMenuIv1.setVisibility(View.GONE);
