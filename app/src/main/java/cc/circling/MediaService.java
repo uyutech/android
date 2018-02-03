@@ -220,6 +220,9 @@ public class MediaService extends Service {
                         json.put("id", lastId);
                         json.put("same", true);
                         json.put("isCached", isCached);
+                        json.put("duration", duration);
+                        json.put("percent", percent);
+                        json.put("prepared", prepared);
                         activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
                             @Override
                             public void onReceiveValue(String value) {
