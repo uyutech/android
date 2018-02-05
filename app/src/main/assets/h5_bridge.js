@@ -64,8 +64,8 @@
             }
         },
         _invokeJS: function(clientId, resp) {
-            console.log("_invokeJS: " + clientId + ", " + resp);
             var func = callbackHash[clientId];
+            console.log("_invokeJS: " + clientId + ", " + resp + ", " + !!func);
             func && func(resp);
             delete callbackHash[clientId];
         }

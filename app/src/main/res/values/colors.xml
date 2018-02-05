@@ -7,4 +7,5 @@
 
     <color name="titleBg">#FFF</color>
     <color name="titleText">#636365</color>
+    <color name="titleTextTransparent">#FFF</color>
 </resources>

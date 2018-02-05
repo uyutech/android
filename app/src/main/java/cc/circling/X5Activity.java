@@ -323,7 +323,7 @@ public class X5Activity extends AppCompatActivity {
         LogUtil.i("optionMenu", optionMenu);
         LogUtil.i("optionMenuIcon1", optionMenuIcon1);
         LogUtil.i("optionMenuIcon2", optionMenuIcon2);
-        if(optionMenu != null && !optionMenu.equals("")) {
+        if(optionMenu != null && optionMenu.length() > 0) {
             optionMenuText.setText(optionMenu);
             optionMenuText.setVisibility(View.VISIBLE);
         }
@@ -333,7 +333,7 @@ public class X5Activity extends AppCompatActivity {
         if(optionMenuIcon1 != null && optionMenuIcon1.length() > 0) {
             Bitmap bitmap = ImgUtil.parseBase64(optionMenuIcon1);
             optionMenuIv1.setImageBitmap(bitmap);
-            optionMenuText.setVisibility(View.VISIBLE);
+            optionMenuIv1.setVisibility(View.VISIBLE);
         }
         else {
             optionMenuIv1.setVisibility(View.GONE);
@@ -341,7 +341,7 @@ public class X5Activity extends AppCompatActivity {
         if(optionMenuIcon2 != null && optionMenuIcon2.length() > 0) {
             Bitmap bitmap = ImgUtil.parseBase64(optionMenuIcon2);
             optionMenuIv2.setImageBitmap(bitmap);
-            optionMenuText.setVisibility(View.VISIBLE);
+            optionMenuIv2.setVisibility(View.VISIBLE);
         }
         else {
             optionMenuIv2.setVisibility(View.GONE);
@@ -570,13 +570,6 @@ public class X5Activity extends AppCompatActivity {
         int color = Color.parseColor(backgroundColor);
         LogUtil.i("backgroundColor ", color + "");
         titleBar.setBackgroundColor(color);
-        // 透明则可点穿
-        if(backgroundColor.length() == 9 && backgroundColor.substring(1, 3).equals("00")) {
-            titleBar.setClickable(false);
-        }
-        else {
-            titleBar.setClickable(true);
-        }
     }
     public void pushWindow(String url, JSONObject params) {
         LogUtil.i("pushWindow: " + url + "," + params.toJSONString());
