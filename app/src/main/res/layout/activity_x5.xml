@@ -38,6 +38,8 @@
                     android:textSize="16dp"
                     android:textColor="@color/titleText"
                     android:textAlignment="center"
+                    android:ellipsize="end"
+                    android:singleLine="true"
                     android:layout_gravity="center"/>
                 <TextView
                     android:layout_width="match_parent"
@@ -46,6 +48,8 @@
                     android:textSize="10dp"
                     android:textColor="@color/titleText"
                     android:textAlignment="center"
+                    android:ellipsize="end"
+                    android:singleLine="true"
                     android:layout_gravity="center"
                     android:visibility="gone"/>
             </LinearLayout>
