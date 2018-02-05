@@ -136,8 +136,9 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private TextView domain;
     private TextView copyright;
-    private long timeStart;
+    private View mask;
 
+    private long timeStart;
     private boolean hasUnZipPack = false;
     private WebFragment reserve;
     private ArrayList<WebFragment> wfList;
@@ -163,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         domain = findViewById(R.id.domain);
         copyright = findViewById(R.id.copyright);
+        mask = findViewById(R.id.mask);
         wfList = new ArrayList();
 
         // 背景渐显
@@ -443,12 +445,19 @@ public class MainActivity extends AppCompatActivity {
                 bundle.putString("transparentTitle", "true");
                 bundle.putString("hideBackButton", "true");
                 MainActivity.this.enter(URLs.WEB_DOMAIN + "/index.html", bundle);
-                // 移除最初的欢迎界面
+                // 欢迎界面变暗
+                AlphaAnimation alphaAnimation = new AlphaAnimation(0f, 0.8f);
+                alphaAnimation.setDuration(400);
+                alphaAnimation.setFillAfter(true);
+                mask.startAnimation(alphaAnimation);
+                mask.setVisibility(View.VISIBLE);
+                // 然后移除最初的欢迎界面
                 new Handler().postDelayed(new Runnable() {
                     public void run() {
                         base.removeView(open);
+                        base.removeView(mask);
                     }
-                }, 3000);
+                }, 2000);
             }
         }, time);
     }
@@ -623,12 +632,7 @@ public class MainActivity extends AppCompatActivity {
             String value = params.getString(key);
             bundle.putString(key, value);
         }
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                MainActivity.this.enter(url, bundle);
-            }
-        });
+        this.enter(url, bundle);
     }
     public void setSubTitle(String title) {}
     public void hideBackButton() {}
@@ -639,6 +643,8 @@ public class MainActivity extends AppCompatActivity {
         if(i > 1) {
             WebFragment top = wfList.remove(i - 1);
             top.remove();
+            WebFragment restore = wfList.get(i - 2);
+            restore.show();
         }
         else {
             this.moveTaskToBack(true);

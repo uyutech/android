@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.webkit.CookieManager;
@@ -52,8 +53,9 @@ public class WebFragment extends Fragment {
     private TextView optionMenuText;
     private ImageView optionMenuIv1;
     private ImageView optionMenuIv2;
-    private ViewGroup web;
+    private FrameLayout web;
     private FrameLayout fullScreenView;
+    private View mask;
 
     private boolean hasCreateView = false;
     private boolean hasEnter = false;
@@ -115,6 +117,7 @@ public class WebFragment extends Fragment {
         optionMenuIv2 = rootView.findViewById(R.id.optionMenuIv2);
         web = rootView.findViewById(R.id.web);
         fullScreenView =  rootView.findViewById(R.id.fullScreen);
+        mask = rootView.findViewById(R.id.mask);
 
         WebSettings webSettings = webView.getSettings();
         String ua = webSettings.getUserAgentString();
@@ -319,7 +322,7 @@ public class WebFragment extends Fragment {
             webView.loadUrl("about:blank");
         }
         TranslateAnimation translateAnimation = new TranslateAnimation(MainActivity.WIDTH,0,0,0);
-        translateAnimation.setDuration(300);
+        translateAnimation.setDuration(400);
         translateAnimation.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -423,7 +426,6 @@ public class WebFragment extends Fragment {
         webView.onPause();
         TranslateAnimation translateAnimation = new TranslateAnimation(0,MainActivity.WIDTH,0,0);
         translateAnimation.setDuration(300);
-        rootView.startAnimation(translateAnimation);
         translateAnimation.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -438,6 +440,34 @@ public class WebFragment extends Fragment {
             public void onAnimationRepeat(Animation animation) {
             }
         });
+        rootView.startAnimation(translateAnimation);
+    }
+    public void show() {
+        AlphaAnimation alphaAnimation = new AlphaAnimation(0.8f, 0f);
+        alphaAnimation.setDuration(300);
+        alphaAnimation.setFillAfter(true);
+        alphaAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                mask.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+        });
+        mask.startAnimation(alphaAnimation);
+    }
+    public void hide() {
+        AlphaAnimation alphaAnimation = new AlphaAnimation(0f, 0.8f);
+        alphaAnimation.setDuration(400);
+        alphaAnimation.setFillAfter(true);
+        mask.startAnimation(alphaAnimation);
+        mask.setVisibility(View.VISIBLE);
     }
 
     class ZhuanQuanJsBridgeNative extends Object {
@@ -449,7 +479,13 @@ public class WebFragment extends Fragment {
             JSONObject value = json.getJSONObject("value");
             switch(key) {
                 case "pushWindow":
-                    mainActivity.pushWindow(value);
+                    mainActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mainActivity.pushWindow(value);
+                            WebFragment.this.hide();
+                        }
+                    });
                     break;
                 case "back":
                     mainActivity.runOnUiThread(new Runnable() {
