@@ -158,7 +158,11 @@ public class WebFragment extends Fragment {
         String transparentTitle = bundle.getString("transparentTitle");
         LogUtil.i("transparentTitle ", transparentTitle + "");
         if(transparentTitle != null && transparentTitle.equals("true")) {
-//            swipeRefreshLayout.setPadding(0, statusBarHeight, 0, 0);
+            title.setTextColor(Color.parseColor("#FFFFFF"));
+            title.setShadowLayer(4, 0, 2, Color.parseColor("#33000000"));
+            subTitle.setTextColor(Color.parseColor("#FFFFFF"));
+            subTitle.setShadowLayer(4, 0, 2, Color.parseColor("#33000000"));
+            back.setImageResource(R.drawable.back_transparent);
         }
         else {
             titleBar.setPadding(0, statusBarHeight, 0, 0);
@@ -258,7 +262,7 @@ public class WebFragment extends Fragment {
         if(optionMenuIcon1 != null && optionMenuIcon1.length() > 0) {
             Bitmap bitmap = ImgUtil.parseBase64(optionMenuIcon1);
             optionMenuIv1.setImageBitmap(bitmap);
-            optionMenuText.setVisibility(View.VISIBLE);
+            optionMenuIv1.setVisibility(View.VISIBLE);
         }
         else {
             optionMenuIv1.setVisibility(View.GONE);
@@ -266,7 +270,7 @@ public class WebFragment extends Fragment {
         if(optionMenuIcon2 != null && optionMenuIcon2.length() > 0) {
             Bitmap bitmap = ImgUtil.parseBase64(optionMenuIcon2);
             optionMenuIv2.setImageBitmap(bitmap);
-            optionMenuText.setVisibility(View.VISIBLE);
+            optionMenuIv2.setVisibility(View.VISIBLE);
         }
         else {
             optionMenuIv2.setVisibility(View.GONE);
