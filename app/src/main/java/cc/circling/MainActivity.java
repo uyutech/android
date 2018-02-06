@@ -22,9 +22,15 @@ import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.sina.weibo.sdk.WbSdk;
+import com.sina.weibo.sdk.auth.AuthInfo;
+import com.sina.weibo.sdk.auth.Oauth2AccessToken;
+import com.sina.weibo.sdk.auth.WbAuthListener;
+import com.sina.weibo.sdk.auth.WbConnectErrorMessage;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
 
 import cc.circling.event.H5EventDispatcher;
+import cc.circling.login.oauth.Constants;
 import cc.circling.plugin.AlbumPlugin;
 import cc.circling.plugin.AlertPlugin;
 import cc.circling.plugin.BackPlugin;
@@ -140,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
 
     private long timeStart;
     private boolean hasUnZipPack = false;
+    private WebFragment current;
     private WebFragment reserve;
     private ArrayList<WebFragment> wfList;
     private SsoHandler mSsoHandler;
@@ -572,8 +579,9 @@ public class MainActivity extends AppCompatActivity {
     }
     private void enter(String url, Bundle bundle) {
         LogUtil.i("enter", url);
-        reserve.enter(url, bundle);
-        wfList.add(reserve);
+        current = reserve;
+        current.enter(url, bundle);
+        wfList.add(current);
         this.prepare();
     }
 
@@ -637,14 +645,18 @@ public class MainActivity extends AppCompatActivity {
     public void setSubTitle(String title) {}
     public void hideBackButton() {}
     public void showBackButton() {}
-    public void loginWeibo() {}
+    public void loginWeibo() {
+        WbSdk.install(this, new AuthInfo(this, Constants.APP_KEY, Constants.REDIRECT_URL, Constants.SCOPE));
+        mSsoHandler = new SsoHandler(this);
+        mSsoHandler.authorize(new SelfWbAuthListener());
+    }
     public void back() {
         int i = wfList.size();
         if(i > 1) {
             WebFragment top = wfList.remove(i - 1);
             top.remove();
-            WebFragment restore = wfList.get(i - 2);
-            restore.show();
+            current = wfList.get(i - 2);
+            current.show();
         }
         else {
             this.moveTaskToBack(true);
@@ -655,5 +667,31 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.remove(top);
         fragmentTransaction.commit();
+    }
+
+    private class SelfWbAuthListener implements WbAuthListener {
+        @Override
+        public void onSuccess(final Oauth2AccessToken mAccessToken) {
+            LogUtil.i("SelfWbAuthListener onSuccess", mAccessToken.isSessionValid() + "");
+            if(mAccessToken.isSessionValid()) {
+                String openId = mAccessToken.getUid();
+                String token = mAccessToken.getToken();
+                current.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS();", new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String value) {
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void cancel() {
+            LogUtil.i("SelfWbAuthListener cancel");
+        }
+
+        @Override
+        public void onFailure(WbConnectErrorMessage errorMessage) {
+            LogUtil.i("SelfWbAuthListener onFailure", errorMessage.getErrorMessage());
+        }
     }
 }

@@ -478,15 +478,6 @@ public class WebFragment extends Fragment {
             String key = json.getString("key");
             JSONObject value = json.getJSONObject("value");
             switch(key) {
-                case "pushWindow":
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mainActivity.pushWindow(value);
-                            WebFragment.this.hide();
-                        }
-                    });
-                    break;
                 case "back":
                     mainActivity.runOnUiThread(new Runnable() {
                         @Override
@@ -497,6 +488,18 @@ public class WebFragment extends Fragment {
                             else {
                                 mainActivity.back();
                             }
+                        }
+                    });
+                    break;
+                case "loginWeibo":
+                    mainActivity.loginWeibo();
+                    break;
+                case "pushWindow":
+                    mainActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mainActivity.pushWindow(value);
+                            WebFragment.this.hide();
                         }
                     });
                     break;
