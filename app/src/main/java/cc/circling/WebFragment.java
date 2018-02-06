@@ -1,11 +1,14 @@
 package cc.circling;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +24,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -61,6 +65,8 @@ public class WebFragment extends Fragment {
     private boolean hasEnter = false;
     private String url;
     private Bundle bundle;
+
+    private String loginWeiboClientId;
 
     private static CookieManager cookieManager;
 
@@ -240,7 +246,7 @@ public class WebFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 LogUtil.i("click back");
-                webView.evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.trigger('back');", new ValueCallback<String>() {
+                webView.evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.trigger('back');", new ValueCallback<String>() {
                     @Override
                     public void onReceiveValue(String value) {
                     }
@@ -283,7 +289,7 @@ public class WebFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 LogUtil.i("click optionMenuText");
-                webView.evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('optionMenu');", new ValueCallback<String>() {
+                webView.evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('optionMenu');", new ValueCallback<String>() {
                     @Override
                     public void onReceiveValue(String value) {
                     }
@@ -294,7 +300,7 @@ public class WebFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 LogUtil.i("click optionMenuIv1");
-                webView.evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('optionMenu1');", new ValueCallback<String>() {
+                webView.evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('optionMenu1');", new ValueCallback<String>() {
                     @Override
                     public void onReceiveValue(String value) {
                     }
@@ -305,7 +311,7 @@ public class WebFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 LogUtil.i("click optionMenuIv");
-                webView.evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('optionMenu2');", new ValueCallback<String>() {
+                webView.evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('optionMenu2');", new ValueCallback<String>() {
                     @Override
                     public void onReceiveValue(String value) {
                     }
@@ -416,7 +422,7 @@ public class WebFragment extends Fragment {
         return rootView;
     }
     public void back() {
-        webView.evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.trigger('back');", new ValueCallback<String>() {
+        webView.evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.trigger('back');", new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
             }
@@ -469,15 +475,57 @@ public class WebFragment extends Fragment {
         mask.startAnimation(alphaAnimation);
         mask.setVisibility(View.VISIBLE);
     }
+    public void loginWeiboSuccess(String openId, String token) {
+        JSONObject json = new JSONObject();
+        json.put("success", true);
+        json.put("openID", openId); // TODO: 废除
+        json.put("openId", openId);
+        json.put("token", token);
+        webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + loginWeiboClientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+            }
+        });
+    }
+    public void loginWeiboCancel() {
+        JSONObject json = new JSONObject();
+        json.put("success", false);
+        json.put("type", 0);
+        json.put("message", "取消授权");
+        webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + loginWeiboClientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+            }
+        });
+    }
+    public void loginWeiboError(String message) {
+        JSONObject json = new JSONObject();
+        json.put("success", false);
+        json.put("type", 1);
+        json.put("message", message);
+        webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + loginWeiboClientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
+            @Override
+            public void onReceiveValue(String value) {
+            }
+        });
+    }
 
     class ZhuanQuanJsBridgeNative extends Object {
         @JavascriptInterface
-        public void call(String msg) {
-            LogUtil.i("msg", msg);
-            JSONObject json = JSON.parseObject(msg);
-            String key = json.getString("key");
-            JSONObject value = json.getJSONObject("value");
+        public void call(String clientId, String key, String msg) {
+            LogUtil.i("call", clientId + ", " + key + ", " + msg);
             switch(key) {
+                case "alert":
+                    JSONObject json = JSON.parseObject(msg);
+                    String title = json.getString("title");
+                    String message = json.getString("message");
+                    mainActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mainActivity.alert(title, message);
+                        }
+                    });
+                    break;
                 case "back":
                     mainActivity.runOnUiThread(new Runnable() {
                         @Override
@@ -492,14 +540,27 @@ public class WebFragment extends Fragment {
                     });
                     break;
                 case "loginWeibo":
+                    WebFragment.this.loginWeiboClientId = clientId;
                     mainActivity.loginWeibo();
                     break;
                 case "pushWindow":
                     mainActivity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            JSONObject value = JSON.parseObject(msg);
                             mainActivity.pushWindow(value);
                             WebFragment.this.hide();
+                        }
+                    });
+                    break;
+                case "toast":
+                    String value = (String) JSON.parse(msg);
+                    mainActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast toast = Toast.makeText(mainActivity, value, Toast.LENGTH_SHORT);
+                            toast.setGravity(Gravity.CENTER, 0, 0);
+                            toast.show();
                         }
                     });
                     break;

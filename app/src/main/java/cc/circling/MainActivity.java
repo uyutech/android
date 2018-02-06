@@ -1,6 +1,8 @@
 package cc.circling;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
@@ -619,14 +621,29 @@ public class MainActivity extends AppCompatActivity {
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         LogUtil.i("keyup: " + keyCode);
         if(keyCode == KeyEvent.KEYCODE_BACK) {
-            LogUtil.i("KEYCODE_BACK");
             int i = wfList.size();
+            LogUtil.i("KEYCODE_BACK", i + "");
             if(i > 0) {
                 wfList.get(i - 1).back();
             }
             return true;
         }
         return super.onKeyUp(keyCode, event);
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        LogUtil.i("onActivityResult: " + requestCode + ", " + resultCode + ", " + data);
+        if(mSsoHandler != null) {
+            mSsoHandler.authorizeCallBack(requestCode, resultCode, data);
+            mSsoHandler = null;
+        }
+        else {
+            switch(requestCode) {
+                case REQUEST_ALBUM_OK:
+                    break;
+            }
+        }
     }
 
     public WebView getWebView() {
@@ -668,6 +685,18 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.remove(top);
         fragmentTransaction.commit();
     }
+    public void alert(String title, String message) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle(title);
+        dialog.setMessage(message);
+        dialog.setCancelable(false);
+        dialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+            }
+        });
+        dialog.show();
+    }
 
     private class SelfWbAuthListener implements WbAuthListener {
         @Override
@@ -676,6 +705,7 @@ public class MainActivity extends AppCompatActivity {
             if(mAccessToken.isSessionValid()) {
                 String openId = mAccessToken.getUid();
                 String token = mAccessToken.getToken();
+                current.loginWeiboSuccess(openId, token);
                 current.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS();", new ValueCallback<String>() {
                     @Override
                     public void onReceiveValue(String value) {
@@ -687,11 +717,13 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void cancel() {
             LogUtil.i("SelfWbAuthListener cancel");
+            current.loginWeiboCancel();
         }
 
         @Override
         public void onFailure(WbConnectErrorMessage errorMessage) {
             LogUtil.i("SelfWbAuthListener onFailure", errorMessage.getErrorMessage());
+            current.loginWeiboError(errorMessage.getErrorMessage());
         }
     }
 }
