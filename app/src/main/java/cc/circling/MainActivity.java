@@ -1,16 +1,29 @@
 package cc.circling;
 
+import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -21,9 +34,14 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.liulishuo.filedownloader.BaseDownloadTask;
+import com.liulishuo.filedownloader.FileDownloadListener;
+import com.liulishuo.filedownloader.FileDownloader;
+import com.liulishuo.filedownloader.util.FileDownloadHelper;
 import com.sina.weibo.sdk.WbSdk;
 import com.sina.weibo.sdk.auth.AuthInfo;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
@@ -31,42 +49,7 @@ import com.sina.weibo.sdk.auth.WbAuthListener;
 import com.sina.weibo.sdk.auth.WbConnectErrorMessage;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
 
-import cc.circling.event.H5EventDispatcher;
 import cc.circling.login.oauth.Constants;
-import cc.circling.plugin.AlbumPlugin;
-import cc.circling.plugin.AlertPlugin;
-import cc.circling.plugin.BackPlugin;
-import cc.circling.plugin.ConfirmPlugin;
-import cc.circling.plugin.DownloadPlugin;
-import cc.circling.plugin.GetCachePlugin;
-import cc.circling.plugin.GetPreferencePlugin;
-import cc.circling.plugin.H5Plugin;
-import cc.circling.plugin.HideBackButtonPlugin;
-import cc.circling.plugin.HideLoadingPlugin;
-import cc.circling.plugin.LoginOutPlugin;
-import cc.circling.plugin.LoginPlugin;
-import cc.circling.plugin.LoginWeiboPlugin;
-import cc.circling.plugin.MediaPlugin;
-import cc.circling.plugin.MoveTaskToBackPlugin;
-import cc.circling.plugin.NetworkInfoPlugin;
-import cc.circling.plugin.NotifyPlugin;
-import cc.circling.plugin.OpenUriPlugin;
-import cc.circling.plugin.PopWindowPlugin;
-import cc.circling.plugin.PromptPlugin;
-import cc.circling.plugin.PushWindowPlugin;
-import cc.circling.plugin.RefreshPlugin;
-import cc.circling.plugin.RefreshStatePlugin;
-import cc.circling.plugin.SetBackPlugin;
-import cc.circling.plugin.SetCachePlugin;
-import cc.circling.plugin.SetOptionMenuPlugin;
-import cc.circling.plugin.SetPreferencePlugin;
-import cc.circling.plugin.SetSubTitlePlugin;
-import cc.circling.plugin.SetTitleBgColorPlugin;
-import cc.circling.plugin.SetTitlePlugin;
-import cc.circling.plugin.ShowBackButtonPlugin;
-import cc.circling.plugin.ShowLoadingPlugin;
-import cc.circling.plugin.ToastPlugin;
-import cc.circling.plugin.WeiboLoginPlugin;
 import cc.circling.utils.AndroidBug5497Workaround;
 import cc.circling.utils.LogUtil;
 import cc.circling.web.MyCookies;
@@ -76,11 +59,13 @@ import cc.circling.web.URLs;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
@@ -94,49 +79,26 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import pub.devrel.easypermissions.EasyPermissions;
 
 /**
  * Created by army on 2017/3/26.
  */
 
-public class MainActivity extends AppCompatActivity {
-    public static final int PUSH_WINDOW_OK = 8735;
+public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
+    private static final int RC_DOWNLOAD = 8735;
     public static final int REQUEST_ALBUM_OK = 8736;
     public static int WIDTH;
 
-    private SetTitlePlugin setTitlePlugin;
-    private SetSubTitlePlugin setSubTitlePlugin;
-    private PushWindowPlugin pushWindowPlugin;
-    private PopWindowPlugin popWindowPlugin;
-    private BackPlugin backPlugin;
-    private ToastPlugin toastPlugin;
-    private ShowLoadingPlugin showLoadingPlugin;
-    private HideLoadingPlugin hideLoadingPlugin;
-    private AlertPlugin alertPlugin;
-    private ConfirmPlugin confirmPlugin;
-    private HideBackButtonPlugin hideBackButtonPlugin;
-    private ShowBackButtonPlugin showBackButtonPlugin;
-    private RefreshPlugin refreshPlugin;
-    private RefreshStatePlugin refreshStatePlugin;
-    private LoginWeiboPlugin loginWeiboPlugin;
-    private GetPreferencePlugin getPreferencePlugin;
-    private SetPreferencePlugin setPreferencePlugin;
-    private SetOptionMenuPlugin setOptionMenuPlugin;
-    private SetTitleBgColorPlugin setTitleBgColorPlugin;
-    private MoveTaskToBackPlugin moveTaskToBackPlugin;
-    private OpenUriPlugin openUriPlugin;
-    private WeiboLoginPlugin weiboLoginPlugin;
-    private LoginOutPlugin loginOutPlugin;
-    private NotifyPlugin notificationPlugin;
-    private AlbumPlugin albumPlugin;
-    private PromptPlugin promptPlugin;
-    private DownloadPlugin downloadPlugin;
-    private NetworkInfoPlugin networkInfoPlugin;
-    private LoginPlugin loginPlugin;
-    private MediaPlugin mediaPlugin;
-    private SetBackPlugin setBackPlugin;
-    private SetCachePlugin setCachePlugin;
-    private GetCachePlugin getCachePlugin;
+    private static String[] downloadPerms = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+    };
+    private String downloadName;
+    private String downloadUrl;
+    private static int downloadId = 0;
+
+    public static ProgressDialog lastProgressDialog;
 
     private FrameLayout base;
     private FrameLayout open;
@@ -471,106 +433,6 @@ public class MainActivity extends AppCompatActivity {
         }, time);
     }
 
-    private void initPlugins() {
-//        setTitlePlugin = new SetTitlePlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.SET_TITLE, setTitlePlugin);
-//
-//        setSubTitlePlugin = new SetSubTitlePlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.SET_SUB_TITLE, setSubTitlePlugin);
-//
-//        pushWindowPlugin = new PushWindowPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.PUSH_WINDOW, pushWindowPlugin);
-//
-//        popWindowPlugin = new PopWindowPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.POP_WINDOW, popWindowPlugin);
-//
-//        backPlugin = new BackPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.BACK, backPlugin);
-//
-//        toastPlugin = new ToastPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.TOAST, toastPlugin);
-//
-//        showLoadingPlugin = new ShowLoadingPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.SHOW_LOADING, showLoadingPlugin);
-//
-//        hideLoadingPlugin = new HideLoadingPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.HIDE_LOADING, hideLoadingPlugin);
-//
-//        alertPlugin = new AlertPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.ALERT, alertPlugin);
-//
-//        confirmPlugin = new ConfirmPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.CONFIRM, confirmPlugin);
-//
-//        hideBackButtonPlugin = new HideBackButtonPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.HIDE_BACKBUTTON, hideBackButtonPlugin);
-//
-//        showBackButtonPlugin = new ShowBackButtonPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.SHOW_BACKBUTTON, showBackButtonPlugin);
-//
-//        refreshPlugin = new RefreshPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.REFRESH, refreshPlugin);
-//
-//        refreshStatePlugin = new RefreshStatePlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.REFRESH_STATE, refreshStatePlugin);
-//
-//        loginWeiboPlugin = new LoginWeiboPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.LOGIN_WEIBO, loginWeiboPlugin);
-//
-//        getPreferencePlugin = new GetPreferencePlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.GET_PRE_FERENCE, getPreferencePlugin);
-//
-//        setPreferencePlugin = new SetPreferencePlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.SET_PRE_FERENCE, setPreferencePlugin);
-//
-//        setOptionMenuPlugin = new SetOptionMenuPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.SET_OPTIONMENU, setOptionMenuPlugin);
-//
-//        setTitleBgColorPlugin = new SetTitleBgColorPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.SET_TITLE_BG_COLOR, setTitleBgColorPlugin);
-//
-//        moveTaskToBackPlugin = new MoveTaskToBackPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.MOVE_TASK_TO_BACK, moveTaskToBackPlugin);
-//
-//        openUriPlugin = new OpenUriPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.OPEN_URI, openUriPlugin);
-//
-//        weiboLoginPlugin = new WeiboLoginPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.WEIBO_LOGIN, weiboLoginPlugin);
-//
-//        loginOutPlugin = new LoginOutPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.LOGIN_OUT, loginOutPlugin);
-//
-//        notificationPlugin = new NotifyPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.NOTIFY, notificationPlugin);
-//
-//        albumPlugin = new AlbumPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.ALBUM, albumPlugin);
-//
-//        promptPlugin = new PromptPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.PROMPT, promptPlugin);
-//
-//        downloadPlugin = new DownloadPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.DOWNLOAD, downloadPlugin);
-//
-//        networkInfoPlugin = new NetworkInfoPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.NETWORK_INFO, networkInfoPlugin);
-//
-//        loginPlugin = new LoginPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.LOGIN, loginPlugin);
-//
-//        mediaPlugin = new MediaPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.MEDIA, mediaPlugin);
-//
-//        setBackPlugin = new SetBackPlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.SET_BACK, setBackPlugin);
-//
-//        setCachePlugin = new SetCachePlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.SET_CACHE, setCachePlugin);
-//
-//        getCachePlugin = new GetCachePlugin(this);
-//        H5EventDispatcher.addEventListener(H5Plugin.GET_CACHE, getCachePlugin);
-    }
     private void prepare() {
         reserve = new WebFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -645,6 +507,25 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> list) {
+        switch(requestCode) {
+            case RC_DOWNLOAD:
+                download();
+                break;
+        }
+    }
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> list) {
+        Toast toast = Toast.makeText(this, "申请权限失败", Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
+    }
 
     public WebView getWebView() {
         return null;
@@ -696,6 +577,197 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         dialog.show();
+    }
+    public void confirm(String title, String message) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle(title);
+        dialog.setMessage(message);
+        dialog.setCancelable(false);
+        dialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+                current.confirm(true);
+            }
+        });
+        dialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+                current.confirm(false);
+            }
+        });
+        dialog.show();
+    }
+    public void download(String url, String name) {
+        if(name == null || name.equals("")) {
+            name = url;
+        }
+        this.downloadName = name;
+        this.downloadUrl = url;
+        if(EasyPermissions.hasPermissions(this, downloadPerms)) {
+            download();
+        }
+        else {
+            EasyPermissions.requestPermissions(this, "下载需要读写sd卡权限",
+                    RC_DOWNLOAD, downloadPerms);
+        }
+    }
+    private void download() {
+        final String type;
+        if(downloadUrl.endsWith(".mp3")) {
+            type = "audio/*";
+        }
+        else if(downloadUrl.endsWith(".mp4")) {
+            type = "video/*";
+        }
+        else {
+            type = "image/*";
+        }
+        // 创建目录
+        String directoryPath = "";
+        if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            LogUtil.i("DownloadPlugin: MEDIA_MOUNTED");
+            if(downloadUrl.endsWith(".mp3")) {
+                directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath();
+            }
+            else if(downloadUrl.endsWith(".mp4")) {
+                directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES).getAbsolutePath();
+            }
+            else {
+                directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath();
+            }
+        }
+        else {
+            LogUtil.i("DownloadPlugin: !MEDIA_MOUNTED");
+            directoryPath = BaseApplication.getContext().getFilesDir().getAbsolutePath();
+        }
+        directoryPath += File.separator + "circling";
+        File file = new File(directoryPath);
+        if(!file.exists()) {
+            file.mkdirs();
+        }
+        LogUtil.i("directoryPath: " + directoryPath);
+        FileDownloadHelper.holdContext(BaseApplication.getContext());
+        final String path = directoryPath + File.separator + downloadName;
+        LogUtil.i("path: " + path);
+        File downloadFile = new File(path);
+        final int currentID = downloadId++;
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "download");
+        builder.setWhen(System.currentTimeMillis());
+        builder.setTicker("准备下载 " + downloadName);
+        builder.setContentTitle("准备下载 " + downloadName);
+        builder.setSmallIcon(R.mipmap.ic_launcher);
+        builder.setLargeIcon(BitmapFactory.decodeResource(this.getResources(), R.mipmap.ic_launcher));
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        final Uri uri;
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            uri = FileProvider.getUriForFile(BaseApplication.getContext(),
+                    BuildConfig.APPLICATION_ID + ".download", downloadFile);
+            LogUtil.i("uri: " + uri);
+            intent.setDataAndType(uri, type);
+        }
+        else {
+            uri = Uri.fromFile(downloadFile);
+            LogUtil.i("uri2: " + uri);
+            intent.setDataAndType(uri, type);
+        }
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        final PendingIntent pIntent = PendingIntent.getActivity(this, 1, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        Notification notification = builder.build();
+        final NotificationManager notificationManager =
+                (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(currentID, notification);
+
+        FileDownloader.getImpl().create(downloadUrl)
+                .setPath(path)
+                .setListener(new FileDownloadListener() {
+                    @Override
+                    protected void pending(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+                        LogUtil.i("pending", soFarBytes + ", " + totalBytes);
+                    }
+
+                    @Override
+                    protected void connected(BaseDownloadTask task, String etag, boolean isContinue, int soFarBytes, int totalBytes) {
+                        builder.setTicker("开始下载 " + downloadName);
+                        builder.setContentTitle("开始下载 " + downloadName);
+                        builder.setContentText("进度 0%");
+                    }
+
+                    @Override
+                    protected void progress(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+                        int progress = (int) (soFarBytes * 1.0f / totalBytes * 100);
+                        builder.setTicker("正在下载 " + downloadName);
+                        builder.setContentTitle("正在下载 " + downloadName);
+                        builder.setContentText("进度 " + progress + "%");
+                        builder.setProgress(totalBytes, soFarBytes, false);
+                        notificationManager.notify(currentID, builder.build());
+                    }
+
+                    @Override
+                    protected void blockComplete(BaseDownloadTask task) {
+                        builder.setTicker("下载完成 " + downloadName);
+                        builder.setContentTitle("下载完成 " + downloadName);
+                        builder.setContentText("下载完成");
+                        builder.setProgress(0, 0, false);
+                        notificationManager.notify(currentID, builder.build());
+                    }
+
+                    @Override
+                    protected void retry(final BaseDownloadTask task, final Throwable ex, final int retryingTimes, final int soFarBytes) {
+                        LogUtil.i("retry");
+                    }
+
+                    @Override
+                    protected void completed(BaseDownloadTask task) {
+                        builder.setTicker("下载完成 " + downloadName);
+                        builder.setContentTitle("下载完成 " + downloadName);
+                        builder.setContentText("下载完成");
+                        builder.setProgress(0, 0, false);
+                        builder.setContentIntent(pIntent);
+                        notificationManager.notify(currentID, builder.build());
+                        // 通知媒体库更新，可以在相册等看到
+                        Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                        intent.setData(uri);
+                        LogUtil.i("completed: ", intent.toString());
+                        MainActivity.this.sendBroadcast(intent);
+                    }
+
+                    @Override
+                    protected void paused(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+                        builder.setTicker("下载暂停 " + downloadName);
+                        builder.setContentTitle("下载完成 " + downloadName);
+                        builder.setContentText("下载暂停");
+                        builder.setProgress(totalBytes, soFarBytes, false);
+                    }
+
+                    @Override
+                    protected void error(BaseDownloadTask task, Throwable e) {
+                        builder.setTicker("下载错误 " + downloadName);
+                        builder.setContentTitle("下载错误 " + downloadName);
+                        builder.setContentText("下载错误");
+                        builder.setProgress(1, 0, false);
+                    }
+
+                    @Override
+                    protected void warn(BaseDownloadTask task) {
+                        LogUtil.i("warn");
+                    }
+                }).start();
+    }
+    public void showLoading(String title, String message, boolean cancelable) {
+        lastProgressDialog = new ProgressDialog(this);
+        lastProgressDialog.setTitle(title);
+        lastProgressDialog.setMessage(message);
+        lastProgressDialog.setCancelable(cancelable);
+        lastProgressDialog.setCanceledOnTouchOutside(false);
+        lastProgressDialog.show();
+    }
+    public void hideLoading() {
+        if(lastProgressDialog != null) {
+            lastProgressDialog.dismiss();
+        }
     }
 
     private class SelfWbAuthListener implements WbAuthListener {
