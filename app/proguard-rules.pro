@@ -31,6 +31,7 @@
 -keep class android.support.**{*;}
 -dontwarn com.squareup.picasso.**
 -dontwarn com.bumptech.glide.**
+-keep class com.sina.weibo.sdk.** { *; }
 
 -keepclasseswithmembernames class ** {
     native <methods>;
