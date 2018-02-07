@@ -872,6 +872,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     public void evaluateJavascript(String value) {
         current.evaluateJavascript(value);
     }
+    public void album(String clientId, String msg) {}
 
     private class SelfWbAuthListener implements WbAuthListener {
         @Override

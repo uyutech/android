@@ -204,7 +204,6 @@ public class WebFragment extends Fragment {
         }
         else {
             titleBar.setPadding(0, statusBarHeight, 0, 0);
-            int titleBarHeight = titleBar.getHeight();
             float scale = this.getResources().getDisplayMetrics().density;
             LogUtil.i("scale", scale + "");
             swipeRefreshLayout.setPadding(0, (int)scale * 64, 0, 0);
@@ -281,34 +280,15 @@ public class WebFragment extends Fragment {
 
         // optionMenu文字
         String optionMenu = bundle.getString("optionMenu");
+        String optionMenuColor = bundle.getString("optionMenuColor");
         String optionMenuIcon1 = bundle.getString("optionMenuIcon1");
         String optionMenuIcon2 = bundle.getString("optionMenuIcon2");
         LogUtil.i("optionMenu", optionMenu);
         LogUtil.i("optionMenuIcon1", optionMenuIcon1);
         LogUtil.i("optionMenuIcon2", optionMenuIcon2);
-        if(optionMenu != null && !optionMenu.equals("")) {
-            optionMenuText.setText(optionMenu);
-            optionMenuText.setVisibility(View.VISIBLE);
-        }
-        else {
-            optionMenuText.setVisibility(View.GONE);
-        }
-        if(optionMenuIcon1 != null && optionMenuIcon1.length() > 0) {
-            Bitmap bitmap = ImgUtil.parseBase64(optionMenuIcon1);
-            optionMenuIv1.setImageBitmap(bitmap);
-            optionMenuIv1.setVisibility(View.VISIBLE);
-        }
-        else {
-            optionMenuIv1.setVisibility(View.GONE);
-        }
-        if(optionMenuIcon2 != null && optionMenuIcon2.length() > 0) {
-            Bitmap bitmap = ImgUtil.parseBase64(optionMenuIcon2);
-            optionMenuIv2.setImageBitmap(bitmap);
-            optionMenuIv2.setVisibility(View.VISIBLE);
-        }
-        else {
-            optionMenuIv2.setVisibility(View.GONE);
-        }
+        setOptionMenuText(optionMenu, optionMenuColor);
+        setOptionMenuIcon(optionMenuIv1, optionMenuIcon1);
+        setOptionMenuIcon(optionMenuIv2, optionMenuIcon2);
 
         optionMenuText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -558,12 +538,39 @@ public class WebFragment extends Fragment {
         webView.onPause();
         MobclickAgent.onPageEnd(url);
     }
+    private void setOptionMenuText(String value, String color) {
+        if(value != null && !value.isEmpty()) {
+            optionMenuText.setText(value);
+            optionMenuText.setVisibility(View.VISIBLE);
+            if(color == null || color.isEmpty()) {
+                color = "#636365";
+            }
+            int c = Color.parseColor(color);
+            optionMenuText.setTextColor(c);
+        }
+        else {
+            optionMenuText.setVisibility(View.GONE);
+        }
+    }
+    private void setOptionMenuIcon(ImageView iv, String value) {
+        if(value != null && !value.isEmpty()) {
+            Bitmap bitmap = ImgUtil.parseBase64(value);
+            iv.setImageBitmap(bitmap);
+            iv.setVisibility(View.VISIBLE);
+        }
+        else {
+            iv.setVisibility(View.GONE);
+        }
+    }
 
     class ZhuanQuanJsBridgeNative extends Object {
         @JavascriptInterface
         public void call(String clientId, String key, String msg) {
             LogUtil.i("call", clientId + ", " + key + ", " + msg);
             switch(key) {
+                case "album":
+                    album(clientId, msg);
+                    break;
                 case "alert":
                     alert(msg);
                     break;
@@ -632,6 +639,9 @@ public class WebFragment extends Fragment {
                 case "setPreference":
                     setCache(clientId, msg);
                     break;
+                case "setOptionMenu":
+                    setOptionMenu(msg);
+                    break;
                 case "setSubTitle":
                     setSubTitle(msg);
                     break;
@@ -653,6 +663,9 @@ public class WebFragment extends Fragment {
             }
         }
 
+        private void album(String clientId, String msg) {
+            mainActivity.album(clientId, msg);
+        }
         private void alert(String msg) {
             JSONObject json = JSON.parseObject(msg);
             String title = json.getString("title");
@@ -1015,6 +1028,24 @@ public class WebFragment extends Fragment {
                         editor.apply();
                     }
                     evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "');");
+                }
+            });
+        }
+        private void setOptionMenu(String msg) {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject json = JSON.parseObject(msg);
+                    String text = json.getString("text");
+                    String textColor = json.getString("textColor");
+                    if(textColor == null || textColor.isEmpty()) {
+                        textColor = "#000000";
+                    }
+                    String img1 = json.getString("img1");
+                    String img2 = json.getString("img2");
+                    setOptionMenuText(text, textColor);
+                    setOptionMenuIcon(optionMenuIv1, img1);
+                    setOptionMenuIcon(optionMenuIv2, img2);
                 }
             });
         }
