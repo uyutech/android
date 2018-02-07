@@ -552,357 +552,406 @@ public class WebFragment extends Fragment {
             LogUtil.i("call", clientId + ", " + key + ", " + msg);
             switch(key) {
                 case "alert":
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            JSONObject json = JSON.parseObject(msg);
-                            String title = json.getString("title");
-                            String message = json.getString("message");
-                            mainActivity.alert(title, message);
-                        }
-                    });
+                    alert(msg);
                     break;
                 case "back":
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if(webView.canGoBack()) {
-                                webView.goBack();
-                            }
-                            else {
-                                mainActivity.back();
-                            }
-                        }
-                    });
+                    back();
                     break;
                 case "confirm":
-                    WebFragment.this.confirmClientId = clientId;
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            JSONObject json = JSON.parseObject(msg);
-                            String title = json.getString("title");
-                            String message = json.getString("message");
-                            mainActivity.confirm(title, message);
-                        }
-                    });
+                    confirm(clientId, msg);
                     break;
                 case "download":
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            JSONObject json = JSON.parseObject(msg);
-                            String url = json.getString("url");
-                            String name = json.getString("name");
-                            mainActivity.download(url, name);
-                        }
-                    });
+                    download(msg);
                     break;
                 case "getCache":
                 case "getPreference":
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            JSONObject json = JSON.parseObject(msg);
-                            Boolean isArray = json.getBoolean("isArray");
-                            if(isArray == null) {
-                                isArray = false;
-                            }
-                            SharedPreferences sharedPreferences = BaseApplication
-                                    .getContext()
-                                    .getSharedPreferences(PreferenceEnum.H5OFF.name(), Context.MODE_PRIVATE);
-                            if (isArray) {
-                                JSONArray key = json.getJSONArray("key");
-                                if (key.size() > 0) {
-                                    StringBuilder value = new StringBuilder("[");
-                                    for (int i = 0; i < key.size(); i++) {
-                                        String k = key.getString(i);
-                                        String v = sharedPreferences.getString(k, "null");
-                                        value.append(v);
-                                        if (i < key.size() - 1) {
-                                            value.append(",");
-                                        }
-                                    }
-                                    value.append("]");
-                                    webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + value.toString() + ");", new ValueCallback<String>() {
-                                        @Override
-                                        public void onReceiveValue(String value) {
-                                        }
-                                    });
-                                }
-                            } else {
-                                String key = json.getString("key");
-                                String value = sharedPreferences.getString(key, "null");
-                                webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + value + ");", new ValueCallback<String>() {
-                                    @Override
-                                    public void onReceiveValue(String value) {
-                                    }
-                                });
-                            }
-                        }
-                    });
+                    getCache(clientId, msg);
                     break;
                 case "hideBackButton":
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            WebFragment.this.hideBackButton();
-                        }
-                    });
+                    hideBackButton();
                     break;
                 case "hideLoading":
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mainActivity.hideLoading();
-                        }
-                    });
+                    hideLoading();
                     break;
                 case "login":
-                    JSONObject j = JSON.parseObject(msg);
-                    String url = j.getString("url");
-                    if(url != null && url.length() > 0) {
-                        OkHttpClient client = new OkHttpClient
-                                .Builder()
-                                .dns(OkHttpDns.getInstance())
-                                .cookieJar(new CookieJar() {
-                                    @Override
-                                    public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
-                                        SharedPreferences.Editor editor = mainActivity
-                                                .getSharedPreferences(PreferenceEnum.SESSION.name(), Context.MODE_PRIVATE).edit();
-                                        for (Cookie cookie : cookies) {
-                                            LogUtil.i("cookie string: " + cookie.toString());
-                                            MyCookies.add(cookie.name(), cookie.toString());
-                                            editor.putString(cookie.name(), cookie.toString());
-                                        }
-                                        editor.apply();
-                                    }
-
-                                    @Override
-                                    public List<Cookie> loadForRequest(HttpUrl url) {
-                                        return new ArrayList<>();
-                                    }
-                                })
-                                .build();
-                        FormBody.Builder bodyBuilder = new FormBody.Builder();
-                        JSONObject data = j.getJSONObject("data");
-                        if(data == null) {
-                            Set<String> keys = data.keySet();
-                            for(String k : keys) {
-                                String value = data.getString(k);
-                                bodyBuilder.add(k, value);
-                                LogUtil.i("data: " + key + ", " + value);
-                            }
-                        }
-                        RequestBody requestBody = bodyBuilder.build();
-                        Request request = new Request.Builder()
-                                .addHeader("origin", URLs.WEB_DOMAIN)
-                                .url(url)
-                                .post(requestBody)
-                                .build();
-                        try {
-                            Response response = client.newCall(request).execute();
-                            ResponseBody body = response.body();
-                            final String responseBody = body == null ? "" : body.string();
-                            LogUtil.i("login: " + responseBody);
-                            if(!responseBody.isEmpty()) {
-                                JSONObject res = JSONObject.parseObject(responseBody);
-                                if(res.getBoolean("success")) {
-                                    JSONObject d = res.getJSONObject("data");
-                                    if(d != null) {
-                                        JSONObject userInfo = d.getJSONObject("userInfo");
-                                        if(userInfo != null) {
-                                            String uid = userInfo.getString("UID");
-                                            LogUtil.i("login: " + uid);
-                                            MobclickAgent.onProfileSignIn(uid);
-                                            CrashReport.setUserId(uid);
-                                            BaseApplication.getCloudPushService().bindAccount(uid, new CommonCallback() {
-                                                @Override
-                                                public void onSuccess(String message) {
-                                                    LogUtil.i("bindAccount success", message);
-                                                }
-
-                                                @Override
-                                                public void onFailed(String message, String arg) {
-                                                    LogUtil.i("bindAccount fail", message + ", " + arg);
-                                                }
-                                            });
-                                        }
-                                    }
-                                    mainActivity.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + responseBody + ");", new ValueCallback<String>() {
-                                                @Override
-                                                public void onReceiveValue(String value) {
-                                                }
-                                            });
-                                        }
-                                    });
-                                    return;
-                                }
-                            }
-                        }
-                        catch(Exception e) {
-                            e.printStackTrace();
-                        }
-                        mainActivity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                JSONObject json = new JSONObject();
-                                json.put("success", false);
-                                webView.evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
-                                    @Override
-                                    public void onReceiveValue(String value) {
-                                    }
-                                });
-                            }
-                        });
-                    }
+                    login(clientId, msg);
                     break;
                 case "loginOut":
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            SharedPreferences sharedPreferences = mainActivity
-                                    .getSharedPreferences(PreferenceEnum.SESSION.name(), MODE_PRIVATE);
-                            SharedPreferences.Editor editor = mainActivity
-                                    .getSharedPreferences(PreferenceEnum.SESSION.name(), MODE_PRIVATE).edit();
-                            Map<String, ?> map = sharedPreferences.getAll();
-                            for(String key : map.keySet()) {
-                                MyCookies.remove(key);
-                                editor.remove(key);
-                            }
-                            editor.apply();
-                            MobclickAgent.onProfileSignOff();
-                            // TODO: syncCookie
-                        }
-                    });
+                    loginOut();
                     break;
                 case "loginWeibo":
-                    WebFragment.this.loginWeiboClientId = clientId;
-                    mainActivity.loginWeibo();
+                    loginWeibo(clientId);
                     break;
                 case "moveTaskToBack":
                     mainActivity.moveTaskToBack(true);
                     break;
                 case "networkInfo":
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            ConnectivityManager connectivityManager = (ConnectivityManager) mainActivity.
-                                    getSystemService(Context.CONNECTIVITY_SERVICE);
-                            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-                            if(networkInfo != null && networkInfo.isConnected() && networkInfo.isAvailable()) {
-                                NetworkInfo wifiNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-                                JSONObject json = new JSONObject();
-                                json.put("available", true);
-                                json.put("wifi", wifiNetworkInfo != null & wifiNetworkInfo.isConnected() && wifiNetworkInfo.isAvailable());
-                                webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
-                                    @Override
-                                    public void onReceiveValue(String value) {
-                                    }
-                                });
-                            }
-                            else {
-                                JSONObject json = new JSONObject();
-                                json.put("available", false);
-                                webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
-                                    @Override
-                                    public void onReceiveValue(String value) {
-                                    }
-                                });
-                            }
-                        }
-                    });
+                    networkInfo(clientId);
                     break;
                 case "pushWindow":
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            JSONObject value = JSON.parseObject(msg);
-                            mainActivity.pushWindow(value);
-                            WebFragment.this.hide();
-                        }
-                    });
+                    pushWindow(msg);
                     break;
                 case "setCache":
                 case "setPreference":
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            JSONObject json = JSON.parseObject(msg);
-                            Boolean isArray = json.getBoolean("isArray");
-                            if(isArray == null) {
-                                isArray = false;
-                            }
-                            SharedPreferences.Editor editor = BaseApplication
-                                    .getContext()
-                                    .getSharedPreferences(PreferenceEnum.H5OFF.name(), Context.MODE_PRIVATE).edit();
-                            if(isArray) {
-                                JSONArray key = json.getJSONArray("key");
-                                JSONArray value = json.getJSONArray("value");
-                                if (key.size() > 0) {
-                                    for (int i = 0; i < key.size(); i++) {
-                                        String k = key.getString(i);
-                                        String v = value.getString(i);
-                                        LogUtil.i("setCache value is null: " + (v == null));
-                                        editor.remove(k);
-                                        if (v != null) {
-                                            editor.putString(k, v);
-                                        }
-                                    }
-                                    editor.apply();
+                    setCache(clientId, msg);
+                    break;
+                case "showBackButton":
+                    showBackButton();
+                    break;
+                case "showLoading":
+                    showLoading(msg);
+                    break;
+                case "toast":
+                    toast(msg);
+                    break;
+            }
+        }
+
+        private void alert(String msg) {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject json = JSON.parseObject(msg);
+                    String title = json.getString("title");
+                    String message = json.getString("message");
+                    mainActivity.alert(title, message);
+                }
+            });
+        }
+        private void back() {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if(webView.canGoBack()) {
+                        webView.goBack();
+                    }
+                    else {
+                        mainActivity.back();
+                    }
+                }
+            });
+        }
+        private void confirm(String clientId, String msg) {
+            WebFragment.this.confirmClientId = clientId;
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject json = JSON.parseObject(msg);
+                    String title = json.getString("title");
+                    String message = json.getString("message");
+                    mainActivity.confirm(title, message);
+                }
+            });
+        }
+        private void download(String msg) {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject json = JSON.parseObject(msg);
+                    String url = json.getString("url");
+                    String name = json.getString("name");
+                    mainActivity.download(url, name);
+                }
+            });
+        }
+        private void getCache(String clientId, String msg) {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject json = JSON.parseObject(msg);
+                    Boolean isArray = json.getBoolean("isArray");
+                    if(isArray == null) {
+                        isArray = false;
+                    }
+                    SharedPreferences sharedPreferences = BaseApplication
+                            .getContext()
+                            .getSharedPreferences(PreferenceEnum.H5OFF.name(), Context.MODE_PRIVATE);
+                    if (isArray) {
+                        JSONArray key = json.getJSONArray("key");
+                        if (key.size() > 0) {
+                            StringBuilder value = new StringBuilder("[");
+                            for (int i = 0; i < key.size(); i++) {
+                                String k = key.getString(i);
+                                String v = sharedPreferences.getString(k, "null");
+                                value.append(v);
+                                if (i < key.size() - 1) {
+                                    value.append(",");
                                 }
-                            } else {
-                                String key = json.getString("key");
-                                String value = json.getString("value");
-                                editor.remove(key);
-                                if (value != null) {
-                                    editor.putString(key, value);
-                                }
-                                editor.apply();
                             }
-                            webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "');", new ValueCallback<String>() {
+                            value.append("]");
+                            webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + value.toString() + ");", new ValueCallback<String>() {
                                 @Override
                                 public void onReceiveValue(String value) {
                                 }
                             });
                         }
-                    });
-                    break;
-                case "showBackButton":
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            WebFragment.this.showBackButton();
+                    } else {
+                        String key = json.getString("key");
+                        String value = sharedPreferences.getString(key, "null");
+                        webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + value + ");", new ValueCallback<String>() {
+                            @Override
+                            public void onReceiveValue(String value) {
+                            }
+                        });
+                    }
+                }
+            });
+        }
+        private void hideBackButton() {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    WebFragment.this.hideBackButton();
+                }
+            });
+        }
+        private void hideLoading() {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mainActivity.hideLoading();
+                }
+            });
+        }
+        private void login(String clientId, String msg) {
+            JSONObject j = JSON.parseObject(msg);
+            String url = j.getString("url");
+            if(url != null && url.length() > 0) {
+                OkHttpClient client = new OkHttpClient
+                        .Builder()
+                        .dns(OkHttpDns.getInstance())
+                        .cookieJar(new CookieJar() {
+                            @Override
+                            public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
+                                SharedPreferences.Editor editor = mainActivity
+                                        .getSharedPreferences(PreferenceEnum.SESSION.name(), Context.MODE_PRIVATE).edit();
+                                for (Cookie cookie : cookies) {
+                                    LogUtil.i("cookie string: " + cookie.toString());
+                                    MyCookies.add(cookie.name(), cookie.toString());
+                                    editor.putString(cookie.name(), cookie.toString());
+                                }
+                                editor.apply();
+                            }
+
+                            @Override
+                            public List<Cookie> loadForRequest(HttpUrl url) {
+                                return new ArrayList<>();
+                            }
+                        })
+                        .build();
+                FormBody.Builder bodyBuilder = new FormBody.Builder();
+                JSONObject data = j.getJSONObject("data");
+                if(data == null) {
+                    Set<String> keys = data.keySet();
+                    for(String key : keys) {
+                        String value = data.getString(key);
+                        bodyBuilder.add(key, value);
+                        LogUtil.i("data: " + key + ", " + value);
+                    }
+                }
+                RequestBody requestBody = bodyBuilder.build();
+                Request request = new Request.Builder()
+                        .addHeader("origin", URLs.WEB_DOMAIN)
+                        .url(url)
+                        .post(requestBody)
+                        .build();
+                try {
+                    Response response = client.newCall(request).execute();
+                    ResponseBody body = response.body();
+                    final String responseBody = body == null ? "" : body.string();
+                    LogUtil.i("login: " + responseBody);
+                    if(!responseBody.isEmpty()) {
+                        JSONObject res = JSONObject.parseObject(responseBody);
+                        if(res.getBoolean("success")) {
+                            JSONObject d = res.getJSONObject("data");
+                            if(d != null) {
+                                JSONObject userInfo = d.getJSONObject("userInfo");
+                                if(userInfo != null) {
+                                    String uid = userInfo.getString("UID");
+                                    LogUtil.i("login: " + uid);
+                                    MobclickAgent.onProfileSignIn(uid);
+                                    CrashReport.setUserId(uid);
+                                    BaseApplication.getCloudPushService().bindAccount(uid, new CommonCallback() {
+                                        @Override
+                                        public void onSuccess(String message) {
+                                            LogUtil.i("bindAccount success", message);
+                                        }
+
+                                        @Override
+                                        public void onFailed(String message, String arg) {
+                                            LogUtil.i("bindAccount fail", message + ", " + arg);
+                                        }
+                                    });
+                                }
+                            }
+                            mainActivity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + responseBody + ");", new ValueCallback<String>() {
+                                        @Override
+                                        public void onReceiveValue(String value) {
+                                        }
+                                    });
+                                }
+                            });
+                            return;
                         }
-                    });
-                    break;
-                case "showLoading":
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            JSONObject json = JSON.parseObject(msg);
-                            String title = json.getString("title");
-                            String message = json.getString("message");
-                            boolean cancelable = json.getBoolean("cancelable");
-                            mainActivity.showLoading(title, message, cancelable);
-                        }
-                    });
-                    break;
-                case "toast":
-                    String value = (String) JSON.parse(msg);
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast toast = Toast.makeText(mainActivity, value, Toast.LENGTH_SHORT);
-                            toast.setGravity(Gravity.CENTER, 0, 0);
-                            toast.show();
-                        }
-                    });
-                    break;
+                    }
+                }
+                catch(Exception e) {
+                    e.printStackTrace();
+                }
+                mainActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        JSONObject json = new JSONObject();
+                        json.put("success", false);
+                        webView.evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
+                            @Override
+                            public void onReceiveValue(String value) {
+                            }
+                        });
+                    }
+                });
             }
+        }
+        private void loginOut() {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    SharedPreferences sharedPreferences = mainActivity
+                            .getSharedPreferences(PreferenceEnum.SESSION.name(), MODE_PRIVATE);
+                    SharedPreferences.Editor editor = mainActivity
+                            .getSharedPreferences(PreferenceEnum.SESSION.name(), MODE_PRIVATE).edit();
+                    Map<String, ?> map = sharedPreferences.getAll();
+                    for(String key : map.keySet()) {
+                        MyCookies.remove(key);
+                        editor.remove(key);
+                    }
+                    editor.apply();
+                    MobclickAgent.onProfileSignOff();
+                    // TODO: syncCookie
+                }
+            });
+        }
+        private void loginWeibo(String clientId) {
+            WebFragment.this.loginWeiboClientId = clientId;
+            mainActivity.loginWeibo();
+        }
+        private void networkInfo(String clientId) {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ConnectivityManager connectivityManager = (ConnectivityManager) mainActivity.
+                            getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+                    if(networkInfo != null && networkInfo.isConnected() && networkInfo.isAvailable()) {
+                        NetworkInfo wifiNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+                        JSONObject json = new JSONObject();
+                        json.put("available", true);
+                        json.put("wifi", wifiNetworkInfo != null & wifiNetworkInfo.isConnected() && wifiNetworkInfo.isAvailable());
+                        webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
+                            @Override
+                            public void onReceiveValue(String value) {
+                            }
+                        });
+                    }
+                    else {
+                        JSONObject json = new JSONObject();
+                        json.put("available", false);
+                        webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
+                            @Override
+                            public void onReceiveValue(String value) {
+                            }
+                        });
+                    }
+                }
+            });
+        }
+        private void pushWindow(String msg) {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject value = JSON.parseObject(msg);
+                    mainActivity.pushWindow(value);
+                    WebFragment.this.hide();
+                }
+            });
+        }
+        private void setCache(String clientId, String msg) {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject json = JSON.parseObject(msg);
+                    Boolean isArray = json.getBoolean("isArray");
+                    if(isArray == null) {
+                        isArray = false;
+                    }
+                    SharedPreferences.Editor editor = BaseApplication
+                            .getContext()
+                            .getSharedPreferences(PreferenceEnum.H5OFF.name(), Context.MODE_PRIVATE).edit();
+                    if(isArray) {
+                        JSONArray key = json.getJSONArray("key");
+                        JSONArray value = json.getJSONArray("value");
+                        if (key.size() > 0) {
+                            for (int i = 0; i < key.size(); i++) {
+                                String k = key.getString(i);
+                                String v = value.getString(i);
+                                LogUtil.i("setCache value is null: " + (v == null));
+                                editor.remove(k);
+                                if (v != null) {
+                                    editor.putString(k, v);
+                                }
+                            }
+                            editor.apply();
+                        }
+                    } else {
+                        String key = json.getString("key");
+                        String value = json.getString("value");
+                        editor.remove(key);
+                        if (value != null) {
+                            editor.putString(key, value);
+                        }
+                        editor.apply();
+                    }
+                    webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "');", new ValueCallback<String>() {
+                        @Override
+                        public void onReceiveValue(String value) {
+                        }
+                    });
+                }
+            });
+        }
+        private void showBackButton() {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    WebFragment.this.showBackButton();
+                }
+            });
+        }
+        private void showLoading(String msg) {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject json = JSON.parseObject(msg);
+                    String title = json.getString("title");
+                    String message = json.getString("message");
+                    boolean cancelable = json.getBoolean("cancelable");
+                    mainActivity.showLoading(title, message, cancelable);
+                }
+            });
+        }
+        private void toast(String msg) {
+            String value = (String) JSON.parse(msg);
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast toast = Toast.makeText(mainActivity, value, Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
+                }
+            });
         }
     }
 }
