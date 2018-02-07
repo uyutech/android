@@ -115,13 +115,8 @@ public class WebFragment extends Fragment {
         return view;
     }
     @Override
-    public void onStart() {
-        LogUtil.i("onStart");
-        super.onStart();
-    }
-    @Override
     public void onDestroyView() {
-        LogUtil.i("onDestroyView");
+        LogUtil.i("onDestroyView", url);
         super.onDestroyView();
         webView.setWebChromeClient(null);
         webView.setWebViewClient(null);
@@ -130,11 +125,7 @@ public class WebFragment extends Fragment {
         ((ViewGroup) webView.getParent()).removeView(webView);
         webView.destroy();
         webView = null;
-    }
-    @Override
-    public void onDestroy() {
-        LogUtil.i("onDestroy");
-        super.onDestroy();
+        MobclickAgent.onPageEnd(url);
     }
 
     private void init() {
@@ -184,9 +175,9 @@ public class WebFragment extends Fragment {
     }
     public synchronized void enter(String url, Bundle bundle) {
         LogUtil.i("enter", url + ", " + hasCreateView);
+        this.url = url;
         // 存在极端情况，添加fragment的transacation异步尚未执行，enter先执行了，需记录等待添加后执行
         if(!hasCreateView) {
-            this.url = url;
             this.bundle = bundle;
             hasEnter = true;
             return;
@@ -349,6 +340,8 @@ public class WebFragment extends Fragment {
         else {
             webView.loadUrl("about:blank");
         }
+        MobclickAgent.onPageStart(url);
+
         TranslateAnimation translateAnimation = new TranslateAnimation(MainActivity.WIDTH,0,0,0);
         translateAnimation.setDuration(300);
         translateAnimation.setAnimationListener(new Animation.AnimationListener() {
@@ -486,6 +479,7 @@ public class WebFragment extends Fragment {
             @Override
             public void onAnimationEnd(Animation animation) {
                 mask.setVisibility(View.GONE);
+                WebFragment.this.resume();
             }
 
             @Override
@@ -493,11 +487,27 @@ public class WebFragment extends Fragment {
             }
         });
         mask.startAnimation(alphaAnimation);
+        rootView.setVisibility(View.VISIBLE);
     }
     public void hide() {
         AlphaAnimation alphaAnimation = new AlphaAnimation(0f, 0.8f);
         alphaAnimation.setDuration(300);
         alphaAnimation.setFillAfter(true);
+        alphaAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                rootView.setVisibility(View.GONE);
+                WebFragment.this.pause();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+        });
         mask.startAnimation(alphaAnimation);
         mask.setVisibility(View.VISIBLE);
     }
@@ -537,6 +547,16 @@ public class WebFragment extends Fragment {
     }
     public void popWindow(JSONObject data) {
         evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('resume', " + data.toJSONString() +");");
+    }
+    public void resume() {
+        webView.onResume();
+        evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('resume');");
+        MobclickAgent.onPageStart(url);
+    }
+    public void pause() {
+        evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('pause');");
+        webView.onPause();
+        MobclickAgent.onPageEnd(url);
     }
 
     class ZhuanQuanJsBridgeNative extends Object {

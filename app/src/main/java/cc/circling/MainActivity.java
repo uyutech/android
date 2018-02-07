@@ -48,6 +48,7 @@ import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.auth.WbAuthListener;
 import com.sina.weibo.sdk.auth.WbConnectErrorMessage;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
+import com.umeng.analytics.MobclickAgent;
 
 import cc.circling.login.oauth.Constants;
 import cc.circling.plugin.PromptPlugin;
@@ -456,29 +457,28 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     }
 
     @Override
-    protected void onStart() {
-        LogUtil.i("onStart: ");
-        super.onStart();
-    }
-    @Override
     protected void onRestart() {
         LogUtil.i("onRestart: ");
         super.onRestart();
+        current.resume();
     }
     @Override
     protected void onResume() {
         LogUtil.i("onResume: ");
         super.onResume();
+        MobclickAgent.onResume(this);
     }
     @Override
     protected void onPause() {
         LogUtil.i("onPause: ");
         super.onPause();
+        MobclickAgent.onPause(this);
     }
     @Override
     protected void onStop() {
         LogUtil.i("onStop: ");
         super.onStop();
+        current.pause();
     }
     @Override
     protected void onDestroy() {
