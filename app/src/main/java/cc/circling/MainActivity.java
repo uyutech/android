@@ -29,7 +29,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.webkit.ValueCallback;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -50,6 +50,7 @@ import com.sina.weibo.sdk.auth.WbConnectErrorMessage;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
 
 import cc.circling.login.oauth.Constants;
+import cc.circling.plugin.PromptPlugin;
 import cc.circling.utils.AndroidBug5497Workaround;
 import cc.circling.utils.LogUtil;
 import cc.circling.web.MyCookies;
@@ -97,6 +98,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private String downloadName;
     private String downloadUrl;
     private static int downloadId = 0;
+
+    private static int notifyId = 0;
 
     public static ProgressDialog lastProgressDialog;
 
@@ -418,7 +421,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 MainActivity.this.enter(URLs.WEB_DOMAIN + "/index.html", bundle);
                 // 欢迎界面变暗
                 AlphaAnimation alphaAnimation = new AlphaAnimation(0f, 0.8f);
-                alphaAnimation.setDuration(400);
+                alphaAnimation.setDuration(300);
                 alphaAnimation.setFillAfter(true);
                 mask.startAnimation(alphaAnimation);
                 mask.setVisibility(View.VISIBLE);
@@ -769,6 +772,57 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             lastProgressDialog.dismiss();
         }
     }
+    public void notify(String ticker, String title, String content) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setTicker(ticker);
+        builder.setContentTitle(title);
+        if(content != null) {
+            builder.setContentText(content);
+        }
+        builder.setAutoCancel(true);
+        builder.setSmallIcon(R.mipmap.ic_launcher);
+        builder.setLargeIcon(BitmapFactory.decodeResource(this.getResources(), R.mipmap.ic_launcher));
+
+        builder.setDefaults(NotificationCompat.DEFAULT_LIGHTS | NotificationCompat.DEFAULT_VIBRATE);
+        Notification notification = builder.build();
+
+        NotificationManager notificationManager =
+                (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(notifyId++, notification);
+    }
+    public void prompt(String title, String message, String value) {
+        EditText et = new EditText(this);
+        et.setText(value);
+        et.setSelection(value.length());
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle(title);
+        dialog.setMessage(message);
+        dialog.setCancelable(false);
+        dialog.setView(et);
+        dialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+                String s = et.getText().toString();
+                JSONObject json = new JSONObject();
+                json.put("success", true);
+                json.put("value", s);
+                current.prompt(json);
+            }
+        });
+        dialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+                JSONObject json = new JSONObject();
+                json.put("success", false);
+                current.prompt(json);
+            }
+        });
+        dialog.show();
+    }
+    public void popWindow(JSONObject data) {
+        this.back();
+        current.popWindow(data);
+    }
 
     private class SelfWbAuthListener implements WbAuthListener {
         @Override
@@ -778,11 +832,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 String openId = mAccessToken.getUid();
                 String token = mAccessToken.getToken();
                 current.loginWeiboSuccess(openId, token);
-                current.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS();", new ValueCallback<String>() {
-                    @Override
-                    public void onReceiveValue(String value) {
-                    }
-                });
             }
         }
 

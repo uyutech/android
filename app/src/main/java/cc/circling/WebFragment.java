@@ -1,11 +1,13 @@
 package cc.circling;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -90,6 +92,7 @@ public class WebFragment extends Fragment {
 
     private String loginWeiboClientId;
     private String confirmClientId;
+    private String promptClientId;
 
     private static CookieManager cookieManager;
 
@@ -269,11 +272,7 @@ public class WebFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 LogUtil.i("click back");
-                webView.evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.trigger('back');", new ValueCallback<String>() {
-                    @Override
-                    public void onReceiveValue(String value) {
-                    }
-                });
+                evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.trigger('back');");
             }
         });
 
@@ -312,33 +311,21 @@ public class WebFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 LogUtil.i("click optionMenuText");
-                webView.evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('optionMenu');", new ValueCallback<String>() {
-                    @Override
-                    public void onReceiveValue(String value) {
-                    }
-                });
+                evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('optionMenu');");
             }
         });
         optionMenuIv1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 LogUtil.i("click optionMenuIv1");
-                webView.evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('optionMenu1');", new ValueCallback<String>() {
-                    @Override
-                    public void onReceiveValue(String value) {
-                    }
-                });
+                evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('optionMenu1');");
             }
         });
         optionMenuIv2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 LogUtil.i("click optionMenuIv");
-                webView.evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('optionMenu2');", new ValueCallback<String>() {
-                    @Override
-                    public void onReceiveValue(String value) {
-                    }
-                });
+                evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('optionMenu2');");
             }
         });
 
@@ -351,7 +338,7 @@ public class WebFragment extends Fragment {
             webView.loadUrl("about:blank");
         }
         TranslateAnimation translateAnimation = new TranslateAnimation(MainActivity.WIDTH,0,0,0);
-        translateAnimation.setDuration(400);
+        translateAnimation.setDuration(300);
         translateAnimation.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -445,7 +432,10 @@ public class WebFragment extends Fragment {
         return rootView;
     }
     public void back() {
-        webView.evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.trigger('back');", new ValueCallback<String>() {
+        evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.trigger('back');");
+    }
+    public void evaluateJavascript(String value) {
+        webView.evaluateJavascript(value, new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
             }
@@ -493,7 +483,7 @@ public class WebFragment extends Fragment {
     }
     public void hide() {
         AlphaAnimation alphaAnimation = new AlphaAnimation(0f, 0.8f);
-        alphaAnimation.setDuration(400);
+        alphaAnimation.setDuration(300);
         alphaAnimation.setFillAfter(true);
         mask.startAnimation(alphaAnimation);
         mask.setVisibility(View.VISIBLE);
@@ -504,46 +494,36 @@ public class WebFragment extends Fragment {
         json.put("openID", openId); // TODO: 废除
         json.put("openId", openId);
         json.put("token", token);
-        webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + loginWeiboClientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
-            @Override
-            public void onReceiveValue(String value) {
-            }
-        });
+        evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + loginWeiboClientId + "', " + json.toJSONString() + ");");
     }
     public void loginWeiboCancel() {
         JSONObject json = new JSONObject();
         json.put("success", false);
         json.put("type", 0);
         json.put("message", "取消授权");
-        webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + loginWeiboClientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
-            @Override
-            public void onReceiveValue(String value) {
-            }
-        });
+        evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + loginWeiboClientId + "', " + json.toJSONString() + ");");
     }
     public void loginWeiboError(String message) {
         JSONObject json = new JSONObject();
         json.put("success", false);
         json.put("type", 1);
         json.put("message", message);
-        webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + loginWeiboClientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
-            @Override
-            public void onReceiveValue(String value) {
-            }
-        });
+        evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + loginWeiboClientId + "', " + json.toJSONString() + ");");
     }
     public void confirm(boolean res) {
-        webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + confirmClientId + "', " + res + ");", new ValueCallback<String>() {
-            @Override
-            public void onReceiveValue(String value) {
-            }
-        });
+        evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + confirmClientId + "', " + res + ");");
     }
     public void hideBackButton() {
         back.setVisibility(View.GONE);
     }
     public void showBackButton() {
         back.setVisibility(View.VISIBLE);
+    }
+    public void prompt(JSONObject data) {
+        evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + promptClientId + "', " + data.toJSONString() + ");");
+    }
+    public void popWindow(JSONObject data) {
+        evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('resume', " + data.toJSONString() +");");
     }
 
     class ZhuanQuanJsBridgeNative extends Object {
@@ -583,13 +563,27 @@ public class WebFragment extends Fragment {
                     loginWeibo(clientId);
                     break;
                 case "moveTaskToBack":
-                    mainActivity.moveTaskToBack(true);
+                    moveTaskToBack();
                     break;
                 case "networkInfo":
                     networkInfo(clientId);
                     break;
+                case "notify":
+                    notify(msg);
+                    break;
+                case "openUri":
+                    openUri(msg);
+                    break;
+                case "popWindow":
+                    popWindow(msg);
+                    break;
+                case "prompt":
+                    prompt(clientId, msg);
+                    break;
                 case "pushWindow":
                     pushWindow(msg);
+                    break;
+                case "setBack":
                     break;
                 case "setCache":
                 case "setPreference":
@@ -608,15 +602,10 @@ public class WebFragment extends Fragment {
         }
 
         private void alert(String msg) {
-            mainActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    JSONObject json = JSON.parseObject(msg);
-                    String title = json.getString("title");
-                    String message = json.getString("message");
-                    mainActivity.alert(title, message);
-                }
-            });
+            JSONObject json = JSON.parseObject(msg);
+            String title = json.getString("title");
+            String message = json.getString("message");
+            mainActivity.alert(title, message);
         }
         private void back() {
             mainActivity.runOnUiThread(new Runnable() {
@@ -632,7 +621,7 @@ public class WebFragment extends Fragment {
             });
         }
         private void confirm(String clientId, String msg) {
-            WebFragment.this.confirmClientId = clientId;
+            confirmClientId = clientId;
             mainActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -679,20 +668,12 @@ public class WebFragment extends Fragment {
                                 }
                             }
                             value.append("]");
-                            webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + value.toString() + ");", new ValueCallback<String>() {
-                                @Override
-                                public void onReceiveValue(String value) {
-                                }
-                            });
+                            evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + value.toString() + ");");
                         }
                     } else {
                         String key = json.getString("key");
                         String value = sharedPreferences.getString(key, "null");
-                        webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + value + ");", new ValueCallback<String>() {
-                            @Override
-                            public void onReceiveValue(String value) {
-                            }
-                        });
+                        evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + value + ");");
                     }
                 }
             });
@@ -706,12 +687,7 @@ public class WebFragment extends Fragment {
             });
         }
         private void hideLoading() {
-            mainActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mainActivity.hideLoading();
-                }
-            });
+            mainActivity.hideLoading();
         }
         private void login(String clientId, String msg) {
             JSONObject j = JSON.parseObject(msg);
@@ -787,11 +763,7 @@ public class WebFragment extends Fragment {
                             mainActivity.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + responseBody + ");", new ValueCallback<String>() {
-                                        @Override
-                                        public void onReceiveValue(String value) {
-                                        }
-                                    });
+                                    evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + responseBody + ");");
                                 }
                             });
                             return;
@@ -806,37 +778,31 @@ public class WebFragment extends Fragment {
                     public void run() {
                         JSONObject json = new JSONObject();
                         json.put("success", false);
-                        webView.evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
-                            @Override
-                            public void onReceiveValue(String value) {
-                            }
-                        });
+                        evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");");
                     }
                 });
             }
         }
         private void loginOut() {
-            mainActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    SharedPreferences sharedPreferences = mainActivity
-                            .getSharedPreferences(PreferenceEnum.SESSION.name(), MODE_PRIVATE);
-                    SharedPreferences.Editor editor = mainActivity
-                            .getSharedPreferences(PreferenceEnum.SESSION.name(), MODE_PRIVATE).edit();
-                    Map<String, ?> map = sharedPreferences.getAll();
-                    for(String key : map.keySet()) {
-                        MyCookies.remove(key);
-                        editor.remove(key);
-                    }
-                    editor.apply();
-                    MobclickAgent.onProfileSignOff();
-                    // TODO: syncCookie
-                }
-            });
+            SharedPreferences sharedPreferences = mainActivity
+                    .getSharedPreferences(PreferenceEnum.SESSION.name(), MODE_PRIVATE);
+            SharedPreferences.Editor editor = mainActivity
+                    .getSharedPreferences(PreferenceEnum.SESSION.name(), MODE_PRIVATE).edit();
+            Map<String, ?> map = sharedPreferences.getAll();
+            for(String key : map.keySet()) {
+                MyCookies.remove(key);
+                editor.remove(key);
+            }
+            editor.apply();
+            MobclickAgent.onProfileSignOff();
+            // TODO: syncCookie
         }
         private void loginWeibo(String clientId) {
-            WebFragment.this.loginWeiboClientId = clientId;
+            loginWeiboClientId = clientId;
             mainActivity.loginWeibo();
+        }
+        private void moveTaskToBack() {
+            mainActivity.moveTaskToBack(true);
         }
         private void networkInfo(String clientId) {
             mainActivity.runOnUiThread(new Runnable() {
@@ -850,21 +816,59 @@ public class WebFragment extends Fragment {
                         JSONObject json = new JSONObject();
                         json.put("available", true);
                         json.put("wifi", wifiNetworkInfo != null & wifiNetworkInfo.isConnected() && wifiNetworkInfo.isAvailable());
-                        webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
-                            @Override
-                            public void onReceiveValue(String value) {
-                            }
-                        });
+                        evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + clientId + "', " + json.toJSONString() + ");");
                     }
                     else {
                         JSONObject json = new JSONObject();
                         json.put("available", false);
-                        webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
-                            @Override
-                            public void onReceiveValue(String value) {
-                            }
-                        });
+                        evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + clientId + "', " + json.toJSONString() + ");");
                     }
+                }
+            });
+        }
+        private void notify(String msg) {
+            JSONObject json = JSON.parseObject(msg);
+            JSONObject data = json.getJSONObject("data");
+            String ticker = data.getString("ticker");
+            String title = data.getString("title");
+            String content = data.getString("content");
+            if(title == null) {
+                title = "";
+            }
+            if(ticker == null || ticker.equals("")) {
+                ticker = title;
+            }
+            mainActivity.notify(ticker, title, content);
+        }
+        private void openUri(String msg) {
+            String value = (String) JSON.parse(msg);
+            if(!value.isEmpty()) {
+                Intent intent = new Intent();
+                intent.setAction("android.intent.action.VIEW");
+                Uri uri = Uri.parse(value);
+                intent.setData(uri);
+                mainActivity.startActivity(intent);
+            }
+        }
+        private void popWindow(String msg) {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = JSON.parseObject(msg);
+                    mainActivity.popWindow(data);
+                }
+            });
+        }
+        private void prompt(String clientId, String msg) {
+            promptClientId = clientId;
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = JSON.parseObject(msg);
+                    String title = data.getString("title");
+                    String message = data.getString("message");
+                    String value = data.getString("value");
+                    mainActivity.prompt(title, message, value);
                 }
             });
         }
@@ -872,8 +876,8 @@ public class WebFragment extends Fragment {
             mainActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    JSONObject value = JSON.parseObject(msg);
-                    mainActivity.pushWindow(value);
+                    JSONObject data = JSON.parseObject(msg);
+                    mainActivity.pushWindow(data);
                     WebFragment.this.hide();
                 }
             });
@@ -914,11 +918,7 @@ public class WebFragment extends Fragment {
                         }
                         editor.apply();
                     }
-                    webView.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "');", new ValueCallback<String>() {
-                        @Override
-                        public void onReceiveValue(String value) {
-                        }
-                    });
+                    evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "');");
                 }
             });
         }
@@ -931,27 +931,17 @@ public class WebFragment extends Fragment {
             });
         }
         private void showLoading(String msg) {
-            mainActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    JSONObject json = JSON.parseObject(msg);
-                    String title = json.getString("title");
-                    String message = json.getString("message");
-                    boolean cancelable = json.getBoolean("cancelable");
-                    mainActivity.showLoading(title, message, cancelable);
-                }
-            });
+            JSONObject json = JSON.parseObject(msg);
+            String title = json.getString("title");
+            String message = json.getString("message");
+            boolean cancelable = json.getBoolean("cancelable");
+            mainActivity.showLoading(title, message, cancelable);
         }
         private void toast(String msg) {
             String value = (String) JSON.parse(msg);
-            mainActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast toast = Toast.makeText(mainActivity, value, Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER, 0, 0);
-                    toast.show();
-                }
-            });
+            Toast toast = Toast.makeText(mainActivity, value, Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
         }
     }
 }
