@@ -301,7 +301,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                             }
                         });
                     }
-                } catch (Exception e) {
+                }
+                catch(Exception e) {
                     e.printStackTrace();
                     LogUtil.i("checkUpdate exception", e.toString());
                     MainActivity.this.runOnUiThread(new Runnable() {
@@ -364,26 +365,28 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                             fos.write(buffer, 0, len);
                             fos.flush();
                         }
-                    } catch (IOException e) {
+                    } catch(IOException e) {
                         e.printStackTrace();
                     } finally {
                         try {
                             if(fos != null) {
                                 fos.close();
                             }
-                        } catch (IOException e) {
+                        } catch(IOException e) {
                             e.printStackTrace();
                         }
                     }
                 }
             }
-        } catch (IOException e) {
+        }
+        catch(IOException e) {
             e.printStackTrace();
-        } finally {
+        }
+        finally {
             if(zis != null) {
                 try {
                     zis.close();
-                } catch (IOException e) {
+                } catch(IOException e) {
                     e.printStackTrace();
                 }
             }

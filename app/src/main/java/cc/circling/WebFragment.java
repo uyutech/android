@@ -168,6 +168,18 @@ public class WebFragment extends Fragment {
         webView.setWebContentsDebuggingEnabled(true);
 
         webView.setSwipeRefreshLayout(swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                LogUtil.i("swipeRefreshLayout onRefresh");
+                // TODO: 极低概率下ZhuanQuanJSBridge还没有加载出来，进入卡死状态
+                webView.evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.trigger('refresh');", new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String value) {
+                    }
+                });
+            }
+        });
         webView.addJavascriptInterface(new ZhuanQuanJsBridgeNative(), "ZhuanQuanJsBridgeNative");
     }
     public synchronized void enter(String url, Bundle bundle) {
@@ -264,7 +276,7 @@ public class WebFragment extends Fragment {
         // 自定义back图片base64
         String backIcon = bundle.getString("backIcon");
         LogUtil.i("backIcon ", backIcon);
-        if(backIcon != null && backIcon.length() > 0) {
+        if(backIcon != null && !backIcon.isEmpty()) {
             setBackIcon(backIcon);
         }
 
@@ -385,7 +397,7 @@ public class WebFragment extends Fragment {
         cookieManager.setAcceptCookie(true);
         cookieManager.removeExpiredCookie();
         // 跨域CORS的ajax设置允许cookie
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             cookieManager.setAcceptThirdPartyCookies(webView, true);
         }
 
@@ -397,10 +409,11 @@ public class WebFragment extends Fragment {
             cookieManager.setCookie(URLs.H5_DOMAIN, value);
         }
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             LogUtil.i("CookieSyncManager sync");
             CookieSyncManager.getInstance().sync();
-        } else {
+        }
+        else {
             LogUtil.i("CookieManager flush");
             CookieManager.getInstance().flush();
         }
@@ -416,7 +429,7 @@ public class WebFragment extends Fragment {
         LogUtil.i("setSubTitle: " + s);
         // 有可能没有titleBar
         if(subTitle != null) {
-            if(s != null && s.length() > 0) {
+            if(s != null && !s.isEmpty()) {
                 subTitle.setVisibility(View.VISIBLE);
             }
             else {
@@ -535,7 +548,7 @@ public class WebFragment extends Fragment {
                     alert(msg);
                     break;
                 case "back":
-                    back();
+                    back(msg);
                     break;
                 case "confirm":
                     confirm(clientId, msg);
@@ -583,11 +596,27 @@ public class WebFragment extends Fragment {
                 case "pushWindow":
                     pushWindow(msg);
                     break;
+                case "refresh":
+                    refresh(msg);
+                    break;
+                case "refreshState":
+                    refreshState(msg);
+                    break;
                 case "setBack":
+                    setBack(msg);
                     break;
                 case "setCache":
                 case "setPreference":
                     setCache(clientId, msg);
+                    break;
+                case "setSubTitle":
+                    setSubTitle(msg);
+                    break;
+                case "setTitle":
+                    setTitle(msg);
+                    break;
+                case "setTitleBgColor":
+                    setTitleBgColor(msg);
                     break;
                 case "showBackButton":
                     showBackButton();
@@ -607,15 +636,19 @@ public class WebFragment extends Fragment {
             String message = json.getString("message");
             mainActivity.alert(title, message);
         }
-        private void back() {
+        private void back(String msg) {
             mainActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if(webView.canGoBack()) {
-                        webView.goBack();
-                    }
-                    else {
-                        mainActivity.back();
+                    JSONObject data = JSONObject.parseObject(msg);
+                    boolean prevent = data.getBoolean("prevent");
+                    if(!prevent) {
+                        if(webView.canGoBack()) {
+                            webView.goBack();
+                        }
+                        else {
+                            mainActivity.back();
+                        }
                     }
                 }
             });
@@ -655,22 +688,23 @@ public class WebFragment extends Fragment {
                     SharedPreferences sharedPreferences = BaseApplication
                             .getContext()
                             .getSharedPreferences(PreferenceEnum.H5OFF.name(), Context.MODE_PRIVATE);
-                    if (isArray) {
+                    if(isArray) {
                         JSONArray key = json.getJSONArray("key");
-                        if (key.size() > 0) {
+                        if(key.size() > 0) {
                             StringBuilder value = new StringBuilder("[");
-                            for (int i = 0; i < key.size(); i++) {
+                            for(int i = 0; i < key.size(); i++) {
                                 String k = key.getString(i);
                                 String v = sharedPreferences.getString(k, "null");
                                 value.append(v);
-                                if (i < key.size() - 1) {
+                                if(i < key.size() - 1) {
                                     value.append(",");
                                 }
                             }
                             value.append("]");
                             evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + value.toString() + ");");
                         }
-                    } else {
+                    }
+                    else {
                         String key = json.getString("key");
                         String value = sharedPreferences.getString(key, "null");
                         evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + value + ");");
@@ -882,6 +916,33 @@ public class WebFragment extends Fragment {
                 }
             });
         }
+        private void refresh(String msg) {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = JSONObject.parseObject(msg);
+                    boolean prevent = data.getBoolean("prevent");
+                    if(!prevent) {
+                        webView.reload();
+                    }
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+            });
+        }
+        private void refreshState(String msg) {
+            boolean value = (boolean) JSON.parse(msg);
+            swipeRefreshLayout.setCanEnabled(value);
+        }
+        private void setBack(String msg) {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = JSON.parseObject(msg);
+                    String base64 = data.getString("img");
+                    setBackIcon(base64);
+                }
+            });
+        }
         private void setCache(String clientId, String msg) {
             mainActivity.runOnUiThread(new Runnable() {
                 @Override
@@ -897,28 +958,56 @@ public class WebFragment extends Fragment {
                     if(isArray) {
                         JSONArray key = json.getJSONArray("key");
                         JSONArray value = json.getJSONArray("value");
-                        if (key.size() > 0) {
+                        if(key.size() > 0) {
                             for (int i = 0; i < key.size(); i++) {
                                 String k = key.getString(i);
                                 String v = value.getString(i);
                                 LogUtil.i("setCache value is null: " + (v == null));
                                 editor.remove(k);
-                                if (v != null) {
+                                if(v != null) {
                                     editor.putString(k, v);
                                 }
                             }
                             editor.apply();
                         }
-                    } else {
+                    }
+                    else {
                         String key = json.getString("key");
                         String value = json.getString("value");
                         editor.remove(key);
-                        if (value != null) {
+                        if(value != null) {
                             editor.putString(key, value);
                         }
                         editor.apply();
                     }
                     evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "');");
+                }
+            });
+        }
+        private void setSubTitle(String msg) {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String value = (String) JSON.parse(msg);
+                    WebFragment.this.setSubTitle(value);
+                }
+            });
+        }
+        private void setTitle(String msg) {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String value = (String) JSON.parse(msg);
+                    WebFragment.this.setTitle(value);
+                }
+            });
+        }
+        private void setTitleBgColor(String msg) {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String value = (String) JSON.parse(msg);
+                    WebFragment.this.setTitleBgColor(value);
                 }
             });
         }

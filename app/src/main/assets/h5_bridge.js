@@ -55,9 +55,7 @@
                 var event = document.createEvent('Events');
                 event.initEvent(name, false, true);
                 var prevent = !document.dispatchEvent(event);
-                if(!prevent) {
-                    ZhuanQuanJsBridgeNative.call('', 'back', '');
-                }
+                ZhuanQuanJsBridgeNative.call('', name, JSON.stringify({ prevent: prevent }));
             }
         },
         emit: function(name, param) {
@@ -81,6 +79,6 @@
     };
 
     var readyEvent = document.createEvent('Events');
-    readyEvent.initEvent('ZhuanQuanJSBridgeReady', false, false);
+    readyEvent.initEvent('ZhuanQuanJsBridgeReady', false, false);
     document.dispatchEvent(readyEvent);
 })();
