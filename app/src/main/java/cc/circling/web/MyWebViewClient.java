@@ -12,7 +12,6 @@ import android.webkit.WebView;
 
 import cc.circling.BaseApplication;
 import cc.circling.BuildConfig;
-import cc.circling.X5Activity;
 import cc.circling.utils.LogUtil;
 
 import java.io.InputStream;

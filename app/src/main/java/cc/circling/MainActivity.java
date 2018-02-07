@@ -6,15 +6,18 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -51,7 +54,6 @@ import com.sina.weibo.sdk.auth.sso.SsoHandler;
 import com.umeng.analytics.MobclickAgent;
 
 import cc.circling.login.oauth.Constants;
-import cc.circling.plugin.PromptPlugin;
 import cc.circling.utils.AndroidBug5497Workaround;
 import cc.circling.utils.LogUtil;
 import cc.circling.web.MyCookies;
@@ -117,6 +119,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private WebFragment current;
     private WebFragment reserve;
     private ArrayList<WebFragment> wfList;
+
+    private MediaService.PlayBinder playBinder;
+    private ServiceConnection serviceConnection;
     private SsoHandler mSsoHandler;
 
     @Override
@@ -169,6 +174,51 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         else {
             checkUpdate();
         }
+
+        serviceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                LogUtil.i("onServiceConnected");
+                playBinder = (MediaService.PlayBinder) service;
+                playBinder.start(MainActivity.this);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                LogUtil.i("onServiceDisconnected");
+            }
+        };
+        Intent media = new Intent(this, MediaService.class);
+        bindService(media, serviceConnection, BIND_AUTO_CREATE);
+    }
+    @Override
+    protected void onRestart() {
+        LogUtil.i("onRestart: ");
+        super.onRestart();
+        current.resume();
+    }
+    @Override
+    protected void onResume() {
+        LogUtil.i("onResume: ");
+        super.onResume();
+        MobclickAgent.onResume(this);
+    }
+    @Override
+    protected void onPause() {
+        LogUtil.i("onPause: ");
+        super.onPause();
+        MobclickAgent.onPause(this);
+    }
+    @Override
+    protected void onStop() {
+        LogUtil.i("onStop: ");
+        super.onStop();
+        current.pause();
+    }
+    @Override
+    protected void onDestroy() {
+        LogUtil.i("onDestroy: ");
+        super.onDestroy();
     }
 
     private void checkUpdate() {
@@ -457,35 +507,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     }
 
     @Override
-    protected void onRestart() {
-        LogUtil.i("onRestart: ");
-        super.onRestart();
-        current.resume();
-    }
-    @Override
-    protected void onResume() {
-        LogUtil.i("onResume: ");
-        super.onResume();
-        MobclickAgent.onResume(this);
-    }
-    @Override
-    protected void onPause() {
-        LogUtil.i("onPause: ");
-        super.onPause();
-        MobclickAgent.onPause(this);
-    }
-    @Override
-    protected void onStop() {
-        LogUtil.i("onStop: ");
-        super.onStop();
-        current.pause();
-    }
-    @Override
-    protected void onDestroy() {
-        LogUtil.i("onDestroy: ");
-        super.onDestroy();
-    }
-    @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         LogUtil.i("keyup: " + keyCode);
         if(keyCode == KeyEvent.KEYCODE_BACK) {
@@ -533,9 +554,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         toast.show();
     }
 
-    public WebView getWebView() {
-        return null;
-    }
     public void pushWindow(JSONObject data) {
         final String url = data.getString("url");
         JSONObject params = data.getJSONObject("params");
@@ -825,6 +843,34 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     public void popWindow(JSONObject data) {
         this.back();
         current.popWindow(data);
+    }
+    public void media(String clientId, String key, JSONObject value) {
+        LogUtil.i("meida", key);
+        if(playBinder != null && key != null) {
+            switch(key) {
+                case "info":
+                    playBinder.info(value, clientId);
+                    break;
+                case "play":
+                    playBinder.play(clientId);
+                    break;
+                case "pause":
+                    playBinder.pause(clientId);
+                    break;
+                case "stop":
+                    playBinder.stop(clientId);
+                    break;
+                case "release":
+                    playBinder.release(clientId);
+                    break;
+                case "seek":
+                    playBinder.seek(value, clientId);
+                    break;
+            }
+        }
+    }
+    public void evaluateJavascript(String value) {
+        current.evaluateJavascript(value);
     }
 
     private class SelfWbAuthListener implements WbAuthListener {

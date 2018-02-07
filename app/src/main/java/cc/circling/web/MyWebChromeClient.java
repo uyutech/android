@@ -1,19 +1,13 @@
 package cc.circling.web;
 
 import android.view.View;
-import android.webkit.ConsoleMessage;
-import android.webkit.JsResult;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.tencent.bugly.crashreport.CrashReport;
 
 import cc.circling.MainActivity;
-import cc.circling.X5Activity;
-import cc.circling.event.H5EventDispatcher;
 import cc.circling.utils.LogUtil;
 
 /**
@@ -22,11 +16,11 @@ import cc.circling.utils.LogUtil;
 
 public class MyWebChromeClient extends WebChromeClient {
 
-    private MainActivity activity;
+    private MainActivity mainActivity;
 
-    public MyWebChromeClient(MainActivity activity) {
+    public MyWebChromeClient(MainActivity mainActivity) {
         super();
-        this.activity = activity;
+        this.mainActivity = mainActivity;
     }
     @Override
     public void onReceivedTitle(WebView view, String args) {
@@ -35,7 +29,6 @@ public class MyWebChromeClient extends WebChromeClient {
         view.evaluateJavascript(LoadBridge.getBridgeJs(), new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
-                //
             }
         });
     }

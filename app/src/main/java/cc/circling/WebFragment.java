@@ -156,7 +156,7 @@ public class WebFragment extends Fragment {
         webView.setWebViewClient(webViewClient);
         MyWebChromeClient webChromeClient = new MyWebChromeClient(mainActivity);
         webView.setWebChromeClient(webChromeClient);
-        webView.setWebContentsDebuggingEnabled(true);
+        webView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG);
 
         webView.setSwipeRefreshLayout(swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -595,6 +595,9 @@ public class WebFragment extends Fragment {
                 case "loginWeibo":
                     loginWeibo(clientId);
                     break;
+                case "media":
+                    media(clientId, msg);
+                    break;
                 case "moveTaskToBack":
                     moveTaskToBack();
                     break;
@@ -855,6 +858,12 @@ public class WebFragment extends Fragment {
             loginWeiboClientId = clientId;
             mainActivity.loginWeibo();
         }
+        private void media(String clientId, String msg) {
+            JSONObject data = JSON.parseObject(msg);
+            String key = data.getString("key");
+            JSONObject value = data.getJSONObject("value");
+            mainActivity.media(clientId, key, value);
+        }
         private void moveTaskToBack() {
             mainActivity.moveTaskToBack(true);
         }
@@ -950,8 +959,13 @@ public class WebFragment extends Fragment {
             });
         }
         private void refreshState(String msg) {
-            boolean value = (boolean) JSON.parse(msg);
-            swipeRefreshLayout.setCanEnabled(value);
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    boolean value = (boolean) JSON.parse(msg);
+                    swipeRefreshLayout.setCanEnabled(value);
+                }
+            });
         }
         private void setBack(String msg) {
             mainActivity.runOnUiThread(new Runnable() {
