@@ -32,6 +32,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -69,6 +71,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -123,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private MediaService.PlayBinder playBinder;
     private ServiceConnection serviceConnection;
     private SsoHandler mSsoHandler;
+    private static CookieManager cookieManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,6 +150,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         copyright = findViewById(R.id.copyright);
         mask = findViewById(R.id.mask);
         wfList = new ArrayList();
+
+        CookieSyncManager.createInstance(this);
+        cookieManager = CookieManager.getInstance();
+        cookieManager.setAcceptCookie(true);
 
         prepare();
         current = reserve;
@@ -876,6 +884,37 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         current.evaluateJavascript(value);
     }
     public void album(String clientId, String msg) {}
+    public void syncCookie(WebView webView) {
+        LogUtil.i("syncCookie WebView");
+        cookieManager.removeExpiredCookie();
+        // 5.0跨域CORS的ajax设置允许cookie
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            LogUtil.i("setAcceptThirdPartyCookies");
+            cookieManager.setAcceptThirdPartyCookies(webView, true);
+        }
+        HashMap<String, String> hashMap = MyCookies.getAll();
+        LogUtil.i("cookies: ", hashMap.size() + "");
+        for(String key : hashMap.keySet()) {
+            String value = hashMap.get(key);
+            LogUtil.i("cookie: ", key + ", " + value);
+            cookieManager.setCookie(URLs.WEB_DOMAIN, value);
+            cookieManager.setCookie(URLs.H5_DOMAIN, value);
+        }
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            LogUtil.i("flush");
+            cookieManager.flush();
+        }
+        else {
+            LogUtil.i("sync");
+            CookieSyncManager.getInstance().sync();
+        }
+    }
+    public void syncCookie() {
+        LogUtil.i("syncCookie");
+        for(WebFragment wf : wfList) {
+            syncCookie(wf.getWebView());
+        }
+    }
 
     private class SelfWbAuthListener implements WbAuthListener {
         @Override

@@ -18,8 +18,6 @@ import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
-import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
@@ -94,8 +92,6 @@ public class WebFragment extends Fragment {
     private String loginWeiboClientId;
     private String confirmClientId;
     private String promptClientId;
-
-    private static CookieManager cookieManager;
 
     @Override
     public void onAttach(Context context) {
@@ -322,7 +318,7 @@ public class WebFragment extends Fragment {
         });
 
         // 离线包地址添加cookie
-//        syncCookie();
+        mainActivity.syncCookie(webView);
         if(url != null && url.length() > 0) {
             webView.loadUrl(url);
         }
@@ -376,37 +372,6 @@ public class WebFragment extends Fragment {
         Bitmap bitmap = ImgUtil.parseBase64(img);
         back.setImageBitmap(bitmap);
     }
-    public void syncCookie() {
-        LogUtil.i("syncCookie");
-        CookieSyncManager.createInstance(BaseApplication.getContext());
-        if(cookieManager == null) {
-            cookieManager = CookieManager.getInstance();
-        }
-
-        cookieManager.setAcceptCookie(true);
-        cookieManager.removeExpiredCookie();
-        // 跨域CORS的ajax设置允许cookie
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            cookieManager.setAcceptThirdPartyCookies(webView, true);
-        }
-
-        HashMap<String, String> hashMap = MyCookies.getAll();
-        for(String key : hashMap.keySet()) {
-            String value = hashMap.get(key);
-            LogUtil.i("CookieManager: ", key + ", " + value);
-            cookieManager.setCookie(URLs.WEB_DOMAIN, value);
-            cookieManager.setCookie(URLs.H5_DOMAIN, value);
-        }
-
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            LogUtil.i("CookieSyncManager sync");
-            CookieSyncManager.getInstance().sync();
-        }
-        else {
-            LogUtil.i("CookieManager flush");
-            CookieManager.getInstance().flush();
-        }
-    }
     public void setTitle(String s) {
         LogUtil.i("setTitle: " + s);
         // 有可能没有titleBar
@@ -427,8 +392,8 @@ public class WebFragment extends Fragment {
             subTitle.setText(s);
         }
     }
-    public View getView() {
-        return rootView;
+    public WebView getWebView() {
+        return webView;
     }
     public void back() {
         evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.trigger('back');");
@@ -571,7 +536,12 @@ public class WebFragment extends Fragment {
         evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + promptClientId + "', " + data.toJSONString() + ");");
     }
     public void popWindow(JSONObject data) {
-        evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('resume', " + data.toJSONString() +");");
+        if(data == null) {
+            evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('resume');");
+        }
+        else {
+            evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('resume', " + data.toJSONString() + ");");
+        }
     }
     public void resume() {
         webView.onResume();
@@ -805,8 +775,8 @@ public class WebFragment extends Fragment {
             mainActivity.hideLoading();
         }
         private void login(String clientId, String msg) {
-            JSONObject j = JSON.parseObject(msg);
-            String url = j.getString("url");
+            JSONObject json = JSON.parseObject(msg);
+            String url = json.getString("url");
             if(url != null && url.length() > 0) {
                 OkHttpClient client = new OkHttpClient
                         .Builder()
@@ -816,8 +786,8 @@ public class WebFragment extends Fragment {
                             public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
                                 SharedPreferences.Editor editor = mainActivity
                                         .getSharedPreferences(PreferenceEnum.SESSION.name(), Context.MODE_PRIVATE).edit();
-                                for (Cookie cookie : cookies) {
-                                    LogUtil.i("cookie string: " + cookie.toString());
+                                for(Cookie cookie : cookies) {
+                                    LogUtil.i("cookie string", cookie.toString());
                                     MyCookies.add(cookie.name(), cookie.toString());
                                     editor.putString(cookie.name(), cookie.toString());
                                 }
@@ -831,8 +801,8 @@ public class WebFragment extends Fragment {
                         })
                         .build();
                 FormBody.Builder bodyBuilder = new FormBody.Builder();
-                JSONObject data = j.getJSONObject("data");
-                if(data == null) {
+                JSONObject data = json.getJSONObject("data");
+                if(data != null) {
                     Set<String> keys = data.keySet();
                     for(String key : keys) {
                         String value = data.getString(key);
@@ -850,7 +820,7 @@ public class WebFragment extends Fragment {
                     Response response = client.newCall(request).execute();
                     ResponseBody body = response.body();
                     final String responseBody = body == null ? "" : body.string();
-                    LogUtil.i("login: " + responseBody);
+                    LogUtil.i("responseBody: " + responseBody);
                     if(!responseBody.isEmpty()) {
                         JSONObject res = JSONObject.parseObject(responseBody);
                         if(res.getBoolean("success")) {
@@ -859,7 +829,7 @@ public class WebFragment extends Fragment {
                                 JSONObject userInfo = d.getJSONObject("userInfo");
                                 if(userInfo != null) {
                                     String uid = userInfo.getString("UID");
-                                    LogUtil.i("login: " + uid);
+                                    LogUtil.i("uid: " + uid);
                                     MobclickAgent.onProfileSignIn(uid);
                                     CrashReport.setUserId(uid);
                                     BaseApplication.getCloudPushService().bindAccount(uid, new CommonCallback() {
@@ -878,6 +848,7 @@ public class WebFragment extends Fragment {
                             mainActivity.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
+                                    mainActivity.syncCookie();
                                     evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + responseBody + ");");
                                 }
                             });
@@ -905,12 +876,18 @@ public class WebFragment extends Fragment {
                     .getSharedPreferences(PreferenceEnum.SESSION.name(), MODE_PRIVATE).edit();
             Map<String, ?> map = sharedPreferences.getAll();
             for(String key : map.keySet()) {
+                LogUtil.i("remove", key);
                 MyCookies.remove(key);
                 editor.remove(key);
             }
             editor.apply();
             MobclickAgent.onProfileSignOff();
-            // TODO: syncCookie
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mainActivity.syncCookie();
+                }
+            });
         }
         private void loginWeibo(String clientId) {
             loginWeiboClientId = clientId;
@@ -975,7 +952,7 @@ public class WebFragment extends Fragment {
             mainActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    JSONObject data = JSON.parseObject(msg);
+                    JSONObject data = msg == null || msg.isEmpty() ? null : JSON.parseObject(msg);
                     mainActivity.popWindow(data);
                 }
             });
