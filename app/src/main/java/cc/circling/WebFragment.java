@@ -89,6 +89,7 @@ public class WebFragment extends Fragment {
     private boolean hasEnter = false;
     private String url;
     private Bundle bundle;
+    private boolean first = false;
 
     private String loginWeiboClientId;
     private String confirmClientId;
@@ -108,9 +109,15 @@ public class WebFragment extends Fragment {
         hasCreateView = true;
         View view = inflater.inflate(R.layout.web_fragment, container, false);
         rootView = (FrameLayout) view;
+        rootView.setVisibility(View.GONE);
         init();
         if(hasEnter) {
-            this.enter(this.url, this.bundle);
+            if(first) {
+                this.load(url, bundle);
+            }
+            else {
+                this.enter(url, bundle);
+            }
         }
         return view;
     }
@@ -128,6 +135,9 @@ public class WebFragment extends Fragment {
         MobclickAgent.onPageEnd(url);
     }
 
+    public void setFirst() {
+        first = true;
+    }
     private void init() {
         titleBar = rootView.findViewById(R.id.titleBar);
         title = rootView.findViewById(R.id.title);
@@ -172,8 +182,8 @@ public class WebFragment extends Fragment {
         });
         webView.addJavascriptInterface(new ZhuanQuanJsBridgeNative(), "ZhuanQuanJsBridgeNative");
     }
-    public synchronized void enter(String url, Bundle bundle) {
-        LogUtil.i("enter", url + ", " + hasCreateView);
+    public synchronized void load(String url, Bundle bundle) {
+        LogUtil.i("load", url + ", " + hasCreateView);
         this.url = url;
         // 存在极端情况，添加fragment的transacation异步尚未执行，enter先执行了，需记录等待添加后执行
         if(!hasCreateView) {
@@ -320,7 +330,8 @@ public class WebFragment extends Fragment {
             webView.loadUrl("about:blank");
         }
         MobclickAgent.onPageStart(url);
-
+    }
+    public void enterOnly() {
         TranslateAnimation translateAnimation = new TranslateAnimation(MainActivity.WIDTH,0,0,0);
         translateAnimation.setDuration(300);
         translateAnimation.setAnimationListener(new Animation.AnimationListener() {
@@ -338,6 +349,12 @@ public class WebFragment extends Fragment {
             }
         });
         rootView.startAnimation(translateAnimation);
+        rootView.setVisibility(View.VISIBLE);
+    }
+    public void enter(String url, Bundle bundle) {
+        LogUtil.i("enter", url + ", " + hasCreateView);
+        load(url, bundle);
+        enterOnly();
     }
     public void setTitleBgColor(String backgroundColor) {
         if(backgroundColor.equals("transparent")) {
@@ -409,9 +426,6 @@ public class WebFragment extends Fragment {
             }
             subTitle.setText(s);
         }
-    }
-    public WebView getWebView() {
-        return webView;
     }
     public View getView() {
         return rootView;

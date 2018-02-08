@@ -147,6 +147,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         mask = findViewById(R.id.mask);
         wfList = new ArrayList();
 
+        prepare();
+        current = reserve;
+        current.setFirst();
+
         // 背景渐显
         Animation alphaAnimation = new AlphaAnimation(0.1f, 1.0f);
         alphaAnimation.setDuration(500);
@@ -465,14 +469,18 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             time = 2000 - ((int)(end - timeStart));
         }
         LogUtil.i("showRedirect: ", time + "");
-        prepare();
+
+        // 第一个webview特殊提前加载
+        Bundle bundle = new Bundle();
+        bundle.putString("transparentTitle", "true");
+        bundle.putString("hideBackButton", "true");
+        current.load(URLs.WEB_DOMAIN + "/index.html", bundle);
         new Handler().postDelayed(new Runnable() {
             public void run() {
-                Bundle bundle = new Bundle();
-                bundle.putString("transparentTitle", "true");
-                bundle.putString("hideBackButton", "true");
-                MainActivity.this.enter(URLs.WEB_DOMAIN + "/index.html", bundle);
-                // 5.0+欢迎界面变暗，4.4的性能考虑忽略动画
+                current.enterOnly();
+                wfList.add(current);
+                prepare();
+                // 欢迎界面变暗
                 AlphaAnimation alphaAnimation = new AlphaAnimation(0f, 0.8f);
                 alphaAnimation.setDuration(300);
                 mask.startAnimation(alphaAnimation);
@@ -483,7 +491,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                         base.removeView(open);
                         base.removeView(mask);
                     }
-                }, 2000);
+                }, 1000);
             }
         }, time);
     }
@@ -500,7 +508,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         current = reserve;
         current.enter(url, bundle);
         wfList.add(current);
-        this.prepare();
+        prepare();
     }
 
     @Override
@@ -562,8 +570,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         this.enter(url, bundle);
     }
     public void setSubTitle(String title) {}
-    public void hideBackButton() {}
-    public void showBackButton() {}
     public void loginWeibo() {
         WbSdk.install(this, new AuthInfo(this, Constants.APP_KEY, Constants.REDIRECT_URL, Constants.SCOPE));
         mSsoHandler = new SsoHandler(this);
