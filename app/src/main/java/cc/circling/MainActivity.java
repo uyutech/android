@@ -845,7 +845,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         current.popWindow(data);
     }
     public void media(String clientId, String key, JSONObject value) {
-        LogUtil.i("meida", key);
+        LogUtil.i("media", key);
         if(playBinder != null && key != null) {
             switch(key) {
                 case "info":
