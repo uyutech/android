@@ -150,8 +150,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         // 背景渐显
         Animation alphaAnimation = new AlphaAnimation(0.1f, 1.0f);
         alphaAnimation.setDuration(500);
-        bgi.setAnimation(alphaAnimation);
-        alphaAnimation.startNow();
+        bgi.startAnimation(alphaAnimation);
         timeStart = new Date().getTime();
 
         Intent intent = getIntent();
@@ -473,10 +472,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 bundle.putString("transparentTitle", "true");
                 bundle.putString("hideBackButton", "true");
                 MainActivity.this.enter(URLs.WEB_DOMAIN + "/index.html", bundle);
-                // 欢迎界面变暗
+                // 5.0+欢迎界面变暗，4.4的性能考虑忽略动画
                 AlphaAnimation alphaAnimation = new AlphaAnimation(0f, 0.8f);
                 alphaAnimation.setDuration(300);
-                alphaAnimation.setFillAfter(true);
                 mask.startAnimation(alphaAnimation);
                 mask.setVisibility(View.VISIBLE);
                 // 然后移除最初的欢迎界面
@@ -495,7 +493,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.base, reserve);
-//        fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
     private void enter(String url, Bundle bundle) {

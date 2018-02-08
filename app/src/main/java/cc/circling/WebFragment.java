@@ -149,7 +149,6 @@ public class WebFragment extends Fragment {
         webSettings.setAllowFileAccess(true);
         webSettings.setDomStorageEnabled(true);
         webSettings.setTextZoom(100);
-        webSettings.setUseWideViewPort(true);
         webView.setDrawingCacheEnabled(true);
 
         MyWebViewClient webViewClient = new MyWebViewClient();
@@ -429,7 +428,7 @@ public class WebFragment extends Fragment {
     }
     public void remove() {
         webView.onPause();
-        TranslateAnimation translateAnimation = new TranslateAnimation(0,MainActivity.WIDTH,0,0);
+        TranslateAnimation translateAnimation = new TranslateAnimation(0, MainActivity.WIDTH,0,0);
         translateAnimation.setDuration(300);
         translateAnimation.setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -468,6 +467,22 @@ public class WebFragment extends Fragment {
         });
         mask.startAnimation(alphaAnimation);
         rootView.setVisibility(View.VISIBLE);
+        TranslateAnimation translateAnimation = new TranslateAnimation(-50, 0,0,0);
+        translateAnimation.setDuration(300);
+        translateAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+        });
+        rootView.startAnimation(translateAnimation);
     }
     public void hide() {
         AlphaAnimation alphaAnimation = new AlphaAnimation(0f, 0.8f);
@@ -490,6 +505,22 @@ public class WebFragment extends Fragment {
         });
         mask.startAnimation(alphaAnimation);
         mask.setVisibility(View.VISIBLE);
+        TranslateAnimation translateAnimation = new TranslateAnimation(0, -50,0,0);
+        translateAnimation.setDuration(300);
+        translateAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+        });
+        rootView.startAnimation(translateAnimation);
     }
     public void loginWeiboSuccess(String openId, String token) {
         JSONObject json = new JSONObject();
