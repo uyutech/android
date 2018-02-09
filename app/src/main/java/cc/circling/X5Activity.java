@@ -805,8 +805,7 @@ public class X5Activity extends AppCompatActivity {
                                 baos = new ByteArrayOutputStream();
                                 bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
                                 baos.flush();
-                                String base64 = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-                                base64 = base64.replaceAll("\n", "");
+                                String base64 = Base64.encodeToString(baos.toByteArray(), Base64.NO_WRAP);
                                 res.add(base64);
                             } catch(FileNotFoundException e) {
                                 e.printStackTrace();

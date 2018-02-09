@@ -494,9 +494,11 @@ public class MediaService extends Service {
     public void onDestroy() {
         LogUtil.i("onDestroy");
         super.onDestroy();
-        mediaPlayer.reset();
-        mediaPlayer.release();
-        mediaPlayer = null;
+        if(mediaPlayer != null) {
+            mediaPlayer.reset();
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
         prepareAsync = false;
         prepared = false;
         autoStart = false;
