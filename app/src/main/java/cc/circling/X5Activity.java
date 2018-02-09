@@ -363,7 +363,7 @@ public class X5Activity extends AppCompatActivity {
         webSettings.setDomStorageEnabled(true);
         webSettings.setTextZoom(100);
         // 支持缩放viewport
-        webSettings.setUseWideViewPort(true);
+//        webSettings.setUseWideViewPort(true);
 //        webSettings.setLoadWithOverviewMode(true);
         webView.setDrawingCacheEnabled(true);
 
