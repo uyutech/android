@@ -82,6 +82,7 @@ public class WebFragment extends Fragment {
     private FrameLayout web;
     private FrameLayout fullScreenView;
     private View mask;
+    private MyWebChromeClient webChromeClient;
 
     private boolean hasCreateView = false;
     private boolean hasEnter = false;
@@ -92,6 +93,7 @@ public class WebFragment extends Fragment {
     private String loginWeiboClientId;
     private String confirmClientId;
     private String promptClientId;
+    private String albumClientId;
 
     @Override
     public void onAttach(Context context) {
@@ -159,7 +161,7 @@ public class WebFragment extends Fragment {
 
         MyWebViewClient webViewClient = new MyWebViewClient();
         webView.setWebViewClient(webViewClient);
-        MyWebChromeClient webChromeClient = new MyWebChromeClient(mainActivity);
+        webChromeClient = new MyWebChromeClient(this, mainActivity);
         webView.setWebChromeClient(webChromeClient);
         webView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG);
 
@@ -399,6 +401,9 @@ public class WebFragment extends Fragment {
         evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.trigger('back');");
     }
     public void evaluateJavascript(String value) {
+        if(value == null || value.isEmpty()) {
+            return;
+        }
         webView.evaluateJavascript(value, new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
@@ -537,10 +542,10 @@ public class WebFragment extends Fragment {
     }
     public void popWindow(JSONObject data) {
         if(data == null) {
-            evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('resume');");
+            evaluateJavascript("ZhuanQuanJsBridge.emit('resume');");
         }
         else {
-            evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('resume', " + data.toJSONString() + ");");
+            evaluateJavascript("ZhuanQuanJsBridge.emit('resume', " + data.toJSONString() + ");");
         }
     }
     public void resume() {
@@ -577,15 +582,15 @@ public class WebFragment extends Fragment {
             iv.setVisibility(View.GONE);
         }
     }
+    public void albumOk(List<Uri> list) {
+        webChromeClient.fileChooserCallback(list);
+    }
 
     class ZhuanQuanJsBridgeNative extends Object {
         @JavascriptInterface
         public void call(String clientId, String key, String msg) {
             LogUtil.i("call", clientId + ", " + key + ", " + msg);
             switch(key) {
-                case "album":
-                    album(clientId, msg);
-                    break;
                 case "alert":
                     alert(msg);
                     break;
@@ -678,9 +683,6 @@ public class WebFragment extends Fragment {
             }
         }
 
-        private void album(String clientId, String msg) {
-            mainActivity.album(clientId, msg);
-        }
         private void alert(String msg) {
             JSONObject json = JSON.parseObject(msg);
             String title = json.getString("title");
@@ -723,6 +725,9 @@ public class WebFragment extends Fragment {
                     JSONObject json = JSON.parseObject(msg);
                     String url = json.getString("url");
                     String name = json.getString("name");
+                    if(name == null || name.isEmpty()) {
+                        name = url;
+                    }
                     mainActivity.download(url, name);
                 }
             });

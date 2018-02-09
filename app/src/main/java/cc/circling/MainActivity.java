@@ -12,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
@@ -54,6 +55,9 @@ import com.sina.weibo.sdk.auth.WbAuthListener;
 import com.sina.weibo.sdk.auth.WbConnectErrorMessage;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
 import com.umeng.analytics.MobclickAgent;
+import com.zhihu.matisse.Matisse;
+import com.zhihu.matisse.MimeType;
+import com.zhihu.matisse.engine.impl.GlideEngine;
 
 import cc.circling.login.oauth.Constants;
 import cc.circling.utils.AndroidBug5497Workaround;
@@ -94,16 +98,19 @@ import pub.devrel.easypermissions.EasyPermissions;
 
 public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
     private static final int RC_DOWNLOAD = 8735;
-    public static final int REQUEST_ALBUM_OK = 8736;
+    private static final int RC_ALBUM = 8736;
+    public static final int REQUEST_ALBUM_OK = 8737;
     public static int WIDTH;
 
-    private static String[] downloadPerms = {
+    private static String[] filePerms = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
     };
     private String downloadName;
     private String downloadUrl;
     private static int downloadId = 0;
+
+    private static int albumNum = 1;
 
     private static int notifyId = 0;
 
@@ -543,6 +550,13 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         else {
             switch(requestCode) {
                 case REQUEST_ALBUM_OK:
+                    if(resultCode == RESULT_OK) {
+                        List<Uri> list = Matisse.obtainResult(data);
+                        LogUtil.i("REQUEST_ALBUM_OK", list.toString());
+                        if(list.size() > 0) {
+                            current.albumOk(list);
+                        }
+                    }
                     break;
             }
         }
@@ -557,6 +571,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         switch(requestCode) {
             case RC_DOWNLOAD:
                 download();
+                break;
+            case RC_ALBUM:
+                album();
                 break;
         }
     }
@@ -633,17 +650,14 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         dialog.show();
     }
     public void download(String url, String name) {
-        if(name == null || name.equals("")) {
-            name = url;
-        }
         this.downloadName = name;
         this.downloadUrl = url;
-        if(EasyPermissions.hasPermissions(this, downloadPerms)) {
+        if(EasyPermissions.hasPermissions(this, filePerms)) {
             download();
         }
         else {
             EasyPermissions.requestPermissions(this, "下载需要读写sd卡权限",
-                    RC_DOWNLOAD, downloadPerms);
+                    RC_DOWNLOAD, filePerms);
         }
     }
     private void download() {
@@ -883,7 +897,27 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     public void evaluateJavascript(String value) {
         current.evaluateJavascript(value);
     }
-    public void album(String clientId, String msg) {}
+    public void album(int num) {
+        albumNum = num;
+        if(EasyPermissions.hasPermissions(this, filePerms)) {
+            album();
+        }
+        else {
+            EasyPermissions.requestPermissions(this, "打开相册需要读写sd卡权限",
+                    RC_ALBUM, filePerms);
+        }
+    }
+    private void album() {
+        Matisse.from(this)
+                .choose(MimeType.of(MimeType.GIF, MimeType.JPEG, MimeType.PNG))
+                .countable(true)
+                .maxSelectable(albumNum)
+                .gridExpectedSize(240)
+                .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                .thumbnailScale(0.85f)
+                .imageEngine(new GlideEngine())
+                .forResult(REQUEST_ALBUM_OK);
+    }
     public void syncCookie(WebView webView) {
         LogUtil.i("syncCookie WebView");
         cookieManager.removeExpiredCookie();
