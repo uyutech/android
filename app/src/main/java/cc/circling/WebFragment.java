@@ -1068,8 +1068,8 @@ public class WebFragment extends Fragment {
                     if(textColor == null || textColor.isEmpty()) {
                         textColor = "#000000";
                     }
-                    String img1 = json.getString("img1");
-                    String img2 = json.getString("img2");
+                    String img1 = json.getString("icon1");
+                    String img2 = json.getString("icon2");
                     setOptionMenuText(text, textColor);
                     setOptionMenuIcon(optionMenuIv1, img1);
                     setOptionMenuIcon(optionMenuIv2, img2);
