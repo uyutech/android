@@ -71,7 +71,7 @@ android {
             minifyEnabled false
             shrinkResources false
             buildConfigField 'String', 'ENV', '"dev"'
-            buildConfigField 'String', 'WEB_DOMAIN', '"http://192.168.0.101:8080"'
+            buildConfigField 'String', 'WEB_DOMAIN', '"http://army8735.circling.cc:8080"'
             buildConfigField 'String', 'H5_DOMAIN', '"http://dev.circling.cc2"'
             buildConfigField 'String', 'WEIBO_APP_KEY', '"890459019"'
             buildConfigField 'boolean', 'ONLINE', 'true'

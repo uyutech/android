@@ -41,7 +41,7 @@ public class AndroidBug5497Workaround {
 
         content.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             public void onGlobalLayout() {
-                LogUtil.i("onGlobalLayout");
+                LogUtil.d("onGlobalLayout");
                 resetLayoutByUsableHeight();
             }
         });
@@ -66,7 +66,7 @@ public class AndroidBug5497Workaround {
     //重新调整根布局的高度
     private void possiblyResizeChildOfContent() {
         int usableHeightNow = computeUsableHeight();
-        LogUtil.i("possiblyResizeChildOfContent", usableHeightNow + ", " + usableHeightPrevious2);
+        LogUtil.d("possiblyResizeChildOfContent", usableHeightNow + ", " + usableHeightPrevious2);
 
         //当前可见高度和上一次可见高度不一致 布局变动
         if (usableHeightNow != usableHeightPrevious) {
@@ -97,7 +97,7 @@ public class AndroidBug5497Workaround {
     }
     private void resetLayoutByUsableHeight() {
         int usableHeightNow = computeUsableHeight2();
-        LogUtil.i("resetLayoutByUsableHeight", usableHeightNow + ", " + usableHeightPrevious2);
+        LogUtil.d("resetLayoutByUsableHeight", usableHeightNow + ", " + usableHeightPrevious2);
         //比较布局变化前后的View的可用高度
         if (usableHeightNow != usableHeightPrevious2) {
             //如果两次高度不一致
@@ -107,13 +107,14 @@ public class AndroidBug5497Workaround {
             }
             else {
                 layoutParams.height = usableHeightNow;
-            }//请求重新布局
+            }
+            //请求重新布局
             content.requestLayout();
             usableHeightPrevious2 = usableHeightNow;
         }
     }
     private int computeUsableHeight2() {
-        LogUtil.i("computeUsableHeight2");
+        LogUtil.d("computeUsableHeight2");
         Rect r = new Rect();
         content.getWindowVisibleDisplayFrame(r);
         return (r.bottom - r.top);

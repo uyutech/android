@@ -874,10 +874,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         if(playBinder != null && key != null) {
             switch(key) {
                 case "info":
-                    playBinder.info(value, clientId);
+                    playBinder.info(value);
                     break;
                 case "play":
-                    playBinder.play(clientId);
+                    playBinder.play(value, clientId);
                     break;
                 case "pause":
                     playBinder.pause(clientId);
@@ -895,7 +895,12 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }
     }
     public void evaluateJavascript(String value) {
-        current.evaluateJavascript(value);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                current.evaluateJavascript(value);
+            }
+        });
     }
     public void album(int num) {
         albumNum = num;
