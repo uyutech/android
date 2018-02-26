@@ -89,6 +89,10 @@ public class WebFragment extends Fragment {
     private String url;
     private Bundle bundle;
     private boolean first = false;
+    private long lastT;
+    private boolean isTransparentTitle;
+    private String titleBgColor;
+    private int titleBgAlpha = 0;
 
     private String loginWeiboClientId;
     private String confirmClientId;
@@ -165,6 +169,7 @@ public class WebFragment extends Fragment {
         webView.setWebChromeClient(webChromeClient);
         webView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG);
 
+        webView.setFragment(this);
         webView.setSwipeRefreshLayout(swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -201,13 +206,30 @@ public class WebFragment extends Fragment {
 
         // 标题栏是否为透明
         String transparentTitle = bundle.getString("transparentTitle");
+        isTransparentTitle = transparentTitle != null && transparentTitle.equals("true");
         LogUtil.i("transparentTitle ", transparentTitle + "");
-        if(transparentTitle != null && transparentTitle.equals("true")) {
+        if(isTransparentTitle) {
             title.setTextColor(Color.parseColor("#FFFFFF"));
             title.setShadowLayer(4, 0, 2, Color.parseColor("#33000000"));
             subTitle.setTextColor(Color.parseColor("#FFFFFF"));
             subTitle.setShadowLayer(4, 0, 2, Color.parseColor("#33000000"));
             back.setImageResource(R.drawable.back_transparent);
+            setTitleBgColor("transparent");
+            titleBgColor = bundle.getString("titleBgColor");
+            if(titleBgColor != null) {
+                if(titleBgColor.startsWith("#")) {
+                    titleBgColor = titleBgColor.substring(1);
+                }
+                if(titleBgColor.length() == 8) {
+                    titleBgAlpha = Integer.parseInt(titleBgColor.substring(0, 2), 16);
+                    titleBgAlpha = Math.max(255, titleBgAlpha);
+                    titleBgAlpha = Math.min(0, titleBgAlpha);
+                    titleBgColor = titleBgColor.substring(2);
+                }
+                else {
+                    titleBgAlpha = 255;
+                }
+            }
         }
         else {
             titleBar.setPadding(0, statusBarHeight, 0, 0);
@@ -218,7 +240,7 @@ public class WebFragment extends Fragment {
             // titleBgColor
             String titleBgColor = bundle.getString("titleBgColor");
             LogUtil.i("titleBgColor", titleBgColor);
-            if(titleBgColor != null && titleBgColor.length() > 0) {
+            if(titleBgColor != null && !titleBgColor.isEmpty()) {
                 setTitleBgColor(titleBgColor);
             }
             else {
@@ -584,6 +606,31 @@ public class WebFragment extends Fragment {
     }
     public void albumOk(List<Uri> list) {
         webChromeClient.fileChooserCallback(list);
+    }
+    public void onScrollChanged(long t) {
+        if(titleBgColor == null || titleBgAlpha == 0) {
+            return;
+        }
+        t -= 64;
+        if(t > 255) {
+            t = 255;
+        }
+        else if(t < 0) {
+            t = 0;
+        }
+        if(t == lastT) {
+            return;
+        }
+        lastT = t;
+        String tp = Integer.toHexString((int)t * titleBgAlpha / 255);
+        LogUtil.v("tp", tp);
+        if(tp.length() == 1) {
+            tp = "#0" + tp;
+        }
+        else {
+            tp = "#" + tp;
+        }
+        setTitleBgColor(tp + titleBgColor);
     }
 
     class ZhuanQuanJsBridgeNative extends Object {
