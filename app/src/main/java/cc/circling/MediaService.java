@@ -47,7 +47,9 @@ public class MediaService extends Service {
     private long duration;
     private int percent;
     private boolean isPlaying = false;
+    private boolean isPreparing;
     private String lastId;
+    private long lastPosition;
     private Timer timer;
     private TimerTask timerTask;
     private Timer timer2;
@@ -89,11 +91,15 @@ public class MediaService extends Service {
                                 if(mainActivity == null || player == null) {
                                     return;
                                 }
+                                if(lastPosition == player.getBufferedPosition()) {
+                                    return;
+                                }
+                                lastPosition = player.getBufferedPosition();
                                 JSONObject json = new JSONObject();
                                 json.put("id", lastId);
                                 duration = Math.max(0, player.getDuration());
                                 json.put("duration", duration);
-                                json.put("position", player.getBufferedPosition());
+                                json.put("position", lastPosition);
                                 percent = player.getBufferedPercentage();
                                 json.put("percent", percent);
                                 mainActivity.evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('mediaProgress', " + json.toJSONString() + ");");
@@ -113,11 +119,15 @@ public class MediaService extends Service {
                         if(mainActivity == null || player == null) {
                             return;
                         }
+                        if(lastPosition == player.getBufferedPosition()) {
+                            return;
+                        }
+                        lastPosition = player.getBufferedPosition();
                         JSONObject json = new JSONObject();
                         json.put("id", lastId);
                         duration = Math.max(0, player.getDuration());
                         json.put("duration", duration);
-                        json.put("position", player.getBufferedPosition());
+                        json.put("position", lastPosition);
                         percent = player.getBufferedPercentage();
                         json.put("percent", percent);
                         mainActivity.evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('mediaProgress', " + json.toJSONString() + ");");
@@ -127,6 +137,14 @@ public class MediaService extends Service {
                 @Override
                 public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
                     LogUtil.d("onPlayerStateChanged", playWhenReady + ", " + playbackState);
+                    if(isPreparing && playbackState == Player.STATE_READY) {
+                        isPreparing = false;
+                        JSONObject json = new JSONObject();
+                        json.put("id", lastId);
+                        duration = Math.max(0, player.getDuration());
+                        json.put("duration", duration);
+                        mainActivity.evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('mediaPrepared', " + json.toJSONString() + ");");
+                    }
                     if(playbackState == Player.STATE_ENDED) {
                         player.setPlayWhenReady(false);
                         player.seekTo(0);
@@ -242,7 +260,12 @@ public class MediaService extends Service {
         public void stop(String clientId) {
             LogUtil.i("stop", clientId);
             isPlaying = false;
-            player.stop();
+            isPreparing = true;
+            lastPosition = 0;
+            if(player != null) {
+                player.stop();
+            }
+            lastId = null;
             if(clientId != null && mainActivity != null) {
                 JSONObject json = new JSONObject();
                 json.put("id", lastId);
@@ -254,6 +277,8 @@ public class MediaService extends Service {
             lastId = null;
             percent = 0;
             isPlaying = false;
+            isPreparing = true;
+            lastPosition = 0;
             if(timer != null) {
                 timer.cancel();
                 timer = null;
@@ -309,6 +334,8 @@ public class MediaService extends Service {
         lastId = null;
         percent = 0;
         isPlaying = false;
+        isPreparing = true;
+        lastPosition = 0;
         if(player != null) {
             player.stop();
             player.release();
