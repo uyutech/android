@@ -3,14 +3,18 @@ package cc.circling;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.util.Base64;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +38,9 @@ import com.alibaba.sdk.android.push.CommonCallback;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.umeng.analytics.MobclickAgent;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -607,6 +614,88 @@ public class WebFragment extends Fragment {
     public void albumOk(List<Uri> list) {
         webChromeClient.fileChooserCallback(list);
     }
+    public void albumOkOld(List<Uri> list) {
+        ArrayList<String> res = new ArrayList<>();
+        for(Uri uri : list) {
+            // 获取图片高宽并进行压缩
+            String file = getRealPathFromUri(uri);
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(file, options);
+            int width = options.outWidth;
+            int height = options.outHeight;
+            String type = options.outMimeType;
+            LogUtil.i("REQUEST_ALBUM_OK: ", width + " " + height + " " + type);
+            int inSampleSize = 1;
+            int maxWidth = 1000;
+            int maxHeight = 1000;
+            int widthRatio = Math.max(1, width / maxWidth);
+            int heightRatio = Math.max(1, height / maxHeight);
+            if(widthRatio < heightRatio) {
+                inSampleSize = widthRatio;
+            }
+            else if(widthRatio > heightRatio) {
+                inSampleSize = heightRatio;
+            }
+            //读取图片
+            options.inJustDecodeBounds = false;
+            options.inSampleSize = inSampleSize;
+            Bitmap bitmap = BitmapFactory.decodeFile(file, options);
+            if(bitmap == null) {
+                LogUtil.i("REQUEST_ALBUM_OK", "null");
+                break;
+            }
+            LogUtil.i("REQUEST_ALBUM_OK", bitmap.getByteCount() + " " + bitmap.getWidth() + " " + bitmap.getHeight());
+
+            ByteArrayOutputStream baos = null;
+            try {
+                baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
+                baos.flush();
+                String base64 = Base64.encodeToString(baos.toByteArray(), Base64.NO_WRAP);
+                res.add(base64);
+            } catch(FileNotFoundException e) {
+                e.printStackTrace();
+            } catch(IOException e) {
+                e.printStackTrace();
+            } finally {
+                bitmap.recycle();
+                try {
+                    if(baos != null) {
+                        baos.close();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            if(res.size() > 0) {
+                String[] l = new String[res.size()];
+                res.toArray(l);
+                JSONObject json = new JSONObject();
+                json.put("success", true);
+                json.put("base64", l);
+                evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + albumClientId + "', " + json.toString() + ");");
+            }
+            else {
+                JSONObject json = new JSONObject();
+                json.put("success", false);
+                evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + albumClientId + "', " + json.toString() + ");");
+            }
+        }
+    }
+    private String getRealPathFromUri(Uri contentUri) {
+        String filePath = contentUri.toString();
+        String[] filePathColumn = { MediaStore.Images.Media.DATA };
+        Cursor cursor = mainActivity.getContentResolver().query(contentUri, filePathColumn, null, null, null);
+        if(cursor != null) {
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            filePath = cursor.getString(columnIndex);
+            cursor.close();
+        }
+        return filePath;
+    }
     public void onScrollChanged(long t) {
         if(titleBgColor == null || titleBgAlpha == 0) {
             return;
@@ -638,6 +727,9 @@ public class WebFragment extends Fragment {
         public void call(String clientId, String key, String msg) {
             LogUtil.i("call", clientId + ", " + key + ", " + msg);
             switch(key) {
+                case "album":
+                    album(clientId, msg);
+                    break;
                 case "alert":
                     alert(msg);
                     break;
@@ -730,6 +822,12 @@ public class WebFragment extends Fragment {
             }
         }
 
+        private void album(String clientId, String msg) {
+            albumClientId = clientId;
+            JSONObject json = JSON.parseObject(msg);
+            int num = json.getIntValue("num");
+            mainActivity.albumOld(num);
+        }
         private void alert(String msg) {
             JSONObject json = JSON.parseObject(msg);
             String title = json.getString("title");

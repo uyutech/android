@@ -100,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private static final int RC_DOWNLOAD = 8735;
     private static final int RC_ALBUM = 8736;
     public static final int REQUEST_ALBUM_OK = 8737;
+    public static final int REQUEST_ALBUM_OK_OLD = 8738;
     public static int WIDTH;
 
     private static String[] filePerms = {
@@ -111,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private static int downloadId = 0;
 
     private static int albumNum = 1;
+    private static int albumNumOld = 1;
 
     private static int notifyId = 0;
 
@@ -558,6 +560,15 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                         }
                     }
                     break;
+                case REQUEST_ALBUM_OK_OLD:
+                    if(resultCode == RESULT_OK) {
+                        List<Uri> list = Matisse.obtainResult(data);
+                        LogUtil.i("REQUEST_ALBUM_OK_OLD", list.toString());
+                        if(list.size() > 0) {
+                            current.albumOkOld(list);
+                        }
+                    }
+                    break;
             }
         }
     }
@@ -922,6 +933,27 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 .thumbnailScale(0.85f)
                 .imageEngine(new GlideEngine())
                 .forResult(REQUEST_ALBUM_OK);
+    }
+    public void albumOld(int num) {
+        albumNumOld = num;
+        if(EasyPermissions.hasPermissions(this, filePerms)) {
+            albumOld();
+        }
+        else {
+            EasyPermissions.requestPermissions(this, "打开相册需要读写sd卡权限",
+                    RC_ALBUM, filePerms);
+        }
+    }
+    private void albumOld() {
+        Matisse.from(this)
+                .choose(MimeType.of(MimeType.GIF, MimeType.JPEG, MimeType.PNG))
+                .countable(true)
+                .maxSelectable(albumNum)
+                .gridExpectedSize(240)
+                .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                .thumbnailScale(0.85f)
+                .imageEngine(new GlideEngine())
+                .forResult(REQUEST_ALBUM_OK_OLD);
     }
     public void syncCookie(WebView webView) {
         LogUtil.i("syncCookie WebView");
