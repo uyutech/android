@@ -62,6 +62,10 @@ public class MediaService extends Service {
             MediaService.this.mainActivity = mainActivity;
         }
         private void init() {
+            percent = 0;
+            isPlaying = false;
+            isPreparing = true;
+            lastPosition = 0;
             if(player != null) {
                 return;
             }
