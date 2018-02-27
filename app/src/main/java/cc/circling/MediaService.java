@@ -76,8 +76,8 @@ public class MediaService extends Service {
             player = ExoPlayerFactory.newSimpleInstance(mainActivity, trackSelector);
             player.addListener(new Player.EventListener() {
                 @Override
-                public void onTimelineChanged(Timeline timeline, Object manifest) {
-                    LogUtil.d("onTimelineChanged", timeline.toString());
+                public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
+                    LogUtil.d("onTimelineChanged", reason + "");
                 }
 
                 @Override

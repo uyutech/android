@@ -234,8 +234,8 @@ public class WebFragment extends Fragment {
         else {
             titleBar.setPadding(0, statusBarHeight, 0, 0);
             float scale = this.getResources().getDisplayMetrics().density;
-            LogUtil.i("scale", scale + "");
-            swipeRefreshLayout.setPadding(0, (int)scale * 64, 0, 0);
+            LogUtil.i("scale", scale + "," + (int)(scale * 64));
+            swipeRefreshLayout.setPadding(0, (int)(scale * 64), 0, 0);
 
             // titleBgColor
             String titleBgColor = bundle.getString("titleBgColor");
