@@ -100,7 +100,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private static final int RC_DOWNLOAD = 8735;
     private static final int RC_ALBUM = 8736;
     public static final int REQUEST_ALBUM_OK = 8737;
-    public static final int REQUEST_ALBUM_OK_OLD = 8738;
+    private static final int RC_ALBUM_OLD = 8738;
+    public static final int REQUEST_ALBUM_OK_OLD = 8739;
     public static int WIDTH;
 
     private static String[] filePerms = {
@@ -586,6 +587,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             case RC_ALBUM:
                 album();
                 break;
+            case RC_ALBUM_OLD:
+                albumOld();
+                break;
         }
     }
     @Override
@@ -941,7 +945,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }
         else {
             EasyPermissions.requestPermissions(this, "打开相册需要读写sd卡权限",
-                    RC_ALBUM, filePerms);
+                    RC_ALBUM_OLD, filePerms);
         }
     }
     private void albumOld() {
