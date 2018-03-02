@@ -57,6 +57,8 @@ public class BaseApplication extends Application {
     private void initCloudChannel(Context applicationContext) {
         PushServiceFactory.init(applicationContext);
         pushService = PushServiceFactory.getCloudPushService();
+        String deviceId = pushService.getDeviceId();
+        LogUtil.i("deviceId", deviceId);
         pushService.register(applicationContext, new CommonCallback() {
             @Override
             public void onSuccess(String response) {
