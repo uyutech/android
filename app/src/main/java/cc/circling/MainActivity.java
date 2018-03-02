@@ -952,7 +952,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         Matisse.from(this)
                 .choose(MimeType.of(MimeType.GIF, MimeType.JPEG, MimeType.PNG))
                 .countable(true)
-                .maxSelectable(albumNum)
+                .maxSelectable(albumNumOld)
                 .gridExpectedSize(240)
                 .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
                 .thumbnailScale(0.85f)
