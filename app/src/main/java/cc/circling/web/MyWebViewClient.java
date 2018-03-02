@@ -91,7 +91,7 @@ public class MyWebViewClient extends WebViewClient {
                     } else if (noSepPath.endsWith(".gif")) {
                         wrr = new WebResourceResponse("image/gif", "utf-8", is);
                     } else if (noSepPath.endsWith(".jpg")) {
-                        wrr = new WebResourceResponse("image/jpg", "utf-8", is);
+                        wrr = new WebResourceResponse("image/jpeg", "utf-8", is);
                     } else if (noSepPath.endsWith(".jpeg")) {
                         wrr = new WebResourceResponse("image/jpeg", "utf-8", is);
                     }
