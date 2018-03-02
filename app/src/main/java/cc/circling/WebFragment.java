@@ -430,7 +430,7 @@ public class WebFragment extends Fragment {
         evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.trigger('back');");
     }
     public void evaluateJavascript(String value) {
-        if(value == null || value.isEmpty()) {
+        if(value == null || value.isEmpty() || webView == null) {
             return;
         }
         webView.evaluateJavascript(value, new ValueCallback<String>() {
