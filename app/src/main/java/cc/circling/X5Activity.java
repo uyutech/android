@@ -73,7 +73,6 @@ import cc.circling.plugin.SetSubTitlePlugin;
 import cc.circling.plugin.SetTitleBgColorPlugin;
 import cc.circling.plugin.RefreshPlugin;
 import cc.circling.plugin.RefreshStatePlugin;
-import cc.circling.plugin.WeiboLoginPlugin;
 import cc.circling.utils.AndroidBug5497Workaround;
 import cc.circling.utils.ImgUtil;
 import cc.circling.web.MyCookies;
@@ -128,7 +127,6 @@ public class X5Activity extends AppCompatActivity {
     private MoveTaskToBackPlugin moveTaskToBackPlugin;
     private OpenUriPlugin openUriPlugin;
     private SetCookiePlugin setCookiePlugin;
-    private WeiboLoginPlugin weiboLoginPlugin;
     private LoginOutPlugin loginOutPlugin;
     private NotifyPlugin notificationPlugin;
     private AlbumPlugin albumPlugin;
@@ -499,9 +497,6 @@ public class X5Activity extends AppCompatActivity {
 
         setCookiePlugin = new SetCookiePlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.SET_COOKIE, setCookiePlugin);
-
-        weiboLoginPlugin = new WeiboLoginPlugin(this);
-        H5EventDispatcher.addEventListener(H5Plugin.WEIBO_LOGIN, weiboLoginPlugin);
 
         loginOutPlugin = new LoginOutPlugin(this);
         H5EventDispatcher.addEventListener(H5Plugin.LOGIN_OUT, loginOutPlugin);

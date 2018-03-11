@@ -27,14 +27,11 @@ public abstract class H5Plugin implements IH5EventHandle {
     public static final String LOGIN_WEIBO = "loginWeibo";
     public static final String GET_PRE_FERENCE = "getPreference";
     public static final String SET_PRE_FERENCE = "setPreference";
-    public static final String SHOW_OPTIONMENU = "showOptionMenu";
-    public static final String HIDE_OPTIONMENU = "hideOptionMenu";
     public static final String SET_OPTIONMENU = "setOptionMenu";
     public static final String SET_TITLE_BG_COLOR = "setTitleBgColor";
     public static final String MOVE_TASK_TO_BACK = "moveTaskToBack";
     public static final String OPEN_URI = "openUri";
     public static final String SET_COOKIE = "setCookie";
-    public static final String WEIBO_LOGIN = "weiboLogin";
     public static final String LOGIN_OUT = "loginOut";
     public static final String NOTIFY = "notify";
     public static final String ALBUM = "album";

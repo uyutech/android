@@ -82,12 +82,16 @@ public class LoginPlugin extends H5Plugin {
                                 LogUtil.i("data: " + key + ", " + value);
                             }
                             RequestBody requestBody = bodyBuilder.build();
+                            String fullUrl = url;
+                            if(!fullUrl.startsWith("http")) {
+                                fullUrl = URLs.H5_DOMAIN + url;
+                            }
                             Request request = new Request.Builder()
                                     .addHeader("origin", URLs.WEB_DOMAIN)
-                                    .url(URLs.H5_DOMAIN + url)
+                                    .url(fullUrl)
                                     .post(requestBody)
                                     .build();
-                            LogUtil.i("login: " + URLs.H5_DOMAIN + url);
+                            LogUtil.i("login: " + fullUrl);
                             Response response = client.newCall(request).execute();
                             final String responseBody = response.body().string();
                             LogUtil.i("login: " + responseBody);
