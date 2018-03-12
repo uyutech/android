@@ -1,5 +1,5 @@
 (function() {
-    if(window.ZhuanQuanJSBridge) {
+    if(window.ZhuanQuanJSBridge || window.ZhuanQuanJsBridge) {
         return;
     }
 
@@ -22,7 +22,7 @@
 
     var callbackHash = {};
 
-    window.ZhuanQuanJSBridge = {
+    window.ZhuanQuanJSBridge = window.ZhuanQuanJsBridge = {
         android: true,
         call: function(fn, param, cb) {
             if(!isString(fn)) {
@@ -71,5 +71,9 @@
 
     var readyEvent = document.createEvent('Events');
     readyEvent.initEvent('ZhuanQuanJSBridgeReady', false, false);
+    document.dispatchEvent(readyEvent);
+
+    var readyEvent = document.createEvent('Events');
+    readyEvent.initEvent('ZhuanQuanJsBridgeReady', false, false);
     document.dispatchEvent(readyEvent);
 })();
