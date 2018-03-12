@@ -834,7 +834,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }
     }
     public void notify(String ticker, String title, String content) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "notify");
         builder.setTicker(ticker);
         builder.setContentTitle(title);
         if(content != null) {

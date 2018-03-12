@@ -1,11 +1,15 @@
 package cc.circling;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Environment;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -330,6 +334,17 @@ public class MediaService extends Service {
     public void onCreate() {
         LogUtil.i("onCreate");
         super.onCreate();
+        Intent intent = new Intent(this, MainActivity.class);
+        PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
+        Notification notification = new NotificationCompat.Builder(this, "service")
+                .setContentTitle("转圈")
+                .setContentText("正在后台运行")
+                .setWhen(System.currentTimeMillis())
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
+                .setContentIntent(pi)
+                .build();
+        startForeground(1, notification);
     }
     @Override
     public void onDestroy() {
