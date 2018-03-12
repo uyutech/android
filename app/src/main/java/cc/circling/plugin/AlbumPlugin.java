@@ -60,7 +60,7 @@ public class AlbumPlugin extends H5Plugin {
                 .choose(MimeType.of(MimeType.GIF, MimeType.JPEG, MimeType.PNG))
                 .countable(true)
                 .maxSelectable(num)
-                .gridExpectedSize(240)
+                .gridExpectedSize(320)
                 .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
                 .thumbnailScale(0.85f)
                 .imageEngine(new GlideEngine())
