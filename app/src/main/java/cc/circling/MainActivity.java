@@ -97,6 +97,7 @@ import pub.devrel.easypermissions.EasyPermissions;
  */
 
 public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
+    private static final int RC_INIT = 8734;
     private static final int RC_DOWNLOAD = 8735;
     private static final int RC_ALBUM = 8736;
     public static final int REQUEST_ALBUM_OK = 8737;
@@ -211,6 +212,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         };
         Intent media = new Intent(this, MediaService.class);
         bindService(media, serviceConnection, BIND_AUTO_CREATE);
+
+        if(!EasyPermissions.hasPermissions(this, filePerms)) {
+            EasyPermissions.requestPermissions(this, "转圈申请读写sd卡权限",
+                    RC_INIT, filePerms);
+        }
     }
     @Override
     protected void onRestart() {

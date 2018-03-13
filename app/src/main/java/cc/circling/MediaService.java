@@ -334,17 +334,6 @@ public class MediaService extends Service {
     public void onCreate() {
         LogUtil.i("onCreate");
         super.onCreate();
-        Intent intent = new Intent(this, MainActivity.class);
-        PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
-        Notification notification = new NotificationCompat.Builder(this, "service")
-                .setContentTitle("转圈")
-                .setContentText("正在后台运行")
-                .setWhen(System.currentTimeMillis())
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
-                .setContentIntent(pi)
-                .build();
-        startForeground(1, notification);
     }
     @Override
     public void onDestroy() {
