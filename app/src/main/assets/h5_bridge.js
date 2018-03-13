@@ -1,5 +1,5 @@
 (function() {
-    if(window.ZhuanQuanJSBridge) {
+    if(window.ZhuanQuanJSBridge || window.ZhuanQuanJsBridge) {
         return;
     }
 
@@ -77,6 +77,10 @@
          delete callbackHash[clientId];
         }
     };
+
+    var readyEvent = document.createEvent('Events');
+    readyEvent.initEvent('ZhuanQuanJSBridgeReady', false, false);
+    document.dispatchEvent(readyEvent);
 
     var readyEvent = document.createEvent('Events');
     readyEvent.initEvent('ZhuanQuanJsBridgeReady', false, false);
