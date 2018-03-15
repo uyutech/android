@@ -961,9 +961,13 @@ public class WebFragment extends Fragment {
                     }
                 }
                 RequestBody requestBody = bodyBuilder.build();
+                String fullUrl = url;
+                if(!fullUrl.startsWith("http")) {
+                    fullUrl = URLs.H5_DOMAIN + url;
+                }
                 Request request = new Request.Builder()
                         .addHeader("origin", URLs.WEB_DOMAIN)
-                        .url(url)
+                        .url(fullUrl)
                         .post(requestBody)
                         .build();
                 try {
@@ -1044,6 +1048,9 @@ public class WebFragment extends Fragment {
             mainActivity.loginWeibo();
         }
         private void media(String clientId, String msg) {
+            if(msg == null || msg.isEmpty()) {
+                return;
+            }
             JSONObject data = JSON.parseObject(msg);
             String key = data.getString("key");
             JSONObject value = data.getJSONObject("value");
