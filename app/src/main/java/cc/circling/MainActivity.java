@@ -115,6 +115,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     private static String[] umengPerms = {
             Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.ACCESS_NETWORK_STATE,
+            Manifest.permission.ACCESS_WIFI_STATE,
+            Manifest.permission.INTERNET,
     };
     private static String[] filePerms = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
