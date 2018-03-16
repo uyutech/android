@@ -105,6 +105,7 @@ public class WebFragment extends Fragment {
     private String confirmClientId;
     private String promptClientId;
     private String albumClientId;
+    private String shareWbClientId;
 
     @Override
     public void onAttach(Context context) {
@@ -726,6 +727,22 @@ public class WebFragment extends Fragment {
         }
         setTitleBgColor(tp + titleBgColor);
     }
+    public void onWbShareSuccess() {
+        JSONObject json = new JSONObject();
+        json.put("success", true);
+        evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + shareWbClientId + "', " + json.toString() + ");");
+    }
+    public void onWbShareFail() {
+        JSONObject json = new JSONObject();
+        json.put("success", false);
+        evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + shareWbClientId + "', " + json.toString() + ");");
+    }
+    public void onWbShareCancel() {
+        JSONObject json = new JSONObject();
+        json.put("success", false);
+        json.put("cancel", true);
+        evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + shareWbClientId + "', " + json.toString() + ");");
+    }
 
     class ZhuanQuanJsBridgeNative extends Object {
         @JavascriptInterface
@@ -814,6 +831,9 @@ public class WebFragment extends Fragment {
                     break;
                 case "setTitleBgColor":
                     setTitleBgColor(msg);
+                    break;
+                case "shareWb":
+                    shareWb(clientId, msg);
                     break;
                 case "showBackButton":
                     showBackButton();
@@ -1257,6 +1277,15 @@ public class WebFragment extends Fragment {
                 public void run() {
                     String value = (String) JSON.parse(msg);
                     WebFragment.this.setTitleBgColor(value);
+                }
+            });
+        }
+        private void shareWb(String clientId, String msg) {
+            shareWbClientId = clientId;
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mainActivity.shareWb(JSON.parseObject(msg));
                 }
             });
         }

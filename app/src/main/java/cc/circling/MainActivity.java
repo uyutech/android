@@ -43,17 +43,25 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.liulishuo.filedownloader.BaseDownloadTask;
 import com.liulishuo.filedownloader.FileDownloadListener;
 import com.liulishuo.filedownloader.FileDownloader;
 import com.liulishuo.filedownloader.util.FileDownloadHelper;
 import com.sina.weibo.sdk.WbSdk;
+import com.sina.weibo.sdk.api.ImageObject;
+import com.sina.weibo.sdk.api.MultiImageObject;
+import com.sina.weibo.sdk.api.TextObject;
+import com.sina.weibo.sdk.api.VideoSourceObject;
+import com.sina.weibo.sdk.api.WeiboMultiMessage;
 import com.sina.weibo.sdk.auth.AuthInfo;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.auth.WbAuthListener;
 import com.sina.weibo.sdk.auth.WbConnectErrorMessage;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
+import com.sina.weibo.sdk.share.WbShareCallback;
+import com.sina.weibo.sdk.share.WbShareHandler;
 import com.umeng.analytics.MobclickAgent;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
@@ -96,7 +104,7 @@ import pub.devrel.easypermissions.EasyPermissions;
  * Created by army on 2017/3/26.
  */
 
-public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
+public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, WbShareCallback {
     private static final int RC_DOWNLOAD = 8735;
     private static final int RC_ALBUM = 8736;
     public static final int REQUEST_ALBUM_OK = 8737;
@@ -136,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private MediaService.PlayBinder playBinder;
     private ServiceConnection serviceConnection;
     private SsoHandler mSsoHandler;
+    private WbShareHandler wbShareHandler;
     private static CookieManager cookieManager;
 
     @Override
@@ -211,6 +220,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         };
         Intent media = new Intent(this, MediaService.class);
         bindService(media, serviceConnection, BIND_AUTO_CREATE);
+
+        WbSdk.install(this, new AuthInfo(this, Constants.APP_KEY, Constants.REDIRECT_URL, Constants.SCOPE));
     }
     @Override
     protected void onRestart() {
@@ -597,6 +608,26 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         Toast toast = Toast.makeText(this, "申请权限失败", Toast.LENGTH_SHORT);
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
+    }
+    @Override
+    public void onWbShareSuccess() {
+        LogUtil.i("onWbShareSuccess");
+        current.onWbShareSuccess();
+    }
+    @Override
+    public void onWbShareFail() {
+        LogUtil.i("onWbShareFail");
+        current.onWbShareFail();
+    }
+    @Override
+    public void onWbShareCancel() {
+        LogUtil.i("onWbShareCancel");
+        current.onWbShareCancel();
+    }
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        wbShareHandler.doResultIntent(intent, this);
     }
 
     public void pushWindow(JSONObject data) {
@@ -988,6 +1019,38 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         for(WebFragment wf : wfList) {
             syncCookie(wf.getWebView());
         }
+    }
+    public void shareWb(JSONObject data) {
+        LogUtil.i("shareWb");
+        if(wbShareHandler == null) {
+            wbShareHandler = new WbShareHandler(this);
+            wbShareHandler.registerApp();
+        }
+        WeiboMultiMessage weiboMultiMessage = new WeiboMultiMessage();
+        String text = data.getString("text");
+        if(text != null && !text.isEmpty()) {
+            TextObject textObject = new TextObject();
+            textObject.text = text;
+            weiboMultiMessage.textObject = textObject;
+        }
+        JSONArray imgList = data.getJSONArray("imgList");
+        if(imgList != null && !imgList.isEmpty()) {
+            MultiImageObject multiImageObject = new MultiImageObject();
+            ArrayList<Uri> imageList = new ArrayList<>();
+            for(int i = 0; i < imgList.size(); i++) {
+                String s = imgList.get(i).toString();
+                imageList.add(Uri.parse(s));
+            }
+            multiImageObject.imageList = imageList;
+            weiboMultiMessage.multiImageObject = multiImageObject;
+        }
+        String av = data.getString("av");
+        if(av != null && !av.isEmpty()) {
+            VideoSourceObject videoSourceObject = new VideoSourceObject();
+            videoSourceObject.videoPath = Uri.parse(av);
+            weiboMultiMessage.videoSourceObject = videoSourceObject;
+        }
+        wbShareHandler.shareMessage(weiboMultiMessage, false);
     }
 
     private class SelfWbAuthListener implements WbAuthListener {
