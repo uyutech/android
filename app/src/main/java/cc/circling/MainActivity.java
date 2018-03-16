@@ -609,7 +609,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }
         this.enter(url, bundle);
     }
-    public void setSubTitle(String title) {}
     public void loginWeibo() {
         WbSdk.install(this, new AuthInfo(this, Constants.APP_KEY, Constants.REDIRECT_URL, Constants.SCOPE));
         mSsoHandler = new SsoHandler(this);

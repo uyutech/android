@@ -114,19 +114,17 @@ public class WebFragment extends Fragment {
     }
     @Override
     public synchronized View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        LogUtil.i("onCreateView", hasEnter + "");
+        LogUtil.i("onCreateView", hasEnter + ", " + first);
         hasCreateView = true;
         View view = inflater.inflate(R.layout.web_fragment, container, false);
         rootView = (FrameLayout) view;
         rootView.setVisibility(View.GONE);
         init();
-        if(hasEnter) {
-            if(first) {
-                this.load(url, bundle);
-            }
-            else {
-                this.enter(url, bundle);
-            }
+        if(first) {
+            this.load(url, bundle, hasEnter);
+        }
+        else if(hasEnter) {
+            this.enter(url, bundle);
         }
         return view;
     }
@@ -192,13 +190,13 @@ public class WebFragment extends Fragment {
         });
         webView.addJavascriptInterface(new ZhuanQuanJsBridgeNative(), "ZhuanQuanJsBridgeNative");
     }
-    public synchronized void load(String url, Bundle bundle) {
+    public synchronized void load(String url, Bundle bundle, boolean enter) {
         LogUtil.i("load", url + ", " + hasCreateView);
         this.url = url;
         // 存在极端情况，添加fragment的transacation异步尚未执行，enter先执行了，需记录等待添加后执行
         if(!hasCreateView) {
             this.bundle = bundle;
-            hasEnter = true;
+            hasEnter = enter;
             return;
         }
 
@@ -357,8 +355,16 @@ public class WebFragment extends Fragment {
             webView.loadUrl("about:blank");
         }
         MobclickAgent.onPageStart(url);
+
+        if(enter) {
+            enterOnly();
+        }
+    }
+    public synchronized void load(String url, Bundle bundle) {
+        load(url, bundle, false);
     }
     public void enterOnly() {
+        LogUtil.i("enterOnly", url + ", " + hasCreateView);
         TranslateAnimation translateAnimation = new TranslateAnimation(MainActivity.WIDTH,0,0,0);
         translateAnimation.setDuration(300);
         translateAnimation.setAnimationListener(new Animation.AnimationListener() {
@@ -380,8 +386,7 @@ public class WebFragment extends Fragment {
     }
     public void enter(String url, Bundle bundle) {
         LogUtil.i("enter", url + ", " + hasCreateView);
-        load(url, bundle);
-        enterOnly();
+        load(url, bundle, true);
     }
     public void setTitleBgColor(String backgroundColor) {
         if(backgroundColor.equals("transparent")) {
