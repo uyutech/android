@@ -48,6 +48,10 @@
 -keep class org.android.spdy.**{*;}
 -keep class org.android.agoo.**{*;}
 -keep class android.os.**{*;}
+-keep class com.umeng.commonsdk.** {*;}
+-keepclassmembers class * {
+   public <init> (org.json.JSONObject);
+}
 -dontwarn com.taobao.**
 -dontwarn com.alibaba.**
 -dontwarn com.alipay.**

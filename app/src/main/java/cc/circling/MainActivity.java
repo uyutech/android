@@ -105,6 +105,7 @@ import pub.devrel.easypermissions.EasyPermissions;
  */
 
 public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, WbShareCallback {
+    private static final int RC_INIT = 8734;
     private static final int RC_DOWNLOAD = 8735;
     private static final int RC_ALBUM = 8736;
     public static final int REQUEST_ALBUM_OK = 8737;
@@ -112,6 +113,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     public static final int REQUEST_ALBUM_OK_OLD = 8739;
     public static int WIDTH;
 
+    private static String[] umengPerms = {
+            Manifest.permission.READ_PHONE_STATE,
+    };
     private static String[] filePerms = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -221,6 +225,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         bindService(media, serviceConnection, BIND_AUTO_CREATE);
 
         WbSdk.install(this, new AuthInfo(this, Constants.APP_KEY, Constants.REDIRECT_URL, Constants.SCOPE));
+
+        if(!EasyPermissions.hasPermissions(this, umengPerms)) {
+            EasyPermissions.requestPermissions(this, "为了便于智能统计分析和推送，申请读取手机型号基本信息。",
+                    RC_INIT, umengPerms);
+        }
     }
     @Override
     protected void onRestart() {

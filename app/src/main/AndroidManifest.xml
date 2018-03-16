@@ -23,6 +23,8 @@
         android:theme="@style/AppTheme">
         <meta-data android:name="com.alibaba.app.appkey" android:value="24731551"/> <!-- 请填写你自己的- appKey -->
         <meta-data android:name="com.alibaba.app.appsecret" android:value="ccd93fbb2a584d81d8c0bdc5bdccb824"/>
+        <meta-data android:value="5a27df1fb27b0a06f2000050" android:name="UMENG_APPKEY"/>
+        <meta-data android:value="normal" android:name="UMENG_CHANNEL"/>
         <activity android:name=".MainActivity" android:screenOrientation="portrait"
             android:hardwareAccelerated="true">
             <intent-filter>

@@ -9,6 +9,7 @@ import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
 
 import com.tencent.bugly.Bugly;
 import com.umeng.analytics.MobclickAgent;
+import com.umeng.commonsdk.UMConfigure;
 
 import cc.circling.utils.LogUtil;
 
@@ -28,8 +29,8 @@ public class BaseApplication extends Application {
 
         initCloudChannel(this);
 
-        MobclickAgent.startWithConfigure(new MobclickAgent.UMAnalyticsConfig(context, "5a27df1fb27b0a06f2000050", ""));
-        MobclickAgent.enableEncrypt(true);
+        UMConfigure.init(this, "5a27df1fb27b0a06f2000050", "normal", UMConfigure.DEVICE_TYPE_PHONE, null);
+        MobclickAgent.setScenarioType(this, MobclickAgent.EScenarioType.E_UM_NORMAL);
 
         Bugly.init(context, "e8be097834", !BuildConfig.ENV.equals("prod"));
     }
