@@ -176,7 +176,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
         prepare();
         current = reserve;
-        current.setFirst();
 
         // 背景渐显
         Animation alphaAnimation = new AlphaAnimation(0.1f, 1.0f);
@@ -296,7 +295,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                         }
                         // 获取本地h5版本信息
                         SharedPreferences sharedPreferences = getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), MODE_PRIVATE);
-                        final int curVersion = sharedPreferences.getInt("version", 64);
+                        final int curVersion = sharedPreferences.getInt("version", 69);
                         LogUtil.i("checkUpdate version: ", version + ", " + curVersion);
                         if(curVersion < version) {
                             final SharedPreferences.Editor editor = MainActivity.this.getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), Context.MODE_PRIVATE).edit();
@@ -526,6 +525,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     }
 
     private void prepare() {
+        LogUtil.i("prepare");
         reserve = new WebFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -533,7 +533,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         fragmentTransaction.commit();
     }
     private void enter(String url, Bundle bundle) {
-        LogUtil.i("enter", url);
+        LogUtil.d("enter", url);
         current = reserve;
         current.enter(url, bundle);
         wfList.add(current);
@@ -542,7 +542,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        LogUtil.i("keyup: " + keyCode);
+        LogUtil.i("onKeyUp: " + keyCode);
         if(keyCode == KeyEvent.KEYCODE_BACK) {
             int i = wfList.size();
             LogUtil.i("KEYCODE_BACK", i + "");
@@ -632,6 +632,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
     public void pushWindow(JSONObject data) {
         final String url = data.getString("url");
+        LogUtil.i("pushWindow", url);
         JSONObject params = data.getJSONObject("params");
         final Bundle bundle = new Bundle();
         for(String key : params.keySet()) {
@@ -994,23 +995,23 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         cookieManager.removeExpiredCookie();
         // 5.0跨域CORS的ajax设置允许cookie
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            LogUtil.i("setAcceptThirdPartyCookies");
+            LogUtil.d("setAcceptThirdPartyCookies");
             cookieManager.setAcceptThirdPartyCookies(webView, true);
         }
         HashMap<String, String> hashMap = MyCookies.getAll();
-        LogUtil.i("cookies: ", hashMap.size() + "");
+        LogUtil.d("cookies: ", hashMap.size() + "");
         for(String key : hashMap.keySet()) {
             String value = hashMap.get(key);
-            LogUtil.i("cookie: ", key + ", " + value);
+            LogUtil.d("cookie: ", key + ", " + value);
             cookieManager.setCookie(URLs.WEB_DOMAIN, value);
             cookieManager.setCookie(URLs.H5_DOMAIN, value);
         }
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            LogUtil.i("flush");
+            LogUtil.d("flush");
             cookieManager.flush();
         }
         else {
-            LogUtil.i("sync");
+            LogUtil.d("sync");
             CookieSyncManager.getInstance().sync();
         }
     }
@@ -1039,7 +1040,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             ArrayList<Uri> imageList = new ArrayList<>();
             for(int i = 0; i < imgList.size(); i++) {
                 String s = imgList.get(i).toString();
-                imageList.add(Uri.parse(s));
+                Uri uri = Uri.parse(s);
+                LogUtil.d("uri", uri.toString());
+                imageList.add(uri);
             }
             multiImageObject.imageList = imageList;
             weiboMultiMessage.multiImageObject = multiImageObject;

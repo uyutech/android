@@ -92,10 +92,12 @@ public class WebFragment extends Fragment {
     private MyWebChromeClient webChromeClient;
 
     private boolean hasCreateView = false;
+    private boolean shouldLoad = false;
+    private boolean hasLoad = false;
+    private boolean shouldEnter = false;
     private boolean hasEnter = false;
     private String url;
     private Bundle bundle;
-    private boolean first = false;
     private long lastT;
     private boolean isTransparentTitle;
     private String titleBgColor;
@@ -115,17 +117,17 @@ public class WebFragment extends Fragment {
     }
     @Override
     public synchronized View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        LogUtil.i("onCreateView", hasEnter + ", " + first);
+        LogUtil.i("onCreateView", hasEnter + ", " + hasLoad + ", " + shouldEnter);
         hasCreateView = true;
         View view = inflater.inflate(R.layout.web_fragment, container, false);
         rootView = (FrameLayout) view;
         rootView.setVisibility(View.GONE);
         init();
-        if(first) {
-            this.load(url, bundle, hasEnter);
+        if(hasLoad && shouldEnter) {
+            this.enterOnly();
         }
-        else if(hasEnter) {
-            this.enter(url, bundle);
+        else if(shouldLoad) {
+            this.load(url, bundle);
         }
         return view;
     }
@@ -143,9 +145,6 @@ public class WebFragment extends Fragment {
         MobclickAgent.onPageEnd(url);
     }
 
-    public void setFirst() {
-        first = true;
-    }
     private void init() {
         titleBar = rootView.findViewById(R.id.titleBar);
         title = rootView.findViewById(R.id.title);
@@ -191,15 +190,19 @@ public class WebFragment extends Fragment {
         });
         webView.addJavascriptInterface(new ZhuanQuanJsBridgeNative(), "ZhuanQuanJsBridgeNative");
     }
-    public synchronized void load(String url, Bundle bundle, boolean enter) {
-        LogUtil.i("load", url + ", " + hasCreateView);
+    public synchronized void load(String url, Bundle bundle) {
+        LogUtil.i("load", url + ", " + hasCreateView + ", " + shouldEnter);
         this.url = url;
         // 存在极端情况，添加fragment的transacation异步尚未执行，enter先执行了，需记录等待添加后执行
         if(!hasCreateView) {
             this.bundle = bundle;
-            hasEnter = enter;
+            shouldLoad = true;
             return;
         }
+        if(hasLoad) {
+            return;
+        }
+        hasLoad = true;
 
         // 获取状态栏高度
         int statusBarHeight = 0;
@@ -207,13 +210,13 @@ public class WebFragment extends Fragment {
                 "android");
         if(resourceId > 0) {
             statusBarHeight = this.getResources().getDimensionPixelSize(resourceId);
-            LogUtil.i("statusBarHeight", statusBarHeight + "");
+            LogUtil.d("statusBarHeight", statusBarHeight + "");
         }
 
         // 标题栏是否为透明
         String transparentTitle = bundle.getString("transparentTitle");
         isTransparentTitle = transparentTitle != null && transparentTitle.equals("true");
-        LogUtil.i("transparentTitle ", transparentTitle + "");
+        LogUtil.d("transparentTitle ", transparentTitle + "");
         if(isTransparentTitle) {
             title.setTextColor(Color.parseColor("#FFFFFF"));
             title.setShadowLayer(4, 0, 2, Color.parseColor("#33000000"));
@@ -240,12 +243,12 @@ public class WebFragment extends Fragment {
         else {
             titleBar.setPadding(0, statusBarHeight, 0, 0);
             float scale = this.getResources().getDisplayMetrics().density;
-            LogUtil.i("scale", scale + "," + (int)(scale * 64));
+            LogUtil.d("scale", scale + "," + (int)(scale * 64));
             swipeRefreshLayout.setPadding(0, (int)(scale * 64), 0, 0);
 
             // titleBgColor
             String titleBgColor = bundle.getString("titleBgColor");
-            LogUtil.i("titleBgColor", titleBgColor);
+            LogUtil.d("titleBgColor", titleBgColor);
             if(titleBgColor != null && !titleBgColor.isEmpty()) {
                 setTitleBgColor(titleBgColor);
             }
@@ -256,7 +259,7 @@ public class WebFragment extends Fragment {
 
         // webview背景色
         String backgroundColor = bundle.getString("backgroundColor");
-        LogUtil.i("backgroundColor", backgroundColor);
+        LogUtil.d("backgroundColor", backgroundColor);
         if(backgroundColor != null && backgroundColor.length() > 0) {
             int color = Color.parseColor(backgroundColor);
             webView.setBackgroundColor(color);
@@ -268,8 +271,8 @@ public class WebFragment extends Fragment {
         // title
         String sTitle = bundle.getString("title");
         String sSubTitle = bundle.getString("subTitle");
-        LogUtil.i("title", sTitle);
-        LogUtil.i("subTitle", sSubTitle);
+        LogUtil.d("title", sTitle);
+        LogUtil.d("subTitle", sSubTitle);
         if(sTitle != null && sTitle.length() > 0) {
             title.setText(sTitle);
         }
@@ -280,7 +283,7 @@ public class WebFragment extends Fragment {
 
         // titleColor
         String titleColor = bundle.getString("titleColor");
-        LogUtil.i("titleColor", titleColor);
+        LogUtil.d("titleColor", titleColor);
         if(titleColor != null && titleColor.length() > 0) {
             int color = Color.parseColor(titleColor);
             LogUtil.i("titleColor ", color + "");
@@ -290,7 +293,7 @@ public class WebFragment extends Fragment {
 
         // 是否隐藏back键
         String hideBackButton = bundle.getString("hideBackButton");
-        LogUtil.i("hideBackButton ", hideBackButton);
+        LogUtil.d("hideBackButton ", hideBackButton);
         if(hideBackButton != null && hideBackButton.equals("true")) {
             back.setVisibility(View.GONE);
         }
@@ -300,7 +303,7 @@ public class WebFragment extends Fragment {
 
         // 自定义back图片base64
         String backIcon = bundle.getString("backIcon");
-        LogUtil.i("backIcon ", backIcon);
+        LogUtil.d("backIcon ", backIcon);
         if(backIcon != null && !backIcon.isEmpty()) {
             setBackIcon(backIcon);
         }
@@ -318,9 +321,9 @@ public class WebFragment extends Fragment {
         String optionMenuColor = bundle.getString("optionMenuColor");
         String optionMenuIcon1 = bundle.getString("optionMenuIcon1");
         String optionMenuIcon2 = bundle.getString("optionMenuIcon2");
-        LogUtil.i("optionMenu", optionMenu);
-        LogUtil.i("optionMenuIcon1", optionMenuIcon1);
-        LogUtil.i("optionMenuIcon2", optionMenuIcon2);
+        LogUtil.d("optionMenu", optionMenu);
+        LogUtil.d("optionMenuIcon1", optionMenuIcon1);
+        LogUtil.d("optionMenuIcon2", optionMenuIcon2);
         setOptionMenuText(optionMenu, optionMenuColor);
         setOptionMenuIcon(optionMenuIv1, optionMenuIcon1);
         setOptionMenuIcon(optionMenuIv2, optionMenuIcon2);
@@ -357,15 +360,17 @@ public class WebFragment extends Fragment {
         }
         MobclickAgent.onPageStart(url);
 
-        if(enter) {
+        if(shouldEnter) {
             enterOnly();
         }
     }
-    public synchronized void load(String url, Bundle bundle) {
-        load(url, bundle, false);
-    }
-    public void enterOnly() {
-        LogUtil.i("enterOnly", url + ", " + hasCreateView);
+    public synchronized void enterOnly() {
+        LogUtil.i("enterOnly", url + ", " + hasCreateView + ", " + hasLoad + ", " + hasEnter);
+        shouldEnter = true;
+        if(!hasCreateView || !hasLoad || hasEnter) {
+            return;
+        }
+        hasEnter = true;
         TranslateAnimation translateAnimation = new TranslateAnimation(MainActivity.WIDTH,0,0,0);
         translateAnimation.setDuration(300);
         translateAnimation.setAnimationListener(new Animation.AnimationListener() {
@@ -386,15 +391,17 @@ public class WebFragment extends Fragment {
         rootView.setVisibility(View.VISIBLE);
     }
     public void enter(String url, Bundle bundle) {
-        LogUtil.i("enter", url + ", " + hasCreateView);
-        load(url, bundle, true);
+        this.url = url;
+        LogUtil.i("enter", url + ", " + hasCreateView + ", " + hasLoad);
+        load(url, bundle);
+        enterOnly();
     }
     public void setTitleBgColor(String backgroundColor) {
         if(backgroundColor.equals("transparent")) {
             backgroundColor = "#00000000";
         }
         int color = Color.parseColor(backgroundColor);
-        LogUtil.i("backgroundColor ", color + "");
+        LogUtil.d("backgroundColor ", color + "");
         titleBar.setBackgroundColor(color);
         // 透明则可点穿
         if(backgroundColor.length() == 9 && backgroundColor.substring(1, 3).equals("00")) {
@@ -405,19 +412,19 @@ public class WebFragment extends Fragment {
         }
     }
     public void setBackIcon(String img) {
-        LogUtil.i("setBackIcon", img);
+        LogUtil.d("setBackIcon", img);
         Bitmap bitmap = ImgUtil.parseBase64(img);
         back.setImageBitmap(bitmap);
     }
     public void setTitle(String s) {
-        LogUtil.i("setTitle: " + s);
+        LogUtil.d("setTitle: " + s);
         // 有可能没有titleBar
         if(title != null) {
             title.setText(s);
         }
     }
     public void setSubTitle(String s) {
-        LogUtil.i("setSubTitle: " + s);
+        LogUtil.d("setSubTitle: " + s);
         // 有可能没有titleBar
         if(subTitle != null) {
             if(s != null && !s.isEmpty()) {
