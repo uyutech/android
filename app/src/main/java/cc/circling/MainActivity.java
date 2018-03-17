@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
@@ -141,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private TextView domain;
     private TextView copyright;
     private View mask;
+    private FrameLayout fullScreenView;
 
     private long timeStart;
     private boolean hasUnZipPack = false;
@@ -175,6 +177,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         domain = findViewById(R.id.domain);
         copyright = findViewById(R.id.copyright);
         mask = findViewById(R.id.mask);
+        fullScreenView =  findViewById(R.id.fullScreen);
         wfList = new ArrayList<>();
 
         CookieSyncManager.createInstance(this);
@@ -644,6 +647,26 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         wbShareHandler.doResultIntent(intent, this);
+    }
+
+    public void fullScreen(View view) {
+        altFullScreen();
+        base.setVisibility(View.GONE);
+        fullScreenView.setVisibility(View.VISIBLE);
+        fullScreenView.addView(view);
+    }
+    public void unFullScreen() {
+        altFullScreen();
+        fullScreenView.removeAllViews();
+        fullScreenView.setVisibility(View.GONE);
+        base.setVisibility(View.VISIBLE);
+    }
+    private void altFullScreen() {
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
     }
 
     public void pushWindow(JSONObject data) {

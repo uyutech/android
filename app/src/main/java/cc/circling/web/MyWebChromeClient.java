@@ -44,13 +44,13 @@ public class MyWebChromeClient extends WebChromeClient {
     public void onShowCustomView(View view, CustomViewCallback callback) {
         LogUtil.i("onShowCustomView", view.getClass().getName());
         super.onShowCustomView(view, callback);
-        webFragment.fullScreen(view);
+        mainActivity.fullScreen(view);
     }
     @Override
     public void onHideCustomView() {
         LogUtil.i("onHideCustomView");
         super.onHideCustomView();
-        webFragment.unFullScreen();
+        mainActivity.unFullScreen();
     }
     @Override
     public void onProgressChanged(WebView webView, int progress) {
