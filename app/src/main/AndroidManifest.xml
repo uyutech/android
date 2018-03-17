@@ -25,7 +25,9 @@
         <meta-data android:name="com.alibaba.app.appsecret" android:value="ccd93fbb2a584d81d8c0bdc5bdccb824"/>
         <meta-data android:value="5a27df1fb27b0a06f2000050" android:name="UMENG_APPKEY"/>
         <meta-data android:value="normal" android:name="UMENG_CHANNEL"/>
-        <activity android:name=".MainActivity" android:screenOrientation="portrait"
+        <activity android:name=".MainActivity"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|keyboardHidden|locale"
             android:hardwareAccelerated="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
