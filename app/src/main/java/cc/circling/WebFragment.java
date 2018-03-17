@@ -3,6 +3,8 @@ package cc.circling;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -748,6 +750,25 @@ public class WebFragment extends Fragment {
         json.put("success", false);
         json.put("cancel", true);
         evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + shareWbClientId + "', " + json.toString() + ");");
+    }
+    public void fullScreen(View view) {
+        altFullScreen();
+        web.setVisibility(View.GONE);
+        fullScreenView.setVisibility(View.VISIBLE);
+        fullScreenView.addView(view);
+    }
+    public void unFullScreen() {
+        altFullScreen();
+        fullScreenView.removeAllViews();
+        fullScreenView.setVisibility(View.GONE);
+        web.setVisibility(View.VISIBLE);
+    }
+    private void altFullScreen() {
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            mainActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else {
+            mainActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
     }
 
     class ZhuanQuanJsBridgeNative extends Object {
