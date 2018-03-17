@@ -262,6 +262,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     protected void onDestroy() {
         LogUtil.i("onDestroy: ");
         super.onDestroy();
+        if(serviceConnection != null) {
+            unbindService(serviceConnection);
+            serviceConnection = null;
+        }
     }
 
     private void checkUpdate() {
