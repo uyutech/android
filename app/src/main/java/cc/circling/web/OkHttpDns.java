@@ -20,12 +20,17 @@ import okhttp3.Dns;
  */
 
 public class OkHttpDns implements Dns {
-    private HttpDnsService httpDns;//httpdns 解析服务
+    private HttpDnsService httpDns; //httpdns 解析服务
     private static OkHttpDns instance = null;
+    public static final String[] DOMAIN = {
+            "circling.net.cn", "circling.cc", "zhuanquan.net.cn", "zhuanquan.org.cn",
+            "zhuanquan.xin", "zhuanquan.xyz"
+    };
+
     private OkHttpDns(Context context) {
         httpDns = HttpDns.getService(context, "149110");
         httpDns.setHTTPSRequestEnabled(true);
-        ArrayList<String> hostList = new ArrayList<>(Arrays.asList("circling.net.cn", "circling.cc", "zhuanquan.net.cn"));
+        ArrayList<String> hostList = new ArrayList<>(Arrays.asList(DOMAIN));
         httpDns.setPreResolveHosts(hostList);
     }
     public static OkHttpDns getInstance() {
