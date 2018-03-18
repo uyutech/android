@@ -25,7 +25,7 @@ public class OkHttpDns implements Dns {
     private OkHttpDns(Context context) {
         httpDns = HttpDns.getService(context, "149110");
         httpDns.setHTTPSRequestEnabled(true);
-        ArrayList<String> hostList = new ArrayList<>(Arrays.asList("circling.net.cn", "circling.cc"));
+        ArrayList<String> hostList = new ArrayList<>(Arrays.asList("circling.net.cn", "circling.cc", "zhuanquan.net.cn"));
         httpDns.setPreResolveHosts(hostList);
     }
     public static OkHttpDns getInstance() {
