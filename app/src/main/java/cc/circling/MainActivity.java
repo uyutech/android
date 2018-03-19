@@ -153,9 +153,11 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private SsoHandler mSsoHandler;
     private WbShareHandler wbShareHandler;
     private static CookieManager cookieManager;
+    private Uri callUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        LogUtil.i("onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -191,12 +193,15 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         timeStart = new Date().getTime();
 
         Intent intent = getIntent();
-        LogUtil.i("schema: " + intent.getScheme());
-        LogUtil.i("BUILD_TYPE: " + BuildConfig.BUILD_TYPE);
-        LogUtil.i("WEB_DOMAIN: " + BuildConfig.WEB_DOMAIN);
-        LogUtil.i("H5_DOMAIN: " + BuildConfig.H5_DOMAIN);
-        LogUtil.i("FOCUS_UNZIP: " + BuildConfig.FOCUS_UNZIP);
-        LogUtil.i("ONLINE: " + BuildConfig.ONLINE);
+        callUri = intent.getData();
+        if(callUri != null) {
+            LogUtil.i("callUri: " + callUri.toString());
+        }
+        LogUtil.d("BUILD_TYPE: " + BuildConfig.BUILD_TYPE);
+        LogUtil.d("WEB_DOMAIN: " + BuildConfig.WEB_DOMAIN);
+        LogUtil.d("H5_DOMAIN: " + BuildConfig.H5_DOMAIN);
+        LogUtil.d("FOCUS_UNZIP: " + BuildConfig.FOCUS_UNZIP);
+        LogUtil.d("ONLINE: " + BuildConfig.ONLINE);
 
         if(BuildConfig.FOCUS_UNZIP) {
             hasUnZipPack = false;
@@ -311,7 +316,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                         }
                         // 获取本地h5版本信息
                         SharedPreferences sharedPreferences = getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), MODE_PRIVATE);
-                        final int curVersion = sharedPreferences.getInt("version", 72);
+                        final int curVersion = sharedPreferences.getInt("version", 78);
                         LogUtil.i("checkUpdate version: ", version + ", " + curVersion);
                         if(curVersion < version) {
                             final SharedPreferences.Editor editor = MainActivity.this.getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), Context.MODE_PRIVATE).edit();
@@ -642,8 +647,15 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     }
     @Override
     protected void onNewIntent(Intent intent) {
+        LogUtil.i("onNewIntent");
         super.onNewIntent(intent);
-        wbShareHandler.doResultIntent(intent, this);
+        callUri = intent.getData();
+        if(callUri != null) {
+            LogUtil.i("callUri: " + callUri.toString());
+        }
+        if(wbShareHandler != null && intent != null) {
+            wbShareHandler.doResultIntent(intent, this);
+        }
     }
 
     public void pushWindow(JSONObject data) {
