@@ -1,34 +1,4 @@
 <resources>
     <string name="domain">circling.cc</string>
     <string name="copyright">2016-2018 © All Rights Reserved</string>
-
-    <string name="loginOther">其它账号登录</string>
-    <string name="phoneNum">0123456789</string>
-    <string name="forgetPass">忘记密码</string>
-    <string name="loginButton">登录</string>
-    <string name="loginabelUsername">请输入手机号</string>
-    <string name="loginabelUserpass">请输入密码</string>
-    <string name="registerUserpass">请输入密码(至少8位)</string>
-    <string name="registerButton">注册</string>
-    <string name="sendPhoneValid">发送验证码</string>
-    <string name="phoneValid">请输入验证码</string>
-    <string name="registerSchema">绑定后意味着同意转圈的《用户协议》</string>
-    <string name="resetPass">重置密码</string>
-    <string name="forgetButton">确认</string>
-
-    <!--<string name="appName">转圈</string>-->
-    <string name="follow">关注</string>
-    <string name="zhuanquan">转圈</string>
-    <string name="find">发现</string>
-    <string name="my">我的</string>
-
-    <string name="loginLabel">登录</string>
-    <string name="registerLabel">注册</string>
-    <string name="loginabelUserpassConfirm">确认密码</string>
-    <string name="loginWeibo">用微博账号登陆</string>
-    <string name="loginOutWeibo">退出微博</string>
-
-    <string name="webBack">返回</string>
-    <string name="webClose">关闭</string>
-    <string name="webMore">更多</string>
 </resources>

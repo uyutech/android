@@ -4,11 +4,15 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
+import cc.circling.WebFragment;
+import cc.circling.utils.LogUtil;
+
 /**
  * Created by army on 2017/6/12.
  */
 
 public class WebView extends android.webkit.WebView {
+    private WebFragment webFragment;
     private SwipeRefreshLayout swipeRefreshLayout;
     private boolean isStart = false;
     private float startY;
@@ -24,13 +28,16 @@ public class WebView extends android.webkit.WebView {
         super(context, attrs, defStyleAttr);
     }
 
+    public void setFragment(WebFragment webFragment) {
+        this.webFragment = webFragment;
+    }
     public void setSwipeRefreshLayout(SwipeRefreshLayout swipeRefreshLayout) {
         this.swipeRefreshLayout = swipeRefreshLayout;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-//        LogUtil.i("touch ", event.getAction() + ", " + event.getY() + ", " + getScrollY());
+        LogUtil.v("touch ", event.getAction() + ", " + event.getY() + ", " + getScrollY());
         switch(event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 if(getScrollY() != 0) {
@@ -64,16 +71,13 @@ public class WebView extends android.webkit.WebView {
         }
         return super.onTouchEvent(event);
     }
-//    @Override
-//    protected void onScrollChanged(final int l, final int t, final int oldl, final int oldt) {
-//        super.onScrollChanged(l, t, oldl, oldt);
-////        LogUtil.i("onScrollChanged: ", this.getWebScrollY() + "");
-//        if(getScrollY() == 0) {
-//            swipeRefreshLayout.setEnabled(true);
-//        }
-//        else {
-//            swipeRefreshLayout.setEnabled(false);
-//        }
-//    }
+    @Override
+    protected void onScrollChanged(final int l, final int t, final int oldl, final int oldt) {
+        super.onScrollChanged(l, t, oldl, oldt);
+        LogUtil.v("onScrollChanged: ", l + ", " + t + ", " + oldl + ", " + oldt);
+        if(webFragment != null) {
+            webFragment.onScrollChanged(t);
+        }
+    }
 
 }

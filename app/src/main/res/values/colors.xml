@@ -1,26 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#66000000</color>
-    <color name="colorAccent">#71B5D9</color>
-
-    <color name="mainBg">#E8F4FF</color>
+    <color name="mainBg">#FFFFFF</color>
     <color name="mainDomain">#FFFFFF</color>
     <color name="mainCopyright">#FFFFFF</color>
     <color name="mainShadow">#33FFFFFF</color>
-
-    <color name="loginBg">#4C8DAF</color>
-    <color name="loginBgPress">#357799</color>
-    <color name="loginBgDisable">#D8E0E6</color>
-    <color name="loginFgDisable">#8B99A3</color>
-    <color name="loginOther">#FFFFFF</color>
-    <color name="loginHint">#9CC0D3</color>
-    <color name="registerSchema">#A4A4A4</color>
-    <color name="errorTip">#7F706F</color>
-    <color name="errorTipStrong">#FB6054</color>
-
-    <color name="link">#69F</color>
-    <color name="linkActive">#059</color>
 
     <color name="titleBg">#FFF</color>
     <color name="titleText">#636365</color>

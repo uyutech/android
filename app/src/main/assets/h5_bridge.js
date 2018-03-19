@@ -24,6 +24,11 @@
 
     window.ZhuanQuanJSBridge = window.ZhuanQuanJsBridge = {
         android: true,
+        record: function(clientId, cb) {
+            if(clientId && isFunction(cb)) {
+                callbackHash[clientId] = cb;
+            }
+        },
         call: function(fn, param, cb) {
             if(!isString(fn)) {
                 return;
@@ -50,7 +55,7 @@
                 var event = document.createEvent('Events');
                 event.initEvent(name, false, true);
                 var prevent = !document.dispatchEvent(event);
-                ZhuanQuanJSBridge.call(name, { prevent: prevent });
+                ZhuanQuanJsBridgeNative.call('', name, JSON.stringify({ prevent: prevent }));
             }
         },
         emit: function(name, param) {
@@ -63,9 +68,13 @@
         },
         _invokeJS: function(clientId, resp) {
             var func = callbackHash[clientId];
-            console.log("_invokeJS: " + clientId + ", " + resp + ", " + !!func);
             func && func(resp);
             delete callbackHash[clientId];
+        },
+        _invokeJs: function(clientId, resp) {
+         var func = callbackHash[clientId];
+         func && func(resp);
+         delete callbackHash[clientId];
         }
     };
 

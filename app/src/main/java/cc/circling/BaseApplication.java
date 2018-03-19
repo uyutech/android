@@ -7,13 +7,11 @@ import com.alibaba.sdk.android.push.CloudPushService;
 import com.alibaba.sdk.android.push.CommonCallback;
 import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
 
-import com.danikula.videocache.HttpProxyCacheServer;
-import com.danikula.videocache.file.Md5FileNameGenerator;
 import com.tencent.bugly.Bugly;
 import com.umeng.analytics.MobclickAgent;
+import com.umeng.commonsdk.UMConfigure;
 
 import cc.circling.utils.LogUtil;
-import cc.circling.utils.MediaUrl2IDCache;
 
 /**
  * Created by army on 2017/3/16.
@@ -23,7 +21,6 @@ import cc.circling.utils.MediaUrl2IDCache;
 public class BaseApplication extends Application {
     private static Context context;
     private static CloudPushService pushService;
-    private static HttpProxyCacheServer proxy;;
 
     @Override
     public void onCreate() {
@@ -32,8 +29,8 @@ public class BaseApplication extends Application {
 
         initCloudChannel(this);
 
-        MobclickAgent.startWithConfigure(new MobclickAgent.UMAnalyticsConfig(context, "5a27df1fb27b0a06f2000050", ""));
-        MobclickAgent.enableEncrypt(true);
+        UMConfigure.init(this, "5a27df1fb27b0a06f2000050", "normal", UMConfigure.DEVICE_TYPE_PHONE, null);
+        MobclickAgent.setScenarioType(this, MobclickAgent.EScenarioType.E_UM_NORMAL);
 
         Bugly.init(context, "e8be097834", !BuildConfig.ENV.equals("prod"));
     }
@@ -43,15 +40,6 @@ public class BaseApplication extends Application {
     }
     public static CloudPushService getCloudPushService() {
         return pushService;
-    }
-    public static HttpProxyCacheServer getProxy() {
-        if(proxy == null) {
-            proxy = new HttpProxyCacheServer.Builder(context)
-                .fileNameGenerator(new MyFileNameGenerator())
-                .maxCacheSize(1024 * 1024 * 1024)
-                .build();
-        }
-        return proxy;
     }
 
     private void initCloudChannel(Context applicationContext) {
@@ -69,20 +57,5 @@ public class BaseApplication extends Application {
                 LogUtil.i("init cloudchannel failed -- errorcode:" + errorCode + " -- errorMessage:" + errorMessage);
             }
         });
-    }
-    private HttpProxyCacheServer newProxy() {
-        return new HttpProxyCacheServer(this);
-    }
-
-    static class MyFileNameGenerator extends Md5FileNameGenerator {
-        @Override
-        public String generate(String url) {
-            LogUtil.i("generate", url);
-            if(MediaUrl2IDCache.containsKey(url)) {
-                LogUtil.i("containsKey", MediaUrl2IDCache.get(url));
-                return MediaUrl2IDCache.get(url);
-            }
-            return super.generate(url);
-        }
     }
 }

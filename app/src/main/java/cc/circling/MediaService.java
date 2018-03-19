@@ -5,26 +5,40 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Binder;
+import android.os.Environment;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
-import android.webkit.ValueCallback;
 
 import com.alibaba.fastjson.JSONObject;
-import com.danikula.videocache.CacheListener;
-import com.danikula.videocache.HttpProxyCacheServer;
+import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.util.Util;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import cc.circling.utils.LogUtil;
-import cc.circling.utils.MediaUrl2IDCache;
-//import tv.danmaku.ijk.media.player.IMediaPlayer;
-//import tv.danmaku.ijk.media.player.IjkMediaPlayer;
+import cc.circling.web.OkHttpDns;
+import okhttp3.Cache;
+import okhttp3.OkHttpClient;
 
 /**
  * Created by army8735 on 2018/1/15.
@@ -32,379 +46,247 @@ import cc.circling.utils.MediaUrl2IDCache;
 
 public class MediaService extends Service {
     private PlayBinder playBinder = new PlayBinder();
-    private X5Activity activity;
-    private MediaPlayer mediaPlayer;
-//    private IjkMediaPlayer mediaPlayer;
-    private boolean prepareAsync;
-    private boolean prepared;
-    private boolean autoStart;
-    private int duration;
+    private MainActivity mainActivity;
+    private SimpleExoPlayer player;
+    private long duration;
     private int percent;
+    private boolean isPlaying = false;
+    private boolean isPreparing;
     private String lastId;
+    private long lastPosition;
     private Timer timer;
     private TimerTask timerTask;
-    private CacheListener cacheListener;
+    private Timer timer2;
+    private TimerTask timerTask2;
 
     class PlayBinder extends Binder {
-        private int percentsAvailable;
 
-        public void start(final X5Activity activity) {
+        public void start(MainActivity mainActivity) {
             LogUtil.i("start");
-            MediaService.this.activity = activity;
+            MediaService.this.mainActivity = mainActivity;
         }
         private void init() {
-            this.release();
-            this.percentsAvailable = 0;
+            percent = 0;
+            isPlaying = false;
+            isPreparing = true;
+            lastPosition = 0;
+            if(player != null) {
+                return;
+            }
+            BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+            TrackSelection.Factory videoTrackSelectionFactory =
+                    new AdaptiveTrackSelection.Factory(bandwidthMeter);
+            TrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
+            player = ExoPlayerFactory.newSimpleInstance(mainActivity, trackSelector);
+            player.addListener(new Player.EventListener() {
+                @Override
+                public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
+                    LogUtil.d("onTimelineChanged", reason + "");
+                }
 
-            mediaPlayer = new MediaPlayer();
-            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
-                public void onPrepared(MediaPlayer mp) {
-                    LogUtil.i("onPrepared", mediaPlayer.getDuration() + "");
-                    prepared = true;
-                    if(autoStart) {
-                        if(!mediaPlayer.isPlaying()) {
-                            mediaPlayer.start();
-                        }
-                        autoStart = false;
-                    }
-                    if(activity != null) {
-                        activity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if(activity == null || activity.getWebView() == null) {
-                                    return;
-                                }
-                                final JSONObject json = new JSONObject();
-                                json.put("id", lastId);
-                                duration = Math.max(0, mediaPlayer.getDuration());
-                                json.put("duration", duration);
-                                activity.getWebView().evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('mediaPrepared'," + json.toJSONString() + ")", new ValueCallback<String>() {
-                                    @Override
-                                    public void onReceiveValue(String value) {
-                                        //
-                                    }
-                                });
-                            }
-                        });
-                    }
+                public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
                 }
-            });
-            mediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+
                 @Override
-                public void onBufferingUpdate(MediaPlayer mp, final int percent) {
-                    LogUtil.i("onBufferingUpdate", percent + ", " + percentsAvailable);
-                    // 偶现网络读取尚未到100时media加载直接跳100，屏蔽之
-                    if(percent == 100 && percentsAvailable != 100) {
-                        return;
-                    }
-                    MediaService.this.percent = percent;
-                    if(activity != null) {
-                        activity.runOnUiThread(new Runnable() {
+                public void onLoadingChanged(boolean isLoading) {
+                    LogUtil.d("onLoadingChanged", isLoading + "");
+                    if(isLoading) {
+                        timer2 = new Timer();
+                        timerTask2 = new TimerTask() {
                             @Override
                             public void run() {
-                                if(activity == null || activity.getWebView() == null) {
+                                if(mainActivity == null || player == null) {
                                     return;
                                 }
+                                if(lastPosition == player.getBufferedPosition()) {
+                                    return;
+                                }
+                                lastPosition = player.getBufferedPosition();
                                 JSONObject json = new JSONObject();
                                 json.put("id", lastId);
-                                duration = Math.max(0, mediaPlayer.getDuration());
+                                duration = Math.max(0, player.getDuration());
                                 json.put("duration", duration);
+                                json.put("position", lastPosition);
+                                percent = player.getBufferedPercentage();
                                 json.put("percent", percent);
-                                json.put("prepared", prepared);
-                                activity.getWebView().evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('mediaProgress', " + json.toJSONString() + ");", new ValueCallback<String>() {
-                                    @Override
-                                    public void onReceiveValue(String value) {
-                                        //
-                                    }
-                                });
+                                mainActivity.evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('mediaProgress', " + json.toJSONString() + ");");
                             }
-                        });
+                        };
+                        timer2.schedule(timerTask2, 0, 100);
+                    }
+                    else {
+                        if(timer2 != null) {
+                            timer2.cancel();
+                            timer2 = null;
+                        }
+                        if(timerTask2 != null) {
+                            timerTask2.cancel();
+                            timerTask2 = null;
+                        }
+                        if(mainActivity == null || player == null) {
+                            return;
+                        }
+                        if(lastPosition == player.getBufferedPosition()) {
+                            return;
+                        }
+                        lastPosition = player.getBufferedPosition();
+                        JSONObject json = new JSONObject();
+                        json.put("id", lastId);
+                        duration = Math.max(0, player.getDuration());
+                        json.put("duration", duration);
+                        json.put("position", lastPosition);
+                        percent = player.getBufferedPercentage();
+                        json.put("percent", percent);
+                        mainActivity.evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('mediaProgress', " + json.toJSONString() + ");");
                     }
                 }
-            });
-            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+
                 @Override
-                public void onCompletion(MediaPlayer mp) {
-                    LogUtil.i("onCompletion", (activity != null) + ", " + (percent == 100));
-                    // percent为100加载完毕之后才能触发播放结束，避免proxycache网络错误造成加载过程中出现结束事件
-                    if(activity != null && percent == 100) {
-                        activity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if(activity == null || activity.getWebView() == null) {
-                                    return;
-                                }
-                                JSONObject json = new JSONObject();
-                                json.put("id", lastId);
-                                json.put("currentTime", mediaPlayer.getCurrentPosition());
-                                json.put("duration", duration);
-                                activity.getWebView().evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('mediaEnd', " + json.toJSONString() + ")", new ValueCallback<String>() {
-                                    @Override
-                                    public void onReceiveValue(String value) {
-                                        //
-                                    }
-                                });
-                            }
-                        });
+                public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+                    LogUtil.d("onPlayerStateChanged", playWhenReady + ", " + playbackState);
+                    if(isPreparing && playbackState == Player.STATE_READY) {
+                        isPreparing = false;
+                        JSONObject json = new JSONObject();
+                        json.put("id", lastId);
+                        duration = Math.max(0, player.getDuration());
+                        json.put("duration", duration);
+                        mainActivity.evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('mediaPrepared', " + json.toJSONString() + ");");
+                    }
+                    if(playbackState == Player.STATE_ENDED) {
+                        player.setPlayWhenReady(false);
+                        player.seekTo(0);
+                        isPlaying = false;
+                        JSONObject json = new JSONObject();
+                        json.put("id", lastId);
+                        mainActivity.evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('mediaEnd', " + json.toJSONString() + ");");
                     }
                 }
-            });
-            mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+
                 @Override
-                public boolean onError(MediaPlayer mp, int what, int extra) {
-                    LogUtil.i("onError", what + ", " + extra);
-                    return false;
+                public void onRepeatModeChanged(int repeatMode) {
+                    LogUtil.d("onRepeatModeChanged", repeatMode + "");
                 }
-            });
-            mediaPlayer.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+
                 @Override
-                public boolean onInfo(MediaPlayer mp, int what, int extra) {
-                    LogUtil.i("onInfo", what + ", " + extra);
-                    return false;
+                public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+                    LogUtil.d("onShuffleModeEnabledChanged", shuffleModeEnabled + "");
+                }
+
+                @Override
+                public void onPlayerError(ExoPlaybackException error) {
+                    LogUtil.e("onPlayerError", error.toString());
+                }
+
+                @Override
+                public void onPositionDiscontinuity(int reason) {
+                    LogUtil.d("onPositionDiscontinuity", reason + "");
+                }
+
+                @Override
+                public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+                }
+
+                @Override
+                public void onSeekProcessed() {
                 }
             });
             timer = new Timer();
             timerTask = new TimerTask() {
                 @Override
                 public void run() {
-                    if(activity != null && mediaPlayer != null && mediaPlayer.isPlaying()) {
-                        activity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if(activity == null || activity.getWebView() == null || !mediaPlayer.isPlaying()) {
-                                    return;
-                                }
-                                final JSONObject json = new JSONObject();
-                                json.put("id", lastId);
-                                json.put("currentTime", mediaPlayer.getCurrentPosition());
-                                duration = Math.max(0, mediaPlayer.getDuration());
-                                json.put("duration", duration);
-                                json.put("percent", percent);
-                                json.put("prepared", prepared);
-                                activity.getWebView().evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge.emit('mediaTimeupdate', " + json.toJSONString() + ");", new ValueCallback<String>() {
-                                    @Override
-                                    public void onReceiveValue(String value) {
-                                        //
-                                    }
-                                });
-                            }
-                        });
+                    if(mainActivity == null || player == null || player.getPlaybackState() != Player.STATE_READY || !isPlaying) {
+                        return;
                     }
+                    JSONObject json = new JSONObject();
+                    json.put("id", lastId);
+                    json.put("currentTime", player.getCurrentPosition());
+                    duration = Math.max(0, player.getDuration());
+                    json.put("duration", duration);
+                    json.put("percent", percent);
+                    mainActivity.evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('mediaTimeupdate', " + json.toJSONString() + ");");
                 }
             };
-            timer.schedule(timerTask, 0, 200);
+            timer.schedule(timerTask, 0, 100);
         }
-        public void info(JSONObject value, final String clientId) {
+        public void info(JSONObject value) {
             LogUtil.i("info", value.toJSONString());
             String url = value.getString("url");
-            String name = value.getString("name");
             String id = value.getString("id");
-            // url对应name作为本地缓存文件名
-            if(name != null && name.length() > 0) {
-                MediaUrl2IDCache.put(url, name);
-            }
-            if(url == null || url.equals("")) {
-                return;
-            }
-            LogUtil.i("info", url + ", " + name + ", " + (id == null ? "null" : id) + ", " + (lastId == null ? "null" : lastId));
-
-            HttpProxyCacheServer proxy = BaseApplication.getProxy();
-            final boolean isCached = proxy.isCached(url);
-            if(id != null && id.equals(lastId) && clientId != null && activity != null) {
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(activity == null || activity.getWebView() == null) {
-                            return;
-                        }
-                        LogUtil.i("info same");
-                        JSONObject json = new JSONObject();
-                        json.put("id", lastId);
-                        json.put("same", true);
-                        json.put("isCached", isCached);
-                        json.put("duration", duration);
-                        json.put("percent", percent);
-                        json.put("prepared", prepared);
-                        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
-                            @Override
-                            public void onReceiveValue(String value) {
-                                //
-                            }
-                        });
-                    }
-                });
+            // 传入和上次相同的信息时忽略
+            if(lastId != null && lastId.equals(id)) {
                 return;
             }
             this.init();
+            DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+            File cacheFile;
+            long maxSize;
+            if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+                cacheFile = new File(mainActivity.getExternalCacheDir(), "media");
+                maxSize = 1024 * 1024 * 1024;
+            }
+            else {
+                cacheFile = new File(mainActivity.getCacheDir(), "media");
+                maxSize = 200 * 1024 * 1024;
+            }
+            LogUtil.d("cacheFile", maxSize + ", " + cacheFile.toString());
+            OkHttpClient client = new OkHttpClient
+                    .Builder()
+                    .dns(OkHttpDns.getInstance())
+                    .cache(new Cache(cacheFile, maxSize))
+                    .build();
+            OkHttpDataSourceFactory dataSourceFactory = new OkHttpDataSourceFactory(client,
+                    Util.getUserAgent(mainActivity, "cc.circling"), bandwidthMeter);
+            MediaSource mediaSource = new ExtractorMediaSource.Factory(dataSourceFactory)
+                    .createMediaSource(Uri.parse(url));
+            player.prepare(mediaSource);
             lastId = id;
-
-            LogUtil.i("isCached", isCached + "");
-            if(isCached) {
-                percent = 100;
-                if(activity != null && clientId != null) {
-                    activity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if(activity == null || activity.getWebView() == null) {
-                                return;
-                            }
-                            JSONObject json = new JSONObject();
-                            json.put("id", lastId);
-                            json.put("isCached", isCached);
-                            activity.getWebView().evaluateJavascript("window.ZhuanQuanJSBridge && ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
-                                @Override
-                                public void onReceiveValue(String value) {
-                                    //
-                                }
-                            });
-                        }
-                    });
-                }
+        }
+        public void play(JSONObject value, String clientId) {
+            LogUtil.i("play", clientId);
+            if(value != null) {
+                info(value);
             }
-            else {
-                if(cacheListener != null) {
-                    proxy.unregisterCacheListener(cacheListener);
-                }
-                cacheListener = new CacheListener() {
-                    @Override
-                    public void onCacheAvailable(File cacheFile, String url, final int percentsAvailable) {
-                        LogUtil.i("onCacheAvailable", percentsAvailable + "");
-                        PlayBinder.this.percentsAvailable = percentsAvailable;
-                    }
-                };
-                proxy.registerCacheListener(cacheListener, url);
-            }
-            url = proxy.getProxyUrl(url);
-            try {
-                mediaPlayer.setDataSource(url);
-            } catch (IOException e) {
-                e.printStackTrace();
-                lastId = null;
-            }
-            if(clientId != null && activity != null) {
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(activity == null || activity.getWebView() == null) {
-                            return;
-                        }
-                        JSONObject json = new JSONObject();
-                        json.put("id", lastId);
-                        json.put("isCached", isCached);
-                        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
-                            @Override
-                            public void onReceiveValue(String value) {
-                                //
-                            }
-                        });
-                    }
-                });
+            isPlaying = true;
+            player.setPlayWhenReady(true);
+            if(clientId != null && mainActivity != null) {
+                JSONObject json = new JSONObject();
+                json.put("id", lastId);
+                mainActivity.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");");
             }
         }
-        public void play(final String clientId) {
-            LogUtil.i("play", prepareAsync + ", " + prepared);
-            // 媒体流已缓冲准备完毕可以播放
-            if(prepared) {
-                if(!mediaPlayer.isPlaying()) {
-                    mediaPlayer.start();
-                }
-            }
-            // 异步请求加载发出后且尚未准备完成时标明加载完毕后自动播放
-            else if(prepareAsync) {
-                autoStart = true;
-            }
-            // 进行媒体流异步请求加载
-            else {
-                mediaPlayer.prepareAsync();
-                prepareAsync = true;
-                autoStart = true;
-            }
-            if(clientId != null && activity != null) {
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(activity == null || activity.getWebView() == null) {
-                            return;
-                        }
-                        JSONObject json = new JSONObject();
-                        json.put("id", lastId);
-                        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
-                            @Override
-                            public void onReceiveValue(String value) {
-                                //
-                            }
-                        });
-                    }
-                });
+        public void pause(String clientId) {
+            LogUtil.i("pause", clientId);
+            isPlaying = false;
+            player.setPlayWhenReady(false);
+            if(clientId != null && mainActivity != null) {
+                JSONObject json = new JSONObject();
+                json.put("id", lastId);
+                mainActivity.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");");
             }
         }
-        public void pause(final String clientId) {
-            LogUtil.i("pause");
-            if(mediaPlayer.isPlaying()) {
-                mediaPlayer.pause();
+        public void stop(String clientId) {
+            LogUtil.i("stop", clientId);
+            isPlaying = false;
+            isPreparing = true;
+            lastPosition = 0;
+            if(player != null) {
+                player.stop();
             }
-            autoStart = false;
-            if(clientId != null && activity != null) {
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(activity == null || activity.getWebView() == null) {
-                            return;
-                        }
-                        JSONObject json = new JSONObject();
-                        json.put("id", lastId);
-                        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
-                            @Override
-                            public void onReceiveValue(String value) {
-                                //
-                            }
-                        });
-                    }
-                });
+            lastId = null;
+            if(clientId != null && mainActivity != null) {
+                JSONObject json = new JSONObject();
+                json.put("id", lastId);
+                mainActivity.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");");
             }
         }
-        public void stop(final String clientId) {
-            LogUtil.i("stop");
-            if(mediaPlayer != null) {
-                mediaPlayer.stop();
-            }
-            if(clientId != null && activity != null) {
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(activity == null || activity.getWebView() == null) {
-                            return;
-                        }
-                        JSONObject json = new JSONObject();
-                        json.put("id", lastId);
-                        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
-                            @Override
-                            public void onReceiveValue(String value) {
-                                //
-                            }
-                        });
-                    }
-                });
-            }
-        }
-        public void release() {
-            this.release(null);
-        }
-        public void release(final String clientId) {
-            LogUtil.i("release", (clientId == null) + "");
-            if(mediaPlayer != null) {
-                mediaPlayer.stop();
-                mediaPlayer.reset();
-                mediaPlayer.release();
-                mediaPlayer = null;
-            }
-            prepareAsync = false;
-            prepared = false;
-            autoStart = false;
+        public void release(String clientId) {
+            LogUtil.i("release", clientId);
             lastId = null;
             percent = 0;
+            isPlaying = false;
+            isPreparing = true;
+            lastPosition = 0;
             if(timer != null) {
                 timer.cancel();
                 timer = null;
@@ -413,70 +295,29 @@ public class MediaService extends Service {
                 timerTask.cancel();
                 timerTask = null;
             }
-            if(cacheListener != null) {
-                BaseApplication.getProxy().unregisterCacheListener(cacheListener);
-                cacheListener = null;
+            if(timer2 != null) {
+                timer2.cancel();
+                timer2 = null;
             }
-            if(clientId != null && activity != null) {
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(activity == null || activity.getWebView() == null) {
-                            return;
-                        }
-                        JSONObject json = new JSONObject();
-                        json.put("id", lastId);
-                        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
-                            @Override
-                            public void onReceiveValue(String value) {
-                                //
-                            }
-                        });
-                    }
-                });
+            if(timerTask2 != null) {
+                timerTask2.cancel();
+                timerTask2 = null;
+            }
+            if(clientId != null && mainActivity != null) {
+                JSONObject json = new JSONObject();
+                json.put("id", lastId);
+                mainActivity.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");");
             }
         }
-        public void seek(JSONObject value, final String clientId) {
-            int time = value.getInteger("time");
-            LogUtil.i("seek", time + "");
-            mediaPlayer.seekTo(time);
-            if(clientId != null && activity != null) {
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(activity == null || activity.getWebView() == null) {
-                            return;
-                        }
-                        JSONObject json = new JSONObject();
-                        json.put("id", lastId);
-                        activity.getWebView().evaluateJavascript("ZhuanQuanJSBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");", new ValueCallback<String>() {
-                            @Override
-                            public void onReceiveValue(String value) {
-                                //
-                            }
-                        });
-                    }
-                });
+        public void seek(JSONObject value, String clientId) {
+            long time = value.getInteger("time");
+            LogUtil.i("seek", time + ", " + clientId);
+            player.seekTo(time);
+            if(clientId != null && mainActivity != null) {
+                JSONObject json = new JSONObject();
+                json.put("id", lastId);
+                mainActivity.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");");
             }
-        }
-        public void end(X5Activity activity) {
-            LogUtil.i("end");
-            if(MediaService.this.activity != null && MediaService.this.activity == activity) {
-                LogUtil.i("end in");
-                MediaService.this.activity = null;
-            }
-//            if(timer != null) {
-//                timer.cancel();
-//                timer = null;
-//            }
-//            if(timerTask != null) {
-//                timerTask.cancel();
-//                timerTask = null;
-//            }
-//            if(cacheListener != null) {
-//                BaseApplication.getProxy().unregisterCacheListener(cacheListener);
-//                cacheListener = null;
-//            }
         }
     }
     @Override
@@ -493,32 +334,21 @@ public class MediaService extends Service {
     public void onCreate() {
         LogUtil.i("onCreate");
         super.onCreate();
-        Intent intent = new Intent(this, MainActivity.class);
-        PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
-        Notification notification = new NotificationCompat.Builder(this, "service")
-                .setContentTitle("转圈")
-                .setContentText("正在后台运行")
-                .setWhen(System.currentTimeMillis())
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
-                .setContentIntent(pi)
-                .build();
-        startForeground(1, notification);
     }
     @Override
     public void onDestroy() {
         LogUtil.i("onDestroy");
         super.onDestroy();
-        if(mediaPlayer != null) {
-            mediaPlayer.reset();
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
-        prepareAsync = false;
-        prepared = false;
-        autoStart = false;
         lastId = null;
         percent = 0;
+        isPlaying = false;
+        isPreparing = true;
+        lastPosition = 0;
+        if(player != null) {
+            player.stop();
+            player.release();
+            player = null;
+        }
         if(timer != null) {
             timer.cancel();
             timer = null;
@@ -527,9 +357,13 @@ public class MediaService extends Service {
             timerTask.cancel();
             timerTask = null;
         }
-        if(cacheListener != null) {
-            BaseApplication.getProxy().unregisterCacheListener(cacheListener);
-            cacheListener = null;
+        if(timer2 != null) {
+            timer2.cancel();
+            timer2 = null;
+        }
+        if(timerTask2 != null) {
+            timerTask2.cancel();
+            timerTask2 = null;
         }
     }
 }

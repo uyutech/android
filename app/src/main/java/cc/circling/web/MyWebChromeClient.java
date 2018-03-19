@@ -1,18 +1,17 @@
 package cc.circling.web;
 
+import android.net.Uri;
 import android.view.View;
-import android.webkit.ConsoleMessage;
-import android.webkit.JsResult;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.tencent.bugly.crashreport.CrashReport;
 
-import cc.circling.X5Activity;
-import cc.circling.event.H5EventDispatcher;
+import java.util.List;
+
+import cc.circling.MainActivity;
+import cc.circling.WebFragment;
 import cc.circling.utils.LogUtil;
 
 /**
@@ -20,60 +19,64 @@ import cc.circling.utils.LogUtil;
  */
 
 public class MyWebChromeClient extends WebChromeClient {
-    private static final String PREFIX = "h5container.message: ";
+    private WebFragment webFragment;
+    private MainActivity mainActivity;
 
-    private X5Activity activity;
+    private ValueCallback<Uri> valueCallback;
+    private ValueCallback<Uri[]> filePathCallback;
 
-    public MyWebChromeClient(X5Activity activity) {
+    public MyWebChromeClient(WebFragment webFragment, MainActivity mainActivity) {
         super();
-        this.activity = activity;
+        this.webFragment = webFragment;
+        this.mainActivity = mainActivity;
     }
     @Override
     public void onReceivedTitle(WebView view, String args) {
         super.onReceivedTitle(view, args);
         LogUtil.i("onReceivedTitle: " + args);
-        if(args != null && args.length() > 0) {
-            activity.setDefaultTitle(args);
-        }
         view.evaluateJavascript(LoadBridge.getBridgeJs(), new ValueCallback<String>() {
             @Override
             public void onReceiveValue(String value) {
-                //
             }
         });
-    }
-    @Override
-    public boolean onConsoleMessage(ConsoleMessage cm) {
-        String msg = cm.message();
-        LogUtil.i("onConsoleMessage: " + msg);
-        if(msg.startsWith(PREFIX)) {
-            JSONObject json = JSON.parseObject(msg.substring(PREFIX.length() - 1));
-            H5EventDispatcher.dispatch(this.activity, json);
-        }
-        return false;
-    }
-    @Override
-    public boolean onJsAlert(WebView view, String url, String message,
-                             JsResult result) {
-        LogUtil.i("onJsAlert");
-        return false;
     }
     @Override
     public void onShowCustomView(View view, CustomViewCallback callback) {
         LogUtil.i("onShowCustomView", view.getClass().getName());
         super.onShowCustomView(view, callback);
-        activity.fullScreen(view);
+        webFragment.fullScreen(view);
     }
     @Override
     public void onHideCustomView() {
         LogUtil.i("onHideCustomView");
         super.onHideCustomView();
-        activity.unFullScreen();
+        webFragment.unFullScreen();
     }
     @Override
     public void onProgressChanged(WebView webView, int progress) {
         // 增加Javascript异常监控
         CrashReport.setJavascriptMonitor(webView, true);
         super.onProgressChanged(webView, progress);
+    }
+    @Override
+    public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams) {
+        LogUtil.i("onShowFileChooser");
+        this.filePathCallback = filePathCallback;
+        mainActivity.album(9);
+        return true;
+    }
+    public void openFileChooser(ValueCallback<Uri> valueCallback, String acceptType, String capture) {
+        LogUtil.i("openFileChooser");
+        this.valueCallback = valueCallback;
+        mainActivity.album(1);
+    }
+    public void fileChooserCallback(List<Uri> list) {
+        LogUtil.i("fileChooserCallback");
+        if(filePathCallback != null) {
+            filePathCallback.onReceiveValue(list.toArray(new Uri[list.size()]));
+        }
+        else if(valueCallback != null) {
+            valueCallback.onReceiveValue(list.get(0));
+        }
     }
 }
