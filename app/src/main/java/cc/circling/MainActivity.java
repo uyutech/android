@@ -50,7 +50,6 @@ import com.liulishuo.filedownloader.FileDownloadListener;
 import com.liulishuo.filedownloader.FileDownloader;
 import com.liulishuo.filedownloader.util.FileDownloadHelper;
 import com.sina.weibo.sdk.WbSdk;
-import com.sina.weibo.sdk.api.ImageObject;
 import com.sina.weibo.sdk.api.MultiImageObject;
 import com.sina.weibo.sdk.api.TextObject;
 import com.sina.weibo.sdk.api.VideoSourceObject;
@@ -70,6 +69,7 @@ import com.zhihu.matisse.engine.impl.GlideEngine;
 import cc.circling.login.oauth.Constants;
 import cc.circling.utils.AndroidBug5497Workaround;
 import cc.circling.utils.LogUtil;
+import cc.circling.utils.QueryParser;
 import cc.circling.web.MyCookies;
 import cc.circling.web.OkHttpDns;
 import cc.circling.web.PreferenceEnum;
@@ -316,7 +316,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                         }
                         // 获取本地h5版本信息
                         SharedPreferences sharedPreferences = getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), MODE_PRIVATE);
-                        final int curVersion = sharedPreferences.getInt("version", 78);
+                        final int curVersion = sharedPreferences.getInt("version", 83);
                         LogUtil.i("checkUpdate version: ", version + ", " + curVersion);
                         if(curVersion < version) {
                             final SharedPreferences.Editor editor = MainActivity.this.getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), Context.MODE_PRIVATE).edit();
@@ -539,6 +539,32 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                     public void run() {
                         base.removeView(open);
                         base.removeView(mask);
+                        if(callUri != null) {
+                            String host = callUri.getHost();
+                            LogUtil.d("host", host);
+                            if(host.equalsIgnoreCase("h5")) {
+                                String path = callUri.getPath();
+                                LogUtil.d("path", path);
+                                if(!path.matches("^/\\w+\\.html")) {
+                                    return;
+                                }
+                                String query = callUri.getQuery();
+                                LogUtil.d("query", query);
+                                String params = callUri.getQueryParameter("params");
+                                String search = callUri.getQueryParameter("search");
+                                LogUtil.d("params", params);
+                                LogUtil.d("search", search);
+                                Bundle bundle = new Bundle();
+                                if(params != null && !params.isEmpty()) {
+                                    HashMap<String, String> hashMap = QueryParser.parse(params);
+                                    for(String key : hashMap.keySet()) {
+                                        bundle.putString(key, hashMap.get(key));
+                                    }
+                                }
+                                enter(URLs.WEB_DOMAIN + path + "?" + search, bundle);
+                            }
+                            callUri = null;
+                        }
                     }
                 }, 1000);
             }
@@ -554,7 +580,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         fragmentTransaction.commit();
     }
     private void enter(String url, Bundle bundle) {
-        LogUtil.d("enter", url);
+        LogUtil.d("enter", url + bundle.toString());
         current = reserve;
         current.enter(url, bundle);
         wfList.add(current);
@@ -649,12 +675,35 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     protected void onNewIntent(Intent intent) {
         LogUtil.i("onNewIntent");
         super.onNewIntent(intent);
+        if(wbShareHandler != null) {
+            wbShareHandler.doResultIntent(intent, this);
+        }
         callUri = intent.getData();
         if(callUri != null) {
             LogUtil.i("callUri: " + callUri.toString());
-        }
-        if(wbShareHandler != null && intent != null) {
-            wbShareHandler.doResultIntent(intent, this);
+            String host = callUri.getHost();
+            LogUtil.d("host", host);
+            if(host.equalsIgnoreCase("h5")) {
+                String path = callUri.getPath();
+                LogUtil.d("path", path);
+                if(!path.matches("^/\\w+\\.html")) {
+                    return;
+                }
+                String query = callUri.getQuery();
+                LogUtil.d("query", query);
+                String params = callUri.getQueryParameter("params");
+                String search = callUri.getQueryParameter("search");
+                LogUtil.d("params", params);
+                LogUtil.d("search", search);
+                Bundle bundle = new Bundle();
+                if(params != null && !params.isEmpty()) {
+                    HashMap<String, String> hashMap = QueryParser.parse(params);
+                    for(String key : hashMap.keySet()) {
+                        bundle.putString(key, hashMap.get(key));
+                    }
+                }
+                enter(URLs.WEB_DOMAIN + path + "?" + search, bundle);
+            }
         }
     }
 
