@@ -544,22 +544,25 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                             LogUtil.d("host", host);
                             if(host.equalsIgnoreCase("h5")) {
                                 String path = callUri.getPath();
-                                LogUtil.d("path", path);
-                                if(!path.matches("^/\\w+\\.html")) {
+                                LogUtil.d("path", path == null ? "" : path);
+                                if(path == null || !path.matches("^/\\w+\\.html")) {
                                     return;
                                 }
                                 String query = callUri.getQuery();
                                 LogUtil.d("query", query);
                                 String params = callUri.getQueryParameter("params");
                                 String search = callUri.getQueryParameter("search");
-                                LogUtil.d("params", params);
-                                LogUtil.d("search", search);
+                                LogUtil.d("params", params == null ? "" : params);
+                                LogUtil.d("search", search == null ? "" : search);
                                 Bundle bundle = new Bundle();
                                 if(params != null && !params.isEmpty()) {
                                     HashMap<String, String> hashMap = QueryParser.parse(params);
                                     for(String key : hashMap.keySet()) {
                                         bundle.putString(key, hashMap.get(key));
                                     }
+                                }
+                                if(search == null) {
+                                    search = "";
                                 }
                                 enter(URLs.WEB_DOMAIN + path + "?" + search, bundle);
                             }
@@ -678,7 +681,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         if(wbShareHandler != null) {
             wbShareHandler.doResultIntent(intent, this);
         }
-        callUri = intent.getData();
+        Uri callUri = intent.getData();
+        String extraMap = intent.getStringExtra("extraMap");
+        LogUtil.d("extraMap", extraMap);
         if(callUri != null) {
             LogUtil.i("callUri: " + callUri.toString());
             String host = callUri.getHost();
@@ -693,8 +698,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 LogUtil.d("query", query);
                 String params = callUri.getQueryParameter("params");
                 String search = callUri.getQueryParameter("search");
-                LogUtil.d("params", params);
-                LogUtil.d("search", search);
+                LogUtil.d("params", params == null ? "" : params);
+                LogUtil.d("search", search == null ? "" : search);
                 Bundle bundle = new Bundle();
                 if(params != null && !params.isEmpty()) {
                     HashMap<String, String> hashMap = QueryParser.parse(params);
@@ -702,8 +707,35 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                         bundle.putString(key, hashMap.get(key));
                     }
                 }
+                if(search == null) {
+                    search = "";
+                }
                 enter(URLs.WEB_DOMAIN + path + "?" + search, bundle);
             }
+        }
+        else if(extraMap != null && !extraMap.isEmpty()) {
+            JSONObject json = JSONObject.parseObject(extraMap);
+            LogUtil.d("extraMap", json.toJSONString());
+            String path = json.getString("path");
+            String params = json.getString("params");
+            String search = json.getString("search");
+            LogUtil.d("path", path == null ? "" : path);
+            LogUtil.d("params", params == null ? "" : params);
+            LogUtil.d("search", search == null ? "" : search);
+            if(path == null || !path.matches("^/\\w+\\.html")) {
+                return;
+            }
+            Bundle bundle = new Bundle();
+            if(params != null && !params.isEmpty()) {
+                HashMap<String, String> hashMap = QueryParser.parse(params);
+                for(String key : hashMap.keySet()) {
+                    bundle.putString(key, hashMap.get(key));
+                }
+            }
+            if(search == null) {
+                search = "";
+            }
+            enter(URLs.WEB_DOMAIN + path + "?" + search, bundle);
         }
     }
 

@@ -1,7 +1,10 @@
 package cc.circling;
 
 import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
+import android.os.Build;
 
 import com.alibaba.sdk.android.push.CloudPushService;
 import com.alibaba.sdk.android.push.CommonCallback;
@@ -33,6 +36,24 @@ public class BaseApplication extends Application {
         MobclickAgent.setScenarioType(this, MobclickAgent.EScenarioType.E_UM_NORMAL);
 
         Bugly.init(context, "e8be097834", !BuildConfig.ENV.equals("prod"));
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+            NotificationChannel downloadChannel = new NotificationChannel("download", "转圈下载", NotificationManager.IMPORTANCE_DEFAULT);
+            downloadChannel.setDescription("下载媒体文件到本地");
+            downloadChannel.enableLights(true);
+            downloadChannel.enableVibration(true);
+            downloadChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+            mNotificationManager.createNotificationChannel(downloadChannel);
+
+            NotificationChannel notifyChannel = new NotificationChannel("notify", "转圈通知", NotificationManager.IMPORTANCE_DEFAULT);
+            downloadChannel.setDescription("有新的消息");
+            downloadChannel.enableLights(true);
+            downloadChannel.enableVibration(true);
+            downloadChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+            mNotificationManager.createNotificationChannel(notifyChannel);
+        }
     }
 
     public static Context getContext() {
