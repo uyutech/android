@@ -580,7 +580,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.base, reserve);
-        fragmentTransaction.commit();
+        fragmentTransaction.commitAllowingStateLoss();
     }
     private void enter(String url, Bundle bundle) {
         LogUtil.d("enter", url + bundle.toString());
