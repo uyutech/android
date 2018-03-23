@@ -273,16 +273,15 @@ public class MediaService extends Service {
             if(player != null) {
                 player.stop();
             }
-            lastId = null;
             if(clientId != null && mainActivity != null) {
                 JSONObject json = new JSONObject();
                 json.put("id", lastId);
                 mainActivity.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");");
             }
+            lastId = null;
         }
         public void release(String clientId) {
             LogUtil.i("release", clientId);
-            lastId = null;
             percent = 0;
             isPlaying = false;
             isPreparing = true;
@@ -308,6 +307,7 @@ public class MediaService extends Service {
                 json.put("id", lastId);
                 mainActivity.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");");
             }
+            lastId = null;
         }
         public void seek(JSONObject value, String clientId) {
             long time = value.getInteger("time");
