@@ -72,11 +72,21 @@ public class MyWebChromeClient extends WebChromeClient {
     }
     public void fileChooserCallback(List<Uri> list) {
         LogUtil.i("fileChooserCallback");
-        if(filePathCallback != null) {
-            filePathCallback.onReceiveValue(list.toArray(new Uri[list.size()]));
+        if(list == null) {
+            if(filePathCallback != null) {
+                filePathCallback.onReceiveValue(null);
+            }
+            else if(valueCallback != null) {
+                valueCallback.onReceiveValue(null);
+            }
         }
-        else if(valueCallback != null) {
-            valueCallback.onReceiveValue(list.get(0));
+        else {
+            if(filePathCallback != null) {
+                filePathCallback.onReceiveValue(list.toArray(new Uri[list.size()]));
+            }
+            else if(valueCallback != null) {
+                valueCallback.onReceiveValue(list.get(0));
+            }
         }
     }
 }

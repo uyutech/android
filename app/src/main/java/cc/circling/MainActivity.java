@@ -316,7 +316,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                         }
                         // 获取本地h5版本信息
                         SharedPreferences sharedPreferences = getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), MODE_PRIVATE);
-                        final int curVersion = sharedPreferences.getInt("version", 87);
+                        final int curVersion = sharedPreferences.getInt("version", 89);
                         LogUtil.i("checkUpdate version: ", version + ", " + curVersion);
                         if(curVersion < version) {
                             final SharedPreferences.Editor editor = MainActivity.this.getSharedPreferences(PreferenceEnum.H5PACKAGE.name(), Context.MODE_PRIVATE).edit();
@@ -620,6 +620,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                         if(list.size() > 0) {
                             current.albumOk(list);
                         }
+                    }
+                    else {
+                        current.albumOk(null);
                     }
                     break;
                 case REQUEST_ALBUM_OK_OLD:
