@@ -890,6 +890,9 @@ public class WebFragment extends Fragment {
             mainActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    if(webView == null) {
+                        return;
+                    }
                     JSONObject data = JSONObject.parseObject(msg);
                     boolean prevent = data.getBoolean("prevent");
                     if(!prevent) {

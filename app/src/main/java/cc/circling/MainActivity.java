@@ -774,7 +774,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.remove(top);
-        fragmentTransaction.commit();
+        fragmentTransaction.commitAllowingStateLoss();
     }
     public void alert(String title, String message) {
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
