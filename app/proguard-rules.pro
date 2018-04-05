@@ -52,6 +52,9 @@
 -keepclassmembers class * {
    public <init> (org.json.JSONObject);
 }
+-keepclassmembers class * extends android.webkit.WebChromeClient{
+       public void openFileChooser(...);
+}
 -dontwarn com.taobao.**
 -dontwarn com.alibaba.**
 -dontwarn com.alipay.**
