@@ -100,11 +100,4 @@
         android:layout_height="match_parent"
         android:background="@color/mainBg"/>
 
-    <View
-        android:id="@+id/mask"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#000"
-        android:visibility="gone"/>
-
 </FrameLayout>

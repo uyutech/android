@@ -33,6 +33,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.widget.EditText;
@@ -140,7 +141,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private ProgressBar progressBar;
     private TextView domain;
     private TextView copyright;
-    private View mask;
 
     private long timeStart;
     private boolean hasUnZipPack = false;
@@ -176,7 +176,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         progressBar = findViewById(R.id.progressBar);
         domain = findViewById(R.id.domain);
         copyright = findViewById(R.id.copyright);
-        mask = findViewById(R.id.mask);
         wfList = new ArrayList<>();
 
         CookieSyncManager.createInstance(this);
@@ -529,16 +528,27 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 current.enterOnly();
                 wfList.add(current);
                 prepare();
-                // 欢迎界面变暗
-                AlphaAnimation alphaAnimation = new AlphaAnimation(0f, 0.8f);
-                alphaAnimation.setDuration(300);
-                mask.startAnimation(alphaAnimation);
-                mask.setVisibility(View.VISIBLE);
+                // 欢迎界面移动
+                TranslateAnimation translateAnimation = new TranslateAnimation(0, -50,0,0);
+                translateAnimation.setDuration(300);
+                translateAnimation.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        base.removeView(open);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                    }
+                });
+                open.startAnimation(translateAnimation);
                 // 然后移除最初的欢迎界面
                 new Handler().postDelayed(new Runnable() {
                     public void run() {
-                        base.removeView(open);
-                        base.removeView(mask);
                         if(callUri != null) {
                             String host = callUri.getHost();
                             LogUtil.d("host", host);

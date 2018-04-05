@@ -89,7 +89,6 @@ public class WebFragment extends Fragment {
     private ImageView optionMenuIv2;
     private FrameLayout web;
     private FrameLayout fullScreenView;
-    private View mask;
     private MyWebChromeClient webChromeClient;
 
     private boolean hasCreateView = false;
@@ -158,7 +157,6 @@ public class WebFragment extends Fragment {
         optionMenuIv2 = rootView.findViewById(R.id.optionMenuIv2);
         web = rootView.findViewById(R.id.web);
         fullScreenView =  rootView.findViewById(R.id.fullScreen);
-        mask = rootView.findViewById(R.id.mask);
 
         WebSettings webSettings = webView.getSettings();
         String ua = webSettings.getUserAgentString();
@@ -372,24 +370,10 @@ public class WebFragment extends Fragment {
             return;
         }
         hasEnter = true;
+        rootView.setVisibility(View.VISIBLE);
         TranslateAnimation translateAnimation = new TranslateAnimation(MainActivity.WIDTH,0,0,0);
         translateAnimation.setDuration(300);
-        translateAnimation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                rootView.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
-        });
         rootView.startAnimation(translateAnimation);
-        rootView.setVisibility(View.VISIBLE);
     }
     public void enter(String url, Bundle bundle) {
         this.url = url;
@@ -484,7 +468,6 @@ public class WebFragment extends Fragment {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                mask.setVisibility(View.GONE);
                 WebFragment.this.resume();
             }
 
@@ -492,46 +475,12 @@ public class WebFragment extends Fragment {
             public void onAnimationRepeat(Animation animation) {
             }
         });
-        mask.startAnimation(alphaAnimation);
         rootView.setVisibility(View.VISIBLE);
         TranslateAnimation translateAnimation = new TranslateAnimation(-50, 0,0,0);
         translateAnimation.setDuration(300);
-        translateAnimation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
-        });
         rootView.startAnimation(translateAnimation);
     }
     public void hide() {
-        AlphaAnimation alphaAnimation = new AlphaAnimation(0f, 0.8f);
-        alphaAnimation.setDuration(300);
-        alphaAnimation.setFillAfter(true);
-        alphaAnimation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                rootView.setVisibility(View.GONE);
-                WebFragment.this.pause();
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
-        });
-        mask.startAnimation(alphaAnimation);
-        mask.setVisibility(View.VISIBLE);
         TranslateAnimation translateAnimation = new TranslateAnimation(0, -50,0,0);
         translateAnimation.setDuration(300);
         translateAnimation.setAnimationListener(new Animation.AnimationListener() {
@@ -541,6 +490,7 @@ public class WebFragment extends Fragment {
 
             @Override
             public void onAnimationEnd(Animation animation) {
+                rootView.setVisibility(View.GONE);
             }
 
             @Override
