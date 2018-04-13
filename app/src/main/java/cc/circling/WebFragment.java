@@ -755,7 +755,7 @@ public class WebFragment extends Fragment {
                     login(clientId, msg);
                     break;
                 case "loginOut":
-                    loginOut();
+                    loginOut(clientId);
                     break;
                 case "loginWeibo":
                     loginWeibo(clientId);
@@ -1028,7 +1028,7 @@ public class WebFragment extends Fragment {
                 });
             }
         }
-        private void loginOut() {
+        private void loginOut(String clientId) {
             SharedPreferences sharedPreferences = mainActivity
                     .getSharedPreferences(PreferenceEnum.SESSION.name(), MODE_PRIVATE);
             SharedPreferences.Editor editor = mainActivity
@@ -1045,6 +1045,7 @@ public class WebFragment extends Fragment {
                 @Override
                 public void run() {
                     mainActivity.syncCookie();
+                    evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + clientId + "');");
                 }
             });
         }
