@@ -144,7 +144,7 @@ public class MediaService extends Service {
 
                 @Override
                 public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-                    LogUtil.d("onPlayerStateChanged", playWhenReady + ", " + playbackState);
+                    LogUtil.d("onPlayerStateChanged", lastId + ", " + playWhenReady + ", " + playbackState);
                     if(isPreparing && playbackState == Player.STATE_READY) {
                         isPreparing = false;
                         JSONObject json = new JSONObject();
@@ -153,10 +153,11 @@ public class MediaService extends Service {
                         json.put("duration", duration);
                         mainActivity.evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('mediaPrepared', " + json.toJSONString() + ");");
                     }
-                    if(playbackState == Player.STATE_ENDED) {
+                    // 发现出现2回调2次的情况，附加isPlaying以判断去重
+                    else if(isPlaying && playbackState == Player.STATE_ENDED) {
+                        isPlaying = false;
                         player.setPlayWhenReady(false);
                         player.seekTo(0);
-                        isPlaying = false;
                         JSONObject json = new JSONObject();
                         json.put("id", lastId);
                         mainActivity.evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.emit('mediaEnd', " + json.toJSONString() + ");");
