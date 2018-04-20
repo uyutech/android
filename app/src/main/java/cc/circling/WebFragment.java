@@ -218,9 +218,9 @@ public class WebFragment extends Fragment {
         LogUtil.d("transparentTitle ", transparentTitle + "");
         if(isTransparentTitle) {
             title.setTextColor(Color.parseColor("#FFFFFF"));
-            title.setShadowLayer(4, 0, 2, Color.parseColor("#33000000"));
+            title.setShadowLayer(4, 0, 2, Color.parseColor("#66000000"));
             subTitle.setTextColor(Color.parseColor("#FFFFFF"));
-            subTitle.setShadowLayer(4, 0, 2, Color.parseColor("#33000000"));
+            subTitle.setShadowLayer(4, 0, 2, Color.parseColor("#66000000"));
             back.setImageResource(R.drawable.back_transparent);
             setTitleBgColor("transparent");
             titleBgColor = bundle.getString("titleBgColor");

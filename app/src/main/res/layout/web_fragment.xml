@@ -32,7 +32,8 @@
             <ImageView
                 android:id="@+id/back"
                 android:scaleType="fitXY"
-                android:layout_width="32dp"
+                android:paddingEnd="5dp"
+                android:layout_width="37dp"
                 android:layout_height="32dp"
                 android:layout_gravity="center"
                 android:src="@drawable/back"/>
@@ -70,19 +71,22 @@
                 <ImageView
                     android:id="@+id/optionMenuIv1"
                     android:scaleType="fitXY"
-                    android:layout_width="32dp"
+                    android:paddingStart="5dp"
+                    android:layout_width="37dp"
                     android:layout_height="32dp"
                     android:layout_gravity="center"/>
                 <ImageView
                     android:id="@+id/optionMenuIv2"
                     android:scaleType="fitXY"
-                    android:layout_width="32dp"
+                    android:paddingStart="5dp"
+                    android:layout_width="37dp"
                     android:layout_height="32dp"
                     android:layout_gravity="center"/>
                 <TextView
                     android:id="@+id/optionMenuText"
-                    android:layout_marginEnd="10dp"
-                    android:layout_width="match_parent"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="10dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textColor="@color/titleText"
                     android:textSize="12dp"
