@@ -66,12 +66,12 @@ public class MyWebChromeClient extends WebChromeClient {
         return true;
     }
     public void openFileChooser(ValueCallback<Uri> valueCallback, String acceptType, String capture) {
-        LogUtil.i("openFileChooser");
+        LogUtil.i("openFileChooser", valueCallback == null ? "null" : valueCallback.toString());
         this.valueCallback = valueCallback;
         mainActivity.album(1);
     }
     public void fileChooserCallback(List<Uri> list) {
-        LogUtil.i("fileChooserCallback");
+        LogUtil.i("fileChooserCallback", list == null ? "null" : list.toString());
         if(list == null) {
             if(filePathCallback != null) {
                 filePathCallback.onReceiveValue(null);
