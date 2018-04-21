@@ -254,6 +254,9 @@ public class WebFragment extends Fragment {
             else {
                 setTitleBgColor("#FFFFFF");
             }
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                titleBar.setElevation(8);
+            }
         }
 
         // webview背景色
@@ -664,7 +667,7 @@ public class WebFragment extends Fragment {
         if(titleBgColor == null || titleBgAlpha == 0) {
             return;
         }
-        t -= 64;
+        t /= 4;
         if(t > 255) {
             t = 255;
         }
@@ -684,6 +687,10 @@ public class WebFragment extends Fragment {
             tp = "#" + tp;
         }
         setTitleBgColor(tp + titleBgColor);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            float elevation = (int)t / 32;
+            titleBar.setElevation(Math.max(elevation, 8));
+        }
     }
     public void onWbShareSuccess() {
         JSONObject json = new JSONObject();
