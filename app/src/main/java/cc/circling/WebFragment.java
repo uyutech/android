@@ -192,7 +192,7 @@ public class WebFragment extends Fragment {
     public synchronized void load(String url, Bundle bundle) {
         LogUtil.i("load", url + ", " + hasCreateView + ", " + shouldEnter);
         this.url = url;
-        // 存在极端情况，添加fragment的transacation异步尚未执行，enter先执行了，需记录等待添加后执行
+        // 存在极端情况，添加fragment的transaction异步尚未执行，enter先执行了，需记录等待添加后执行
         if(!hasCreateView) {
             this.bundle = bundle;
             shouldLoad = true;
@@ -667,12 +667,13 @@ public class WebFragment extends Fragment {
         if(titleBgColor == null || titleBgAlpha == 0) {
             return;
         }
+        t -= 64;
+        if(t < 0) {
+            t = 0;
+        }
         t /= 4;
         if(t > 255) {
             t = 255;
-        }
-        else if(t < 0) {
-            t = 0;
         }
         if(t == lastT) {
             return;
