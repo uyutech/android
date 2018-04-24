@@ -990,37 +990,31 @@ public class WebFragment extends Fragment {
                     LogUtil.i("responseBody: " + responseBody);
                     if(!responseBody.isEmpty()) {
                         JSONObject res = JSONObject.parseObject(responseBody);
-                        if(res.getBoolean("success")) {
-                            JSONObject d = res.getJSONObject("data");
-                            if(d != null) {
-                                JSONObject userInfo = d.getJSONObject("userInfo");
-                                if(userInfo != null) {
-                                    String uid = userInfo.getString("UID");
-                                    LogUtil.i("uid: " + uid);
-                                    MobclickAgent.onProfileSignIn(uid);
-                                    CrashReport.setUserId(uid);
-                                    BaseApplication.getCloudPushService().bindAccount(uid, new CommonCallback() {
-                                        @Override
-                                        public void onSuccess(String message) {
-                                            LogUtil.i("bindAccount success", message);
-                                        }
-
-                                        @Override
-                                        public void onFailed(String message, String arg) {
-                                            LogUtil.i("bindAccount fail", message + ", " + arg);
-                                        }
-                                    });
-                                }
+                        mainActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mainActivity.syncCookie();
+                                evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + responseBody + ");");
                             }
-                            mainActivity.runOnUiThread(new Runnable() {
+                        });
+                        if(res.getBoolean("success")) {
+                            JSONObject user = res.getJSONObject("data").getJSONObject("user");
+                            String uid = user.getString("id");
+                            MobclickAgent.onProfileSignIn(uid);
+                            CrashReport.setUserId(uid);
+                            BaseApplication.getCloudPushService().bindAccount(uid, new CommonCallback() {
                                 @Override
-                                public void run() {
-                                    mainActivity.syncCookie();
-                                    evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + responseBody + ");");
+                                public void onSuccess(String message) {
+                                    LogUtil.i("bindAccount success", message);
+                                }
+
+                                @Override
+                                public void onFailed(String message, String arg) {
+                                    LogUtil.i("bindAccount fail", message + ", " + arg);
                                 }
                             });
-                            return;
                         }
+                        return;
                     }
                 }
                 catch(Exception e) {
