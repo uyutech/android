@@ -318,21 +318,6 @@ public class WebFragment extends Fragment {
             }
         });
 
-        title.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LogUtil.i("click title");
-                evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.trigger('clickTitle');");
-            }
-        });
-        subTitle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LogUtil.i("click title");
-                evaluateJavascript("window.ZhuanQuanJsBridge && ZhuanQuanJsBridge.trigger('clickTitle');");
-            }
-        });
-
         // optionMenu文字
         String optionMenu = bundle.getString("optionMenu");
         String optionMenuColor = bundle.getString("optionMenuColor");
