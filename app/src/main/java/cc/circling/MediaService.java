@@ -248,8 +248,10 @@ public class MediaService extends Service {
             if(value != null) {
                 info(value);
             }
-            isPlaying = true;
-            player.setPlayWhenReady(true);
+            if(player != null) {
+                isPlaying = true;
+                player.setPlayWhenReady(true);
+            }
             if(clientId != null && mainActivity != null) {
                 JSONObject json = new JSONObject();
                 json.put("id", lastId);
@@ -259,7 +261,9 @@ public class MediaService extends Service {
         public void pause(String clientId) {
             LogUtil.i("pause", clientId);
             isPlaying = false;
-            player.setPlayWhenReady(false);
+            if(player != null) {
+                player.setPlayWhenReady(false);
+            }
             if(clientId != null && mainActivity != null) {
                 JSONObject json = new JSONObject();
                 json.put("id", lastId);
