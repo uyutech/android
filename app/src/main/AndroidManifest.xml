@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_LOGS" />
-    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.FLASHLIGHT"/>
 
     <application
@@ -44,12 +44,6 @@
                       android:host="h5"/>
             </intent-filter>
         </activity>
-        <!--<activity-->
-            <!--android:name=".X5Activity"-->
-            <!--android:hardwareAccelerated="true"-->
-            <!--android:screenOrientation="portrait"-->
-            <!--android:windowSoftInputMode="stateHidden|adjustResize"-->
-            <!--android:configChanges="orientation|screenSize|keyboardHidden|locale"/>-->
         <receiver
             android:name=".MyMessageReceiver"
             android:exported="false"> <!-- 为保证receiver安全，建议设置不可导出，如需对其他应用开放可通过android：permission进行限制 -->

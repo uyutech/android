@@ -31,7 +31,6 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.webkit.CookieManager;
@@ -184,11 +183,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
         prepare();
         current = reserve;
-
-        // 背景渐显
-        Animation alphaAnimation = new AlphaAnimation(0.1f, 1.0f);
-        alphaAnimation.setDuration(500);
-        bgi.startAnimation(alphaAnimation);
         timeStart = new Date().getTime();
 
         Intent intent = getIntent();
