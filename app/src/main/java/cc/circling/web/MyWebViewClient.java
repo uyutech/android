@@ -14,6 +14,8 @@ import cc.circling.BaseApplication;
 import cc.circling.BuildConfig;
 import cc.circling.utils.LogUtil;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 
 
@@ -39,6 +41,19 @@ public class MyWebViewClient extends WebViewClient {
         return shouldInterceptRequest(url);
     }
     private WebResourceResponse shouldInterceptRequest(String url) {
+        // 本地下载媒体文件拦截
+        if(url.startsWith(URLs.LOCAL_DOMAIN)) {
+            String path = url.substring(URLs.LOCAL_DOMAIN.length());
+            WebResourceResponse wrr = null;
+            try {
+                FileInputStream is = new FileInputStream(new File(path));
+                wrr = new WebResourceResponse("application/octet-stream", "utf-8", is);
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+            }
+            return wrr;
+        }
         // 离线包地址拦截本地资源
         if(!online && url.startsWith(URLs.WEB_DOMAIN)) {
             String path = url.substring(URLs.WEB_DOMAIN.length());
@@ -57,7 +72,7 @@ public class MyWebViewClient extends WebViewClient {
                 path = path.substring(1);
             }
             LogUtil.i("shouldInterceptRequest? " + url + ", " + path);
-            if (path.endsWith(".html")
+            if(path.endsWith(".html")
                     || path.endsWith(".htm")
                     || path.endsWith(".css")
                     || path.endsWith(".js")
@@ -74,22 +89,29 @@ public class MyWebViewClient extends WebViewClient {
 //                InputStream is = BaseApplication.getContext().getResources().openRawResource(R.raw.cc.circling);
 //                InputStream is = BaseApplication.getContext().getAssets().open("cc.circling.html");
                     is = BaseApplication.getContext().openFileInput(noSepPath);
-                    if (noSepPath.endsWith(".html") || noSepPath.endsWith(".htm")) {
+                    if(noSepPath.endsWith(".html") || noSepPath.endsWith(".htm")) {
                         wrr = new WebResourceResponse("text/html", "utf-8", is);
-                    } else if (noSepPath.endsWith(".css")) {
+                    }
+                    else if(noSepPath.endsWith(".css")) {
                         wrr = new WebResourceResponse("text/css", "utf-8", is);
-                    } else if (noSepPath.endsWith(".js")) {
+                    }
+                    else if(noSepPath.endsWith(".js")) {
                         wrr = new WebResourceResponse("application/javascript", "utf-8", is);
-                    } else if (noSepPath.endsWith(".png")) {
+                    }
+                    else if(noSepPath.endsWith(".png")) {
                         wrr = new WebResourceResponse("image/png", "utf-8", is);
-                    } else if (noSepPath.endsWith(".gif")) {
+                    }
+                    else if(noSepPath.endsWith(".gif")) {
                         wrr = new WebResourceResponse("image/gif", "utf-8", is);
-                    } else if (noSepPath.endsWith(".jpg")) {
-                        wrr = new WebResourceResponse("image/jpeg", "utf-8", is);
-                    } else if (noSepPath.endsWith(".jpeg")) {
+                    }
+                    else if(noSepPath.endsWith(".jpg")) {
                         wrr = new WebResourceResponse("image/jpeg", "utf-8", is);
                     }
-                } catch (Exception e) {
+                    else if(noSepPath.endsWith(".jpeg")) {
+                        wrr = new WebResourceResponse("image/jpeg", "utf-8", is);
+                    }
+                }
+                catch(Exception e) {
                     e.printStackTrace();
                 }
                 return wrr;

@@ -1,7 +1,6 @@
 package cc.circling;
 
 import android.app.Notification;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -10,6 +9,7 @@ import android.os.Binder;
 import android.os.Environment;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.media.app.NotificationCompat.MediaStyle;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -28,7 +28,9 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
 import java.io.File;
@@ -37,6 +39,7 @@ import java.util.TimerTask;
 
 import cc.circling.utils.LogUtil;
 import cc.circling.web.OkHttpDns;
+import cc.circling.web.URLs;
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 
@@ -45,6 +48,8 @@ import okhttp3.OkHttpClient;
  */
 
 public class MediaService extends Service {
+    private static final int NOTIFY_ID = 6666;
+
     private PlayBinder playBinder = new PlayBinder();
     private MainActivity mainActivity;
     private SimpleExoPlayer player;
@@ -53,11 +58,14 @@ public class MediaService extends Service {
     private boolean isPlaying = false;
     private boolean isPreparing;
     private String lastId;
+    private Boolean isNew;
     private long lastPosition;
     private Timer timer;
     private TimerTask timerTask;
     private Timer timer2;
     private TimerTask timerTask2;
+    private NotificationCompat.Builder builder;
+    private Notification notification;
 
     class PlayBinder extends Binder {
 
@@ -214,34 +222,61 @@ public class MediaService extends Service {
             LogUtil.i("info", value.toJSONString());
             String url = value.getString("url");
             String id = value.getString("id");
+            String title = value.getString("title");
+            String author = value.getString("author");
             // 传入和上次相同的信息时忽略
             if(lastId != null && lastId.equals(id)) {
                 return;
             }
             this.init();
+
             DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-            File cacheFile;
-            long maxSize;
-            if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-                cacheFile = new File(mainActivity.getExternalCacheDir(), "media");
-                maxSize = 1024 * 1024 * 1024;
+            if(url.startsWith(URLs.LOCAL_DOMAIN)) {
+                url = url.substring(URLs.LOCAL_DOMAIN.length());
+                DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(mainActivity,
+                        Util.getUserAgent(mainActivity, "cc.circling"), bandwidthMeter);
+                MediaSource mediaSource = new ExtractorMediaSource.Factory(dataSourceFactory)
+                        .createMediaSource(Uri.parse(url));
+                player.prepare(mediaSource);
             }
             else {
-                cacheFile = new File(mainActivity.getCacheDir(), "media");
-                maxSize = 200 * 1024 * 1024;
+                File cacheFile;
+                long maxSize;
+                if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+                    cacheFile = new File(mainActivity.getExternalCacheDir(), "media");
+                    maxSize = 1024 * 1024 * 1024;
+                }
+                else {
+                    cacheFile = new File(mainActivity.getCacheDir(), "media");
+                    maxSize = 200 * 1024 * 1024;
+                }
+                LogUtil.d("cacheFile", maxSize + ", " + cacheFile.toString());
+                OkHttpClient client = new OkHttpClient
+                        .Builder()
+                        .dns(OkHttpDns.getInstance())
+                        .cache(new Cache(cacheFile, maxSize))
+                        .build();
+                OkHttpDataSourceFactory dataSourceFactory = new OkHttpDataSourceFactory(client,
+                        Util.getUserAgent(mainActivity, "cc.circling"), bandwidthMeter);
+                MediaSource mediaSource = new ExtractorMediaSource.Factory(dataSourceFactory)
+                        .createMediaSource(Uri.parse(url));
+                player.prepare(mediaSource);
             }
-            LogUtil.d("cacheFile", maxSize + ", " + cacheFile.toString());
-            OkHttpClient client = new OkHttpClient
-                    .Builder()
-                    .dns(OkHttpDns.getInstance())
-                    .cache(new Cache(cacheFile, maxSize))
-                    .build();
-            OkHttpDataSourceFactory dataSourceFactory = new OkHttpDataSourceFactory(client,
-                    Util.getUserAgent(mainActivity, "cc.circling"), bandwidthMeter);
-            MediaSource mediaSource = new ExtractorMediaSource.Factory(dataSourceFactory)
-                    .createMediaSource(Uri.parse(url));
-            player.prepare(mediaSource);
             lastId = id;
+            isNew = true;
+
+            builder = new NotificationCompat.Builder(mainActivity, "media");
+            builder.setWhen(System.currentTimeMillis());
+            builder.setTicker("正在播放：" + title);
+            builder.setContentTitle(title);
+            builder.setContentText(author);
+            builder.setSmallIcon(R.mipmap.ic_launcher);
+            builder.setLargeIcon(BitmapFactory.decodeResource(mainActivity.getResources(), R.mipmap.ic_launcher));
+//            builder.addAction(R.drawable.back, "test", null);
+//            MediaStyle mediaStyle = new MediaStyle();
+//            mediaStyle.setShowActionsInCompactView(0);
+//            mediaStyle.setShowCancelButton(true);
+//            builder.setStyle(mediaStyle);
         }
         public void play(JSONObject value, String clientId) {
             LogUtil.i("play", clientId);
@@ -256,6 +291,14 @@ public class MediaService extends Service {
                 JSONObject json = new JSONObject();
                 json.put("id", lastId);
                 mainActivity.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");");
+            }
+            if(isNew) {
+                isNew = false;
+                if(notification != null) {
+                    stopForeground(true);
+                }
+                notification = builder.build();
+                startForeground(1, notification);
             }
         }
         public void pause(String clientId) {
@@ -284,6 +327,10 @@ public class MediaService extends Service {
                 mainActivity.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");");
             }
             lastId = null;
+            if(notification != null) {
+                stopForeground(true);
+                notification = null;
+            }
         }
         public void release(String clientId) {
             LogUtil.i("release", clientId);
@@ -339,6 +386,17 @@ public class MediaService extends Service {
     public void onCreate() {
         LogUtil.i("onCreate");
         super.onCreate();
+//        Intent intent = new Intent(this, MainActivity.class);
+//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+//        builder = new NotificationCompat.Builder(this, "play");
+//        builder.setWhen(System.currentTimeMillis());
+//        builder.setContentIntent(pendingIntent);
+//        builder.setTicker("123");
+//        builder.setContentTitle("456");
+//        builder.setSmallIcon(R.mipmap.ic_launcher);
+//        builder.setLargeIcon(BitmapFactory.decodeResource(this.getResources(), R.mipmap.ic_launcher));
+//        notification = builder.build();
+//        startForeground(NOTIFY_ID, notification);
     }
     @Override
     public void onDestroy() {

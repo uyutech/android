@@ -72,9 +72,9 @@
             delete callbackHash[clientId];
         },
         _invokeJs: function(clientId, resp) {
-         var func = callbackHash[clientId];
-         func && func(resp);
-         delete callbackHash[clientId];
+            var func = callbackHash[clientId];
+            func && func(resp);
+            delete callbackHash[clientId];
         }
     };
 

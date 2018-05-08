@@ -82,6 +82,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -109,8 +111,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private static final int RC_DOWNLOAD = 8735;
     private static final int RC_ALBUM = 8736;
     public static final int REQUEST_ALBUM_OK = 8737;
-    private static final int RC_ALBUM_OLD = 8738;
-    public static final int REQUEST_ALBUM_OK_OLD = 8739;
+    private static final int RC_LOCAL_MEDIA = 8738;
     public static int WIDTH;
 
     private static String[] umengPerms = {
@@ -123,14 +124,17 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
     };
-    private String downloadName;
     private String downloadUrl;
-    private static int downloadId = 0;
+    private String downloadName;
+    private int downloadKind;
+    private String downloadTitle;
+    private static int DOWNLOAD_NOTIFY_ID = 1000;
+
+    private int localMediaKind;
 
     private static int albumNum = 1;
-    private static int albumNumOld = 1;
 
-    private static int notifyId = 0;
+    private static int NOTIFY_ID = 2000;
 
     public static ProgressDialog lastProgressDialog;
 
@@ -629,15 +633,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                         current.albumOk(null);
                     }
                     break;
-                case REQUEST_ALBUM_OK_OLD:
-                    if(resultCode == RESULT_OK) {
-                        List<Uri> list = Matisse.obtainResult(data);
-                        LogUtil.i("REQUEST_ALBUM_OK_OLD", list.toString());
-                        if(list.size() > 0) {
-                            current.albumOkOld(list);
-                        }
-                    }
-                    break;
             }
         }
     }
@@ -655,8 +650,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             case RC_ALBUM:
                 album();
                 break;
-            case RC_ALBUM_OLD:
-                albumOld();
+            case RC_LOCAL_MEDIA:
+                localMediaList();
                 break;
         }
     }
@@ -811,47 +806,33 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         });
         dialog.show();
     }
-    public void download(String url, String name) {
-        this.downloadName = name;
-        this.downloadUrl = url;
+    public void download(String url, String name, int kind, String title) {
+        downloadUrl = url;
+        downloadName = name;
+        downloadKind = kind;
+        downloadTitle = title;
         if(EasyPermissions.hasPermissions(this, filePerms)) {
             download();
         }
         else {
             EasyPermissions.requestPermissions(this, "下载需要读写sd卡权限",
-                    RC_DOWNLOAD, filePerms);
+                RC_DOWNLOAD, filePerms);
         }
     }
     private void download() {
-        final String type;
-        if(downloadUrl.endsWith(".mp3")) {
-            type = "audio/*";
-        }
-        else if(downloadUrl.endsWith(".mp4")) {
-            type = "video/*";
-        }
-        else {
-            type = "image/*";
-        }
         // 创建目录
         String directoryPath = "";
         if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             LogUtil.i("DownloadPlugin: MEDIA_MOUNTED");
-            if(downloadUrl.endsWith(".mp3")) {
-                directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath();
-            }
-            else if(downloadUrl.endsWith(".mp4")) {
-                directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES).getAbsolutePath();
-            }
-            else {
-                directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath();
-            }
+            directoryPath = this.getExternalFilesDir("download").getAbsolutePath();
         }
         else {
-            LogUtil.i("DownloadPlugin: !MEDIA_MOUNTED");
-            directoryPath = BaseApplication.getContext().getFilesDir().getAbsolutePath();
+            Toast toast = Toast.makeText(this, "没有SD卡，无法下载哦~", Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+            return;
         }
-        directoryPath += File.separator + "circling";
+        directoryPath += File.separator + downloadKind;
         File file = new File(directoryPath);
         if(!file.exists()) {
             file.mkdirs();
@@ -860,112 +841,92 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         FileDownloadHelper.holdContext(BaseApplication.getContext());
         final String path = directoryPath + File.separator + downloadName;
         LogUtil.i("path: " + path);
-        File downloadFile = new File(path);
-        final int currentID = downloadId++;
+        final int currentId = DOWNLOAD_NOTIFY_ID++;
+        if(DOWNLOAD_NOTIFY_ID >= 1999) {
+            DOWNLOAD_NOTIFY_ID = 1000;
+        }
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "download");
         builder.setWhen(System.currentTimeMillis());
-        builder.setTicker("准备下载 " + downloadName);
-        builder.setContentTitle("准备下载 " + downloadName);
+        builder.setTicker("准备下载 " + downloadTitle);
+        builder.setContentTitle("准备下载 " + downloadTitle);
+        builder.setAutoCancel(true);
         builder.setSmallIcon(R.mipmap.ic_launcher);
         builder.setLargeIcon(BitmapFactory.decodeResource(this.getResources(), R.mipmap.ic_launcher));
-
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        final Uri uri;
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            uri = FileProvider.getUriForFile(BaseApplication.getContext(),
-                    BuildConfig.APPLICATION_ID + ".download", downloadFile);
-            LogUtil.i("uri: " + uri);
-            intent.setDataAndType(uri, type);
-        }
-        else {
-            uri = Uri.fromFile(downloadFile);
-            LogUtil.i("uri2: " + uri);
-            intent.setDataAndType(uri, type);
-        }
-        intent.addCategory(Intent.CATEGORY_DEFAULT);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        final PendingIntent pIntent = PendingIntent.getActivity(this, 1, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-        Notification notification = builder.build();
         final NotificationManager notificationManager =
                 (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(currentID, notification);
 
         FileDownloader.getImpl().create(downloadUrl)
-                .setPath(path)
-                .setListener(new FileDownloadListener() {
-                    @Override
-                    protected void pending(BaseDownloadTask task, int soFarBytes, int totalBytes) {
-                        LogUtil.i("pending", soFarBytes + ", " + totalBytes);
-                    }
+            .setPath(path)
+            .setListener(new FileDownloadListener() {
+                @Override
+                protected void pending(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+                    LogUtil.i("pending", soFarBytes + ", " + totalBytes);
+                }
 
-                    @Override
-                    protected void connected(BaseDownloadTask task, String etag, boolean isContinue, int soFarBytes, int totalBytes) {
-                        builder.setTicker("开始下载 " + downloadName);
-                        builder.setContentTitle("开始下载 " + downloadName);
-                        builder.setContentText("进度 0%");
-                    }
+                @Override
+                protected void connected(BaseDownloadTask task, String etag, boolean isContinue, int soFarBytes, int totalBytes) {
+                    builder.setTicker("开始下载 " + downloadTitle);
+                    builder.setContentTitle("开始下载 " + downloadTitle);
+                    builder.setContentText("进度 0%");
+                    notificationManager.notify(currentId, builder.build());
+                }
 
-                    @Override
-                    protected void progress(BaseDownloadTask task, int soFarBytes, int totalBytes) {
-                        int progress = (int) (soFarBytes * 1.0f / totalBytes * 100);
-                        builder.setTicker("正在下载 " + downloadName);
-                        builder.setContentTitle("正在下载 " + downloadName);
-                        builder.setContentText("进度 " + progress + "%");
-                        builder.setProgress(totalBytes, soFarBytes, false);
-                        notificationManager.notify(currentID, builder.build());
-                    }
+                @Override
+                protected void progress(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+                    int progress = (int) (soFarBytes * 1.0f / totalBytes * 100);
+                    builder.setTicker("正在下载 " + downloadTitle);
+                    builder.setContentTitle("正在下载 " + downloadTitle);
+                    builder.setContentText("进度 " + progress + "%");
+                    builder.setProgress(totalBytes, soFarBytes, false);
+                    notificationManager.notify(currentId, builder.build());
+                }
 
-                    @Override
-                    protected void blockComplete(BaseDownloadTask task) {
-                        builder.setTicker("下载完成 " + downloadName);
-                        builder.setContentTitle("下载完成 " + downloadName);
-                        builder.setContentText("下载完成");
-                        builder.setProgress(0, 0, false);
-                        notificationManager.notify(currentID, builder.build());
-                    }
+                @Override
+                protected void blockComplete(BaseDownloadTask task) {
+                    builder.setTicker("下载完成 " + downloadTitle);
+                    builder.setContentTitle("下载完成 " + downloadTitle);
+                    builder.setContentText("下载完成");
+                    builder.setProgress(0, 0, false);
+                    notificationManager.notify(currentId, builder.build());
+                }
 
-                    @Override
-                    protected void retry(final BaseDownloadTask task, final Throwable ex, final int retryingTimes, final int soFarBytes) {
-                        LogUtil.i("retry");
-                    }
+                @Override
+                protected void retry(final BaseDownloadTask task, final Throwable ex, final int retryingTimes, final int soFarBytes) {
+                    LogUtil.i("retry");
+                }
 
-                    @Override
-                    protected void completed(BaseDownloadTask task) {
-                        builder.setTicker("下载完成 " + downloadName);
-                        builder.setContentTitle("下载完成 " + downloadName);
-                        builder.setContentText("下载完成");
-                        builder.setProgress(0, 0, false);
-                        builder.setContentIntent(pIntent);
-                        notificationManager.notify(currentID, builder.build());
-                        // 通知媒体库更新，可以在相册等看到
-                        Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                        intent.setData(uri);
-                        LogUtil.i("completed: ", intent.toString());
-                        MainActivity.this.sendBroadcast(intent);
-                    }
+                @Override
+                protected void completed(BaseDownloadTask task) {
+                    builder.setTicker("下载完成 " + downloadTitle);
+                    builder.setContentTitle("下载完成 " + downloadTitle);
+                    builder.setContentText("下载完成");
+                    builder.setProgress(0, 0, false);
+                    notificationManager.notify(currentId, builder.build());
+                }
 
-                    @Override
-                    protected void paused(BaseDownloadTask task, int soFarBytes, int totalBytes) {
-                        builder.setTicker("下载暂停 " + downloadName);
-                        builder.setContentTitle("下载完成 " + downloadName);
-                        builder.setContentText("下载暂停");
-                        builder.setProgress(totalBytes, soFarBytes, false);
-                    }
+                @Override
+                protected void paused(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+                    builder.setTicker("下载暂停 " + downloadTitle);
+                    builder.setContentTitle("下载完成 " + downloadTitle);
+                    builder.setContentText("下载暂停");
+                    builder.setProgress(totalBytes, soFarBytes, false);
+                    notificationManager.notify(currentId, builder.build());
+                }
 
-                    @Override
-                    protected void error(BaseDownloadTask task, Throwable e) {
-                        builder.setTicker("下载错误 " + downloadName);
-                        builder.setContentTitle("下载错误 " + downloadName);
-                        builder.setContentText("下载错误");
-                        builder.setProgress(1, 0, false);
-                    }
+                @Override
+                protected void error(BaseDownloadTask task, Throwable e) {
+                    builder.setTicker("下载错误 " + downloadTitle);
+                    builder.setContentTitle("下载错误 " + downloadTitle);
+                    builder.setContentText("下载错误");
+                    builder.setProgress(1, 0, false);
+                    notificationManager.notify(currentId, builder.build());
+                }
 
-                    @Override
-                    protected void warn(BaseDownloadTask task) {
-                        LogUtil.i("warn");
-                    }
-                }).start();
+                @Override
+                protected void warn(BaseDownloadTask task) {
+                    LogUtil.i("warn");
+                }
+            }).start();
     }
     public void showLoading(String title, String message, boolean cancelable) {
         lastProgressDialog = new ProgressDialog(this);
@@ -996,7 +957,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
         NotificationManager notificationManager =
                 (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(notifyId++, notification);
+        notificationManager.notify(NOTIFY_ID++, notification);
+        if(NOTIFY_ID >= 2999) {
+            NOTIFY_ID = 2000;
+        }
     }
     public void prompt(String title, String message, String value) {
         EditText et = new EditText(this);
@@ -1085,27 +1049,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 .imageEngine(new GlideEngine())
                 .forResult(REQUEST_ALBUM_OK);
     }
-    public void albumOld(int num) {
-        albumNumOld = num;
-        if(EasyPermissions.hasPermissions(this, filePerms)) {
-            albumOld();
-        }
-        else {
-            EasyPermissions.requestPermissions(this, "打开相册需要读写sd卡权限",
-                    RC_ALBUM_OLD, filePerms);
-        }
-    }
-    private void albumOld() {
-        Matisse.from(this)
-                .choose(MimeType.of(MimeType.GIF, MimeType.JPEG, MimeType.PNG))
-                .countable(true)
-                .maxSelectable(albumNumOld)
-                .gridExpectedSize(240)
-                .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
-                .thumbnailScale(0.85f)
-                .imageEngine(new GlideEngine())
-                .forResult(REQUEST_ALBUM_OK_OLD);
-    }
     public void syncCookie(WebView webView) {
         LogUtil.i("syncCookie WebView");
         cookieManager.removeExpiredCookie();
@@ -1170,6 +1113,62 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             weiboMultiMessage.videoSourceObject = videoSourceObject;
         }
         wbShareHandler.shareMessage(weiboMultiMessage, false);
+    }
+    public void localMediaList(int kind) {
+        localMediaKind = kind;
+        if(EasyPermissions.hasPermissions(this, filePerms)) {
+            localMediaList();
+        }
+        else {
+            EasyPermissions.requestPermissions(this, "获取下载列表需要读sd卡权限",
+                RC_LOCAL_MEDIA, filePerms);
+        }
+    }
+    private void localMediaList() {
+        String directoryPath = "";
+        if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            LogUtil.i("DownloadPlugin: MEDIA_MOUNTED");
+            directoryPath = this.getExternalFilesDir("download").getAbsolutePath();
+        }
+        else {
+            Toast toast = Toast.makeText(this, "没有SD卡，无法查看哦~", Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+            return;
+        }
+        directoryPath += File.separator + localMediaKind;
+        File file = new File(directoryPath);
+        if(!file.exists()) {
+            file.mkdirs();
+        }
+        LogUtil.i("directoryPath: " + directoryPath);
+        File[] files = file.listFiles();
+        LogUtil.i("listFiles: " + files.length);
+        Arrays.sort(files, new Comparator<File>() {
+            @Override
+            public int compare(File o1, File o2) {
+                long diff = o1.lastModified() - o2.lastModified();
+                if(diff > 0) {
+                    return -1;
+                }
+                else if(diff == 0) {
+                    return 0;
+                }
+                else {
+                    return 1;
+                }
+            }
+        });
+        JSONArray list = new JSONArray();
+        for(File item : files) {
+            JSONObject json = new JSONObject();
+            json.put("name", item.getName());
+            json.put("modified", item.lastModified());
+            json.put("length", item.length());
+            json.put("absolutePath", item.getAbsolutePath());
+            list.add(json);
+        }
+        current.localMediaList(list);
     }
 
     private class SelfWbAuthListener implements WbAuthListener {

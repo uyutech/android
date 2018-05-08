@@ -42,8 +42,8 @@ public class BaseApplication extends Application {
 
             NotificationChannel downloadChannel = new NotificationChannel("download", "转圈下载", NotificationManager.IMPORTANCE_DEFAULT);
             downloadChannel.setDescription("下载媒体文件到本地");
-            downloadChannel.enableLights(true);
-            downloadChannel.enableVibration(true);
+            downloadChannel.enableLights(false);
+            downloadChannel.enableVibration(false);
             downloadChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
             mNotificationManager.createNotificationChannel(downloadChannel);
 
@@ -53,6 +53,13 @@ public class BaseApplication extends Application {
             downloadChannel.enableVibration(true);
             downloadChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
             mNotificationManager.createNotificationChannel(notifyChannel);
+
+            NotificationChannel mediaChannel = new NotificationChannel("media", "转圈播放", NotificationManager.IMPORTANCE_DEFAULT);
+            downloadChannel.setDescription("正在播放");
+            downloadChannel.enableLights(false);
+            downloadChannel.enableVibration(false);
+            downloadChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+            mNotificationManager.createNotificationChannel(mediaChannel);
         }
     }
 
