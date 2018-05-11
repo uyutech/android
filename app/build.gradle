@@ -22,7 +22,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 26
         versionCode 24
-        versionName "0.6.7"
+        versionName "0.7.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters "armeabi", "armeabi-v7a", "x86", "mips"

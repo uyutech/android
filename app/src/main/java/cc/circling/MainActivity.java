@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -23,7 +22,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -100,6 +98,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import pub.devrel.easypermissions.EasyPermissions;
 
 /**
@@ -278,18 +277,30 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                 LogUtil.i("checkUpdate run");
                 try {
                     OkHttpClient client = new OkHttpClient
-                            .Builder()
-                            .dns(OkHttpDns.getInstance())
-                            .build();
+                        .Builder()
+                        .dns(OkHttpDns.getInstance())
+                        .build();
                     RequestBody requestBody = new FormBody.Builder().build();
                     Request request = new Request.Builder()
-                            .url(URLs.H5_DOMAIN + "/h5/version")
-                            .post(requestBody)
-                            .build();
+                        .url(URLs.H5_DOMAIN + "/h5/version")
+                        .post(requestBody)
+                        .build();
                     Response response = client.newCall(request).execute();
-                    String responseBody = response.body().string();
-                    LogUtil.i("checkUpdate: " + responseBody);
-                    if(responseBody.isEmpty()) {
+                    ResponseBody responseBody = response.body();
+                    if(responseBody == null) {
+                        LogUtil.i("checkUpdate null");
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                unZipH5Pack();
+                                showRedirect();
+                            }
+                        });
+                        return;
+                    }
+                    String body = responseBody.string();
+                    LogUtil.i("checkUpdate: " + body);
+                    if(body == null || body.isEmpty()) {
                         LogUtil.i("checkUpdate isEmpty");
                         MainActivity.this.runOnUiThread(new Runnable() {
                             @Override
@@ -300,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                         });
                         return;
                     }
-                    final JSONObject json = JSON.parseObject(responseBody);
+                    final JSONObject json = JSON.parseObject(body);
                     boolean success = json.getBoolean("success");
                     if(success) {
                         // 远程h5版本
@@ -865,6 +876,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
 
                 @Override
                 protected void connected(BaseDownloadTask task, String etag, boolean isContinue, int soFarBytes, int totalBytes) {
+                    task.setSyncCallback(true);
                     builder.setTicker("开始下载 " + downloadTitle);
                     builder.setContentTitle("开始下载 " + downloadTitle);
                     builder.setContentText("进度 0%");
