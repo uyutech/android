@@ -66,11 +66,6 @@
                 document.dispatchEvent(event);
             }
         },
-        _invokeJS: function(clientId, resp) {
-            var func = callbackHash[clientId];
-            func && func(resp);
-            delete callbackHash[clientId];
-        },
         _invokeJs: function(clientId, resp) {
             var func = callbackHash[clientId];
             func && func(resp);

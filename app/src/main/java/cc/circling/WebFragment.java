@@ -100,7 +100,8 @@ public class WebFragment extends Fragment {
     private String confirmClientId;
     private String promptClientId;
     private String shareWbClientId;
-    private String localMediaClientId;
+    private String localMediaListClientId;
+    private String deleteLocalMediaClientId;
 
     @Override
     public void onAttach(Context context) {
@@ -644,7 +645,15 @@ public class WebFragment extends Fragment {
         mainActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + localMediaClientId + "', " + list.toString() + ");");
+                evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + localMediaListClientId + "', " + list.toString() + ");");
+            }
+        });
+    }
+    public void deleteLocalMedia(JSONObject json) {
+        mainActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + deleteLocalMediaClientId + "', " + json.toString() + ");");
             }
         });
     }
@@ -662,6 +671,9 @@ public class WebFragment extends Fragment {
                     break;
                 case "confirm":
                     confirm(clientId, msg);
+                    break;
+                case "deleteLocalMedia":
+                    deleteLocalMedia(clientId, msg);
                     break;
                 case "download":
                     download(msg);
@@ -790,6 +802,12 @@ public class WebFragment extends Fragment {
                 }
             });
         }
+        private void deleteLocalMedia(String clientId, String msg) {
+            deleteLocalMediaClientId = clientId;
+            JSONObject data = JSONObject.parseObject(msg);
+            String name = data.getString("name");
+            mainActivity.deleteLocalMedia(name);
+        }
         private void download(String msg) {
             mainActivity.runOnUiThread(new Runnable() {
                 @Override
@@ -856,7 +874,7 @@ public class WebFragment extends Fragment {
         private void localMediaList(String clientId, String msg) {
             JSONObject json = JSON.parseObject(msg);
             int kind = json.getIntValue("kind");
-            localMediaClientId = clientId;
+            localMediaListClientId = clientId;
             switch(kind) {
                 case 1:
                 case 2:

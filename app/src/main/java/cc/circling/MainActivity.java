@@ -109,8 +109,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private static final int RC_INIT = 8734;
     private static final int RC_DOWNLOAD = 8735;
     private static final int RC_ALBUM = 8736;
-    public static final int REQUEST_ALBUM_OK = 8737;
+    private static final int REQUEST_ALBUM_OK = 8737;
     private static final int RC_LOCAL_MEDIA = 8738;
+    private static final int RC_DELETE_LOCAL_MEDIA = 8739;
     public static int WIDTH;
 
     private static String[] umengPerms = {
@@ -130,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private static int DOWNLOAD_NOTIFY_ID = 1000;
 
     private int localMediaKind;
+    private String deleteLocalMediaName;
 
     private static int albumNum = 1;
 
@@ -817,6 +819,55 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         });
         dialog.show();
     }
+    public void deleteLocalMedia(String name) {
+        deleteLocalMediaName = name;
+        if(EasyPermissions.hasPermissions(this, filePerms)) {
+            deleteLocalMedia();
+        }
+        else {
+            EasyPermissions.requestPermissions(this, "删除需要读写sd卡权限",
+                    RC_DELETE_LOCAL_MEDIA, filePerms);
+        }
+    }
+    private void deleteLocalMedia() {
+        LogUtil.i("deleteLocalMedia", deleteLocalMediaName == null ? "null" : deleteLocalMediaName);
+        JSONObject json = new JSONObject();
+        if(!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            json.put("success", false);
+            json.put("message", "没有SD卡");
+            current.deleteLocalMedia(json);
+            return;
+        }
+        String path = this.getExternalFilesDir("download").getAbsolutePath();
+        if(deleteLocalMediaName.indexOf(path) != 0) {
+            json.put("success", false);
+            json.put("message", "路径异常");
+            current.deleteLocalMedia(json);
+            return;
+        }
+        File file = new File(deleteLocalMediaName);
+        if(!file.exists()) {
+            json.put("success", false);
+            json.put("message", "文件不存在");
+            current.deleteLocalMedia(json);
+            return;
+        }
+        if(!file.isFile()) {
+            json.put("success", false);
+            json.put("message", "删除对象不是一个文件");
+            current.deleteLocalMedia(json);
+            return;
+        }
+        if(file.delete()) {
+            json.put("success", true);
+            current.deleteLocalMedia(json);
+        }
+        else {
+            json.put("success", false);
+            json.put("message", "删除失败");
+            current.deleteLocalMedia(json);
+        }
+    }
     public void download(String url, String name, int kind, String title) {
         downloadUrl = url;
         downloadName = name;
@@ -1173,6 +1224,10 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         });
         JSONArray list = new JSONArray();
         for(File item : files) {
+            // 下载组件临时文件
+            if(item.getName().endsWith(".temp")) {
+                continue;
+            }
             JSONObject json = new JSONObject();
             json.put("name", item.getName());
             json.put("modified", item.lastModified());

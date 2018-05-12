@@ -11,7 +11,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Binder;
-import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -100,7 +99,6 @@ public class MediaService extends Service {
     private boolean isPlaying = false;
     private boolean isPreparing;
     private String lastId;
-    private Boolean isNew;
     private long lastPosition;
     private Timer timer;
     private TimerTask timerTask;
@@ -122,6 +120,7 @@ public class MediaService extends Service {
             isPreparing = true;
             lastPosition = 0;
             if(player != null) {
+                player.setPlayWhenReady(false);
                 return;
             }
             BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
@@ -307,28 +306,18 @@ public class MediaService extends Service {
                 player.prepare(mediaSource);
             }
             lastId = id;
-            isNew = true;
 
             remoteViews = new RemoteViews(getPackageName(), R.layout.notification_media);
             remoteViews.setImageViewResource(R.id.icon, R.mipmap.ic_launcher);
             remoteViews.setTextViewText(R.id.title, title);
             remoteViews.setTextViewText(R.id.content, author);
             Intent intentClose = new Intent(MEDIA_CLOSE);
-//            Bundle bundleClose = new Bundle();
-//            bundleClose.putInt("type", MEDIA_CLOSE);
-//            intentClose.putExtras(bundleClose);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(MediaService.this, 0, intentClose, PendingIntent.FLAG_UPDATE_CURRENT);
             remoteViews.setOnClickPendingIntent(R.id.close, pendingIntent);
             Intent intentPause = new Intent(MEDIA_PAUSE);
-//            Bundle bundlePause = new Bundle();
-//            bundlePause.putInt("type", MEDIA_PAUSE);
-//            intentPause.putExtras(bundlePause);
             PendingIntent pendingIntent2 = PendingIntent.getBroadcast(MediaService.this, 0, intentPause, PendingIntent.FLAG_UPDATE_CURRENT);
             remoteViews.setOnClickPendingIntent(R.id.pause, pendingIntent2);
             Intent intentPlay = new Intent(MEDIA_PLAY);
-//            Bundle bundlePlay = new Bundle();
-//            bundlePlay.putInt("type", MEDIA_PLAY);
-//            intentPlay.putExtras(bundlePlay);
             PendingIntent pendingIntent3 = PendingIntent.getBroadcast(MediaService.this, 0, intentPlay, PendingIntent.FLAG_UPDATE_CURRENT);
             remoteViews.setOnClickPendingIntent(R.id.play, pendingIntent3);
             builder = new NotificationCompat.Builder(MediaService.this, "media");
@@ -356,16 +345,16 @@ public class MediaService extends Service {
                 isPlaying = true;
                 player.setPlayWhenReady(true);
             }
+            JSONObject json = new JSONObject();
+            json.put("id", lastId);
+            mainActivity.evaluateJavascript("ZhuanQuanJsBridge.emit('mediaPlay', " + json.toJSONString() + ")");
             if(clientId != null && mainActivity != null) {
-                JSONObject json = new JSONObject();
-                json.put("id", lastId);
-                mainActivity.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");");
+                mainActivity.evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + clientId + "', " + json.toJSONString() + ");");
             }
-            if(isNew) {
-                isNew = false;
-                if(notification != null) {
-                    stopForeground(true);
-                }
+            if(remoteViews != null) {
+                remoteViews.setViewVisibility(R.id.play, View.GONE);
+                remoteViews.setViewVisibility(R.id.pause, View.VISIBLE);
+                builder.setCustomContentView(remoteViews);
                 notification = builder.build();
                 startForeground(1, notification);
             }
@@ -379,10 +368,18 @@ public class MediaService extends Service {
             if(player != null) {
                 player.setPlayWhenReady(false);
             }
+            JSONObject json = new JSONObject();
+            json.put("id", lastId);
+            mainActivity.evaluateJavascript("ZhuanQuanJsBridge.emit('mediaPause', " + json.toJSONString() + ")");
             if(clientId != null && mainActivity != null) {
-                JSONObject json = new JSONObject();
-                json.put("id", lastId);
-                mainActivity.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");");
+                mainActivity.evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + clientId + "', " + json.toJSONString() + ");");
+            }
+            if(remoteViews != null) {
+                remoteViews.setViewVisibility(R.id.pause, View.GONE);
+                remoteViews.setViewVisibility(R.id.play, View.VISIBLE);
+                builder.setCustomContentView(remoteViews);
+                notification = builder.build();
+                startForeground(1, notification);
             }
         }
         public void stop() {
@@ -396,16 +393,16 @@ public class MediaService extends Service {
             if(player != null) {
                 player.stop();
             }
+            JSONObject json = new JSONObject();
+            json.put("id", lastId);
+            mainActivity.evaluateJavascript("ZhuanQuanJsBridge.emit('mediaStop', " + json.toJSONString() + ")");
             if(clientId != null && mainActivity != null) {
-                JSONObject json = new JSONObject();
-                json.put("id", lastId);
-                mainActivity.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");");
+                mainActivity.evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + clientId + "', " + json.toJSONString() + ");");
             }
             lastId = null;
-            if(notification != null) {
-                stopForeground(true);
-                notification = null;
-            }
+            stopForeground(true);
+            notification = null;
+            remoteViews = null;
         }
         public void release(String clientId) {
             LogUtil.i("release", clientId);
@@ -435,7 +432,7 @@ public class MediaService extends Service {
             if(clientId != null && mainActivity != null) {
                 JSONObject json = new JSONObject();
                 json.put("id", lastId);
-                mainActivity.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");");
+                mainActivity.evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + clientId + "', " + json.toJSONString() + ");");
             }
             lastId = null;
             if(notification != null) {
@@ -450,7 +447,7 @@ public class MediaService extends Service {
             if(clientId != null && mainActivity != null) {
                 JSONObject json = new JSONObject();
                 json.put("id", lastId);
-                mainActivity.evaluateJavascript("ZhuanQuanJsBridge._invokeJS('" + clientId + "', " + json.toJSONString() + ");");
+                mainActivity.evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + clientId + "', " + json.toJSONString() + ");");
             }
         }
     }
@@ -504,9 +501,7 @@ public class MediaService extends Service {
             timerTask2.cancel();
             timerTask2 = null;
         }
-        if(remoteViews != null) {
-            remoteViews = null;
-        }
+        remoteViews = null;
         unregisterReceiver(broadcastReceiver);
     }
     private void downloadCover(String url) {
@@ -515,6 +510,7 @@ public class MediaService extends Service {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                LogUtil.i("downloadCover start", url);
                 try {
                     OkHttpClient client = new OkHttpClient
                         .Builder()
@@ -546,7 +542,7 @@ public class MediaService extends Service {
                         mainActivity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                if(!lastId.equals(id)) {
+                                if(!lastId.equals(id) || remoteViews == null) {
                                     return;
                                 }
                                 remoteViews.setImageViewBitmap(R.id.icon, bitmap);
