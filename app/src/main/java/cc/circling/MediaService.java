@@ -401,8 +401,8 @@ public class MediaService extends Service {
             }
             lastId = null;
             stopForeground(true);
-            notification = null;
             remoteViews = null;
+            notification = null;
         }
         public void release(String clientId) {
             LogUtil.i("release", clientId);
@@ -435,10 +435,9 @@ public class MediaService extends Service {
                 mainActivity.evaluateJavascript("ZhuanQuanJsBridge._invokeJs('" + clientId + "', " + json.toJSONString() + ");");
             }
             lastId = null;
-            if(notification != null) {
-                stopForeground(true);
-                notification = null;
-            }
+            stopForeground(true);
+            remoteViews = null;
+            notification = null;
         }
         public void seek(JSONObject value, String clientId) {
             long time = value.getInteger("time");
@@ -502,6 +501,7 @@ public class MediaService extends Service {
             timerTask2 = null;
         }
         remoteViews = null;
+        notification = null;
         unregisterReceiver(broadcastReceiver);
     }
     private void downloadCover(String url) {
@@ -542,10 +542,16 @@ public class MediaService extends Service {
                         mainActivity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                if(!lastId.equals(id) || remoteViews == null) {
+                                // 防不一致和空
+                                if(!lastId.equals(id) || remoteViews == null || notification == null) {
                                     return;
                                 }
                                 remoteViews.setImageViewBitmap(R.id.icon, bitmap);
+                                builder.setCustomContentView(remoteViews);
+                                // 必须开始播放后notification不为null再更新
+                                if(notification == null) {
+                                    return;
+                                }
                                 notification = builder.build();
                                 startForeground(1, notification);
                             }
