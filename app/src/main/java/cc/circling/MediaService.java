@@ -543,7 +543,7 @@ public class MediaService extends Service {
                             @Override
                             public void run() {
                                 // 防不一致和空
-                                if(!lastId.equals(id) || remoteViews == null || notification == null) {
+                                if(!lastId.equals(id) || remoteViews == null) {
                                     return;
                                 }
                                 remoteViews.setImageViewBitmap(R.id.icon, bitmap);

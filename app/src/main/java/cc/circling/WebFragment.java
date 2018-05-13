@@ -1051,8 +1051,7 @@ public class WebFragment extends Fragment {
         private void openUri(String msg) {
             String value = (String) JSON.parse(msg);
             if(!value.isEmpty()) {
-                Intent intent = new Intent();
-                intent.setAction("android.intent.action.VIEW");
+                Intent intent = new Intent(Intent.ACTION_VIEW);
                 Uri uri = Uri.parse(value);
                 intent.setData(uri);
                 mainActivity.startActivity(intent);

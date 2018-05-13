@@ -44,6 +44,7 @@ public class MyWebViewClient extends WebViewClient {
         // 本地下载媒体文件拦截
         if(url.startsWith(URLs.LOCAL_DOMAIN)) {
             String path = url.substring(URLs.LOCAL_DOMAIN.length());
+            LogUtil.i("shouldInterceptRequest? " + url + ", " + path);
             WebResourceResponse wrr = null;
             try {
                 FileInputStream is = new FileInputStream(new File(path));
