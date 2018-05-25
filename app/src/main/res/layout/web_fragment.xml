@@ -72,14 +72,14 @@
                 android:layout_gravity="center">
                 <ImageView
                     android:id="@+id/optionMenuIv1"
-                    android:scaleType="fitXY"
+                    android:scaleType="centerInside"
                     android:paddingStart="5dp"
                     android:layout_width="37dp"
                     android:layout_height="32dp"
                     android:layout_gravity="center"/>
                 <ImageView
                     android:id="@+id/optionMenuIv2"
-                    android:scaleType="fitXY"
+                    android:scaleType="centerInside"
                     android:paddingStart="5dp"
                     android:layout_width="37dp"
                     android:layout_height="32dp"
