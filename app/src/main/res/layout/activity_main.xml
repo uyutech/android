@@ -12,7 +12,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/bgi"
-            android:src="@drawable/main_bg_750_1136"
+            android:src="@drawable/main_bg_750_1334"
             android:scaleType="centerCrop"/>
         <LinearLayout
             android:layout_width="match_parent"
