@@ -13,11 +13,13 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.BitmapFactory;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -68,6 +70,7 @@ import cc.circling.login.oauth.Constants;
 import cc.circling.utils.AndroidBug5497Workaround;
 import cc.circling.utils.LogUtil;
 import cc.circling.utils.QueryParser;
+import cc.circling.utils.SingleMediaScanner;
 import cc.circling.web.MyCookies;
 import cc.circling.web.OkHttpDns;
 import cc.circling.web.PreferenceEnum;
@@ -76,6 +79,7 @@ import cc.circling.web.URLs;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -965,6 +969,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                     builder.setContentText("下载完成");
                     builder.setProgress(0, 0, false);
                     notificationManager.notify(currentId, builder.build());
+                    new SingleMediaScanner(MainActivity.this, path);
                 }
 
                 @Override
