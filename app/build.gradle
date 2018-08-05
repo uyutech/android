@@ -63,7 +63,7 @@ android {
             buildConfigField 'String', 'WEB_DOMAIN', '"http://h5.dev.circling.cc2"'
             buildConfigField 'String', 'H5_DOMAIN', '"http://dev.circling.cc2"'
             buildConfigField 'String', 'LOCAL_DOMAIN', '"https://local.circling.cc"'
-            buildConfigField 'String', 'WEIBO_APP_KEY', '"890459019"'
+            buildConfigField 'String', 'WEIBO_APP_KEY', '"2950702141"'
             buildConfigField 'boolean', 'ONLINE', 'false'
             buildConfigField 'boolean', 'FOCUS_UNZIP', 'false'
             debuggable true
