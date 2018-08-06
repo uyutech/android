@@ -341,7 +341,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
                             OkHttpClient client2 = new OkHttpClient
                                     .Builder()
                                     .dns(OkHttpDns.getInstance())
-                                    .connectTimeout(20, TimeUnit.SECONDS)
+                                    .connectTimeout(10, TimeUnit.SECONDS)
                                     .readTimeout(300, TimeUnit.SECONDS)
                                     .build();
                             Request request2 = new Request.Builder()
