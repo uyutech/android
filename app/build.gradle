@@ -21,8 +21,8 @@ android {
         applicationId "cc.circling"
         minSdkVersion 19
         targetSdkVersion 26
-        versionCode 26
-        versionName "0.7.2"
+        versionCode 27
+        versionName "0.7.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters "armeabi", "armeabi-v7a", "x86", "mips"

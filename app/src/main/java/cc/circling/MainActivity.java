@@ -163,6 +163,8 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private static CookieManager cookieManager;
     private Uri callUri;
 
+    private boolean entering = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         LogUtil.i("onCreate");
@@ -599,8 +601,9 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         }, time);
     }
 
-    private void prepare() {
+    public void prepare() {
         LogUtil.i("prepare");
+        entering = false;
         reserve = new WebFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -609,10 +612,14 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     }
     private void enter(String url, Bundle bundle) {
         LogUtil.d("enter", url + bundle.toString());
+        if(entering) {
+            return;
+        }
+        entering = true;
         current = reserve;
         current.enter(url, bundle);
         wfList.add(current);
-        prepare();
+//        prepare();
     }
 
     @Override

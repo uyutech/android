@@ -370,6 +370,20 @@ public class WebFragment extends Fragment {
         rootView.setVisibility(View.VISIBLE);
         TranslateAnimation translateAnimation = new TranslateAnimation(MainActivity.WIDTH,0,0,0);
         translateAnimation.setDuration(300);
+        translateAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                WebFragment.this.mainActivity.prepare();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+        });
         rootView.startAnimation(translateAnimation);
     }
     public void enter(String url, Bundle bundle) {
